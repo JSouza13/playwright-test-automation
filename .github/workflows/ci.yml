@@ -69,44 +69,6 @@ jobs:
         run: npm run eslint
 
   # -------------------------
-  # BUILD: Coverage
-  # Depende do eslint (bloqueante).
-  # schedule: executa automaticamente após eslint.
-  # workflow_dispatch: executa se usuário selecionou o input.
-  # -------------------------
-  coverage:
-    name: Coverage
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    needs: eslint
-    if: |
-      github.event_name == 'schedule' ||
-      (github.event_name == 'workflow_dispatch' && inputs.run_coverage == 'true')
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run Coverage calculation
-        run: npm run coverage
-
-      - name: Upload Coverage artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-output
-          path: coverage-output.txt
-          retention-days: 14
-
-  # -------------------------
   # TESTES: CadastroUsuario
   # Depende do eslint (bloqueante).
   # schedule: executa automaticamente após eslint.
