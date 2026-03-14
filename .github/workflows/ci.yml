@@ -1,6 +1,12 @@
 name: CI
 
 # =========================
+# ENVIRONMENT
+# =========================
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# =========================
 # TRIGGERS
 # =========================
 on:
@@ -39,12 +45,13 @@ jobs:
 
   # -------------------------
   # BUILD: ESLint
-  # Sempre executa em push e pull_request (allow_failure: false)
+  # Sempre executa em qualquer evento — é o validador obrigatório.
+  # Se falhar: bloqueia coverage e cadastro-usuario.
+  # Se passar: libera execução dos jobs seguintes conforme o evento.
   # -------------------------
   eslint:
     name: Eslint
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,7 +59,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
@@ -63,12 +70,15 @@ jobs:
 
   # -------------------------
   # BUILD: Coverage
-  # Sempre em schedule | manual em push/PR e workflow_dispatch
+  # Depende do eslint (bloqueante).
+  # schedule: executa automaticamente após eslint.
+  # workflow_dispatch: executa se usuário selecionou o input.
   # -------------------------
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
     continue-on-error: true
+    needs: eslint
     if: |
       github.event_name == 'schedule' ||
       (github.event_name == 'workflow_dispatch' && inputs.run_coverage == 'true')
@@ -79,7 +89,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
@@ -98,20 +108,18 @@ jobs:
 
   # -------------------------
   # TESTES: CadastroUsuario
-  # Sempre em schedule | manual em push/PR e workflow_dispatch
-  # Depende do ESLint quando disponível
+  # Depende do eslint (bloqueante).
+  # schedule: executa automaticamente após eslint.
+  # workflow_dispatch: executa se usuário selecionou o input.
   # -------------------------
   cadastro-usuario:
     name: CadastroUsuario
     runs-on: ubuntu-latest
     continue-on-error: true
-    needs:
-      - eslint
+    needs: eslint
     if: |
-      always() && (
-        github.event_name == 'schedule' ||
-        (github.event_name == 'workflow_dispatch' && inputs.run_cadastro_usuario == 'true')
-      )
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.run_cadastro_usuario == 'true')
     env:
       BASE_URL: ${{ secrets.BASE_URL }}
       SENHA: ${{ secrets.SENHA }}
@@ -125,7 +133,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
