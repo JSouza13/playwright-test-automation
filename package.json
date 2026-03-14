@@ -1,0 +1,38 @@
+{
+  "name": "playwright-test-automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "eslint": "eslint .",
+    "eslint-fix": "eslint . --fix",
+    "coverage": "npx playwright test --grep @COVERAGE --workers=1 --project=calculation",
+    "feriasAbreTelas": "npx playwright test --grep @ABRETELASFERIASPARALELO --workers=2 --project=chromium --headed",
+    "feriasParalelo": "npx playwright test --grep @PARALELO_FERIAS_HCM --workers=2 --project=chromium --headed"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.26.5",
+    "@babel/preset-env": "7.26.0",
+    "@faker-js/faker": "^10.3.0",
+    "@playwright/test": "^1.58.2",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-jsdoc": "^50.6.1",
+    "eslint-plugin-perfectionist": "^4.6.0",
+    "eslint-plugin-playwright": "2.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-sonarjs": "^3.0.1"
+  },
+  "dependencies": {
+    "@playwright/cli": "^0.1.1",
+    "automacao-core-playwright": "^5.12.10",
+    "axios": "1.7.8",
+    "dotenv": "^16.4.7",
+    "feature-map": "^1.0.0",
+    "playwright-smart-reporter": "^1.6.5",
+    "winston": "3.17.0"
+  }
+}

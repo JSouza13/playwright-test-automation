@@ -1,0 +1,16 @@
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+downloads/
+testes-cenario-g7/arquivos/
+mochawesome-report/
+output/
+.vscode/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+coverage-output.txt
+/.idea/

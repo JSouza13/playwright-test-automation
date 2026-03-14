@@ -1,0 +1,3 @@
+- page: "Cadastro de usuário"
+  features:
+    cadastrar usuário: true
