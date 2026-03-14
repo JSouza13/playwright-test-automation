@@ -1,0 +1,167 @@
+name: CI
+
+# =========================
+# TRIGGERS
+# =========================
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  schedule:
+    # Executa todo dia às 06:00 UTC (equivalente ao schedule do GitLab)
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      run_coverage:
+        description: 'Executar job de Coverage?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      run_cadastro_usuario:
+        description: 'Executar job de CadastroUsuario?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+# =========================
+# JOBS
+# =========================
+jobs:
+
+  # -------------------------
+  # BUILD: ESLint
+  # Sempre executa em push e pull_request (allow_failure: false)
+  # -------------------------
+  eslint:
+    name: Eslint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run eslint
+
+  # -------------------------
+  # BUILD: Coverage
+  # Sempre em schedule | manual em push/PR e workflow_dispatch
+  # -------------------------
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.run_coverage == 'true')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Coverage calculation
+        run: npm run coverage
+
+      - name: Upload Coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-output
+          path: coverage-output.txt
+          retention-days: 14
+
+  # -------------------------
+  # TESTES: CadastroUsuario
+  # Sempre em schedule | manual em push/PR e workflow_dispatch
+  # Depende do ESLint quando disponível
+  # -------------------------
+  cadastro-usuario:
+    name: CadastroUsuario
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs:
+      - eslint
+    if: |
+      always() && (
+        github.event_name == 'schedule' ||
+        (github.event_name == 'workflow_dispatch' && inputs.run_cadastro_usuario == 'true')
+      )
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      SENHA: ${{ secrets.SENHA }}
+      BASE_API: ${{ secrets.BASE_API }}
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+      LOG_INFO: ${{ vars.LOG_INFO }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run CadastroUsuario tests
+        run: |
+          echo "Executando CadastroUsuario"
+          npm run cadastroUsuario
+
+      - name: Generate job info
+        if: always()
+        run: |
+          echo "JOB_NAME=CadastroUsuario" > job_info.txt
+          echo "JOB_ID=${{ github.run_id }}" >> job_info.txt
+          echo "STATUS_JOB=${{ job.status }}" >> job_info.txt
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-cadastro-usuario
+          path: |
+            tests/reports/
+            playwright-report/
+            job_info.txt
+          retention-days: 30
+
+      - name: Publish JUnit report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: 'Playwright JUnit - CadastroUsuario'
+          path: 'playwright-report/results.xml'
+          reporter: java-junit
+          fail-on-error: false

@@ -7,8 +7,7 @@
     "eslint": "eslint .",
     "eslint-fix": "eslint . --fix",
     "coverage": "npx playwright test --grep @COVERAGE --workers=1 --project=calculation",
-    "feriasAbreTelas": "npx playwright test --grep @ABRETELASFERIASPARALELO --workers=2 --project=chromium --headed",
-    "feriasParalelo": "npx playwright test --grep @PARALELO_FERIAS_HCM --workers=2 --project=chromium --headed"
+    "cadastroUsuario": "npx playwright test --grep @CADASTRO_USUARIO --project=chromium"
   },
   "keywords": [],
   "author": "",
