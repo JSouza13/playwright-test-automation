@@ -1,4 +1,8 @@
-# Objetivo
+# Playwright QA Automation Portfolio
+
+Projeto de automação de testes E2E com Playwright, criado para demonstrar competências de QA Automation Engineer com foco em qualidade, manutenção e uso prático de IA no ciclo de desenvolvimento.
+
+## Objetivo
 
 Entregar uma base de testes automatizados pronta para crescimento, com foco em:
 
@@ -21,6 +25,8 @@ Entregar uma base de testes automatizados pronta para crescimento, com foco em:
 ## Arquitetura do Projeto
 
 ```text
+.github/           # Workspace de instruções e módulos de governança para IA (Copilot)
+.claude/           # Workspace de skills especializadas para automação assistida
 api/               # Camada de APIs e utilitários de request
 data/              # Massas de teste versionadas por domínio
 helpers/           # Fixtures customizadas, ambiente e navegação
@@ -29,6 +35,38 @@ tests/             # Cenários automatizados (AAA)
 utils/             # Logger e utilitários transversais
 coverageFeatureMap.yml  # Mapeamento funcional de cobertura
 ```
+
+## IA Aplicada ao Projeto
+
+Este repositório adota IA como componente de engenharia, não apenas como assistente de escrita de código.
+
+### Workspace .github (governança para Copilot)
+
+- Orquestração por fases de trabalho (análise, planejamento e implementação)
+- Hierarquia de decisão técnica priorizando documentação oficial do Playwright
+- Módulos especializados por contexto:
+	- 00-principios-fundamentais
+	- 01-regras-criticas
+	- 02-playwright-cli
+	- 03-locators-semanticos
+	- 05-page-objects
+	- 06-testes-spec
+	- 08-api-classes
+- Checklist de qualidade como critério de conclusão
+
+### Workspace .claude (skills especializadas)
+
+- Skill de playwright-cli para navegação, interação e snapshots do fluxo
+- Apoio a validações de comportamento real da UI antes do mapeamento final de locators
+- Incentivo a automação assistida com evidência técnica (artefatos e snapshots)
+
+### Ganhos Práticos com IA no dia a dia
+
+- Padronização de decisões técnicas entre pessoas e execuções
+- Menor risco de divergência de padrão em Pages, Specs e APIs
+- Maior velocidade de onboarding em projetos de automação
+- Rastreabilidade de como decisões de teste foram tomadas
+- Escalabilidade com qualidade, mesmo em cenários de crescimento
 
 ## Conceitos e Soluções Aplicadas
 
@@ -94,4 +132,11 @@ npm run eslint-fix
 
 ```bash
 npx playwright test
+```
+
+### Executar fluxo guiado com playwright-cli (opcional)
+
+```bash
+playwright-cli open https://front.serverest.dev/login
+playwright-cli snapshot
 ```
