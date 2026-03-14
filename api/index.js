@@ -3,15 +3,9 @@ import dotenv from 'dotenv';
 import { writeFileSync, readFileSync } from 'fs';
 import { createLogger, format, transports } from 'winston';
 
-import { JSON_NOTIFICACAO, JSON_EXCLUINOTIFICACAO } from '../data/painelGestao/feriasJson.js';
-
 const { combine, timestamp, printf, colorize, json } = format;
 
 dotenv.config();
-
-const MENSAGENS_ERRO = {
-  FAZER_SOLICITACAO: 'Erro ao fazer a solicitação: ',
-};
 
 const BASE_API = process.env.BASE_API;
 
@@ -251,66 +245,5 @@ export class Api {
     // Escrever o conteúdo atualizado de volta para o arquivo .env
     writeFileSync('.env', envContent);
     return jsonToken;
-  }
-  /**
-   * Função que pega as notificações da plataforma.
-   * @param { string } email email do solicitando
-   */
-  async postGetNotifications(email) {
-    JSON_NOTIFICACAO.username = email;
-    try {
-      // Obter a lista de notificações
-      const endpoint = new URL(`${BASE_API}platform/notifications/actions/getNotifications`);
-      const response = await axios.post(endpoint.toString(), JSON_NOTIFICACAO, {
-        ignoreHTTPSErrors: true,
-        timeout: 0,
-        headers: {
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      await this.validateApiResponse(response);
-
-      return response.data;
-    } catch (error) {
-      console.error(`${MENSAGENS_ERRO.FAZER_SOLICITACAO}${error.message}`);
-      throw new Error(`${MENSAGENS_ERRO.FAZER_SOLICITACAO}${error.message}`);
-    }
-  }
-  /**
-   * Função que exclui as 10 primeiras notificações da plataforma.
-   * @param { string } email email do solicitando
-   */
-  async postArchiveNotifications(email) {
-    try {
-      // Obter a lista de notificações
-      const notificationResponse = await this.postGetNotifications(email);
-
-      // Verificar se a resposta contém notificações
-      if (notificationResponse.notifications) {
-        const listaId = notificationResponse.notifications;
-        // Iterar sobre cada notificação e arquivá-la
-        for (const idNotificacao of listaId) {
-          const ids = idNotificacao.notificationID;
-          JSON_EXCLUINOTIFICACAO.notificationIDs = [ids];
-          const endpointExcluir = new URL(`${BASE_API}platform/notifications/actions/archiveNotifications`);
-          await axios.post(endpointExcluir.toString(), JSON_EXCLUINOTIFICACAO, {
-            ignoreHTTPSErrors: true,
-            timeout: 0,
-            headers: {
-              Authorization: `Bearer ${process.env.API_TOKEN}`,
-              'Content-Type': 'application/json',
-            },
-          });
-        }
-        console.log('Notificações excluídas.');
-      } else {
-        console.log('Não há notificações para excluir.');
-      }
-    } catch (error) {
-      console.error(`${MENSAGENS_ERRO.FAZER_SOLICITACAO}${error.message}`);
-      throw new Error(`${MENSAGENS_ERRO.FAZER_SOLICITACAO}${error.message}`);
-    }
   }
 }
