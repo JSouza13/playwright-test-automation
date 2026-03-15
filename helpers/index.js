@@ -1,7 +1,7 @@
 import { test as base, chromium } from '@playwright/test';
 
 import { Api } from '../api/index.js';
-import { UsuarioPage } from '../pages/usuarioPage.js';
+import { UserPage } from '../pages/userPage.js';
 
 const test = base.extend({
   /**
@@ -13,7 +13,7 @@ const test = base.extend({
   page: async ({ page }, use) => {
     const context = page;
 
-    context['usuarioPage'] = new UsuarioPage(page);
+    context['userPage'] = new UserPage(page);
 
     await use(context);
   },

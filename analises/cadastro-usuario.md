@@ -25,9 +25,9 @@
 
 ### **📁 Arquivos a Criar**
 
-- **Teste:** `tests\cadastro\usuario.spec.js`
-- **Page Object:** `pages\usuarioPage.js`
-- **Dados JSON:** `data\cadastro\usuarioJson.js`
+- **Test:** `tests\registration\user.spec.js`
+- **Page Object:** `pages\userPage.js`
+- **JSON Data:** `data\registration\userJson.js`
 
 ### **📁 Arquivos a Atualizar** sem remover código
 
@@ -60,15 +60,15 @@ export const JSON_CADASTROUSUARIO = {
 ### **1. 🖥️ Acessar a tela**
 
 - **Ações:**
-  - **Referência Page:** `pages\usuarioPage.js`
+  - **Referência Page:** `pages\userPage.js`
     - **Ação:** Acessar `https://front.serverest.dev/login`.
     - Validar `Login` está visível.
 
 ### **2. 🖥️ Cadastrar usuario**
 
 - **Ações:**
-  - **Referência Page:** `pages\usuarioPage.js`
-    - **Ação:** Executar o metodo `usuarioPage.acessarTela(USUARIO.URL)`.
+  - **Referência Page:** `pages\userPage.js`
+    - **Ação:** Executar o metodo `userPage.accessScreen()`.
     - **Ação:** Clicar em `Cadastre-se`.
     - **Validação:** Validar `Cadastro` está visível.
     - **Ação:** Preencher `Digite seu nome` com `JSON_CADASTROUSUARIO.nome`.
