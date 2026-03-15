@@ -1,181 +1,181 @@
-# 🎯 **Princípios Fundamentais - Leia Primeiro**
+# 🎯 **Fundamental Principles - Read First**
 
-> **Módulo 00:** Filosofia de uso das instruções + Referências obrigatórias
+> **Module 00:** Philosophy for using instructions + Mandatory references
 
 ---
 
-## 🎭 **DOCUMENTAÇÃO PLAYWRIGHT - SEMPRE CONSULTAR**
+## 🎭 **PLAYWRIGHT DOCUMENTATION - ALWAYS CONSULT**
 
-> **⚠️ REGRA ABSOLUTA:** As instruções deste projeto **complementam** a documentação oficial do Playwright, não a substituem.
+> **⚠️ ABSOLUTE RULE:** The instructions in this project **complement** Playwright official documentation; they do not replace it.
 
-### **📚 Referências Obrigatórias**
+### **📚 Mandatory References**
 
-| Tópico | Link | Quando Consultar |
+| Topic | Link | When to Consult |
 |--------|------|------------------|
-| **Locators** | https://playwright.dev/docs/locators | Antes de criar qualquer locator |
-| **Best Practices** | https://playwright.dev/docs/best-practices | Antes de qualquer implementação |
-| **Assertions** | https://playwright.dev/docs/test-assertions | Ao validar elementos ou estados |
-| **Auto-waiting** | https://playwright.dev/docs/actionability | Ao trabalhar com timeouts/waits |
-| **Writing Tests** | https://playwright.dev/docs/writing-tests | Antes de criar arquivos .spec.js |
-| **Page Object Model** | https://playwright.dev/docs/pom | Antes de criar Page Objects |
+| **Locators** | https://playwright.dev/docs/locators | Before creating any locator |
+| **Best Practices** | https://playwright.dev/docs/best-practices | Before any implementation |
+| **Assertions** | https://playwright.dev/docs/test-assertions | When validating elements or states |
+| **Auto-waiting** | https://playwright.dev/docs/actionability | When working with timeouts/waits |
+| **Writing Tests** | https://playwright.dev/docs/writing-tests | Before creating `.spec.js` files |
+| **Page Object Model** | https://playwright.dev/docs/pom | Before creating Page Objects |
 
 ---
 
-## 🧠 **Filosofia das Instruções**
+## 🧠 **Instruction Philosophy**
 
-### **O QUE ESTÁ NAS INSTRUÇÕES:**
+### **WHAT IS IN THE INSTRUCTIONS:**
 
-✅ **Decisões arquiteturais do projeto:**
-- Idioma português para nomenclatura
-- Estrutura de diretórios e arquivos
-- Padrão AAA com comentários específicos
-- Convenções de instanciação (helpers/index.js)
-- Tags e annotations específicas do projeto
+✅ **Project architectural decisions:**
+- English language for naming
+- Directory and file structure
+- AAA pattern with specific comments
+- Instantiation conventions (`helpers/index.js`)
+- Project-specific tags and annotations
 
-✅ **Regras específicas do contexto:**
-- Componentes PrimeNG customizados
-- Estratégias de desambiguação do projeto
-- Padrões de JSON e dados de teste
-- Integração com coverageFeatureMap.yml
+✅ **Context-specific rules:**
+- Custom PrimeNG components
+- Project disambiguation strategies
+- JSON and test data patterns
+- Integration with `coverageFeatureMap.yml`
 
-### **O QUE NÃO ESTÁ (consulte Playwright):**
+### **WHAT IS NOT INCLUDED (consult Playwright):**
 
-❌ **Fundamentos do Playwright:**
-- Como criar locators (getByRole, getByText, etc.)
-- Ordem de prioridade de locators
-- Como usar assertions (toBeVisible, toHaveText, etc.)
-- Auto-waiting e actionability
-- Estrutura de testes (describe, test, beforeEach)
+❌ **Playwright fundamentals:**
+- How to create locators (`getByRole`, `getByText`, etc.)
+- Locator priority order
+- How to use assertions (`toBeVisible`, `toHaveText`, etc.)
+- Auto-waiting and actionability
+- Test structure (`describe`, `test`, `beforeEach`)
 
 ---
 
-## 🎯 **Como Usar as Instruções**
+## 🎯 **How to Use the Instructions**
 
-### **PASSO 1: Entender o Problema**
-- Identificar o tipo de tarefa (criar Page, criar teste, etc.)
+### **STEP 1: Understand the Problem**
+- Identify the task type (create Page, create test, etc.)
 
-### **PASSO 2: Consultar Playwright Docs**
-- Ler seção relevante da documentação oficial
-- Entender best practices do Playwright
+### **STEP 2: Consult Playwright Docs**
+- Read the relevant section of official documentation
+- Understand Playwright best practices
 
-### **PASSO 3: Consultar Módulo Específico**
-- Encontrar decisões do projeto aplicáveis
-- Verificar templates e exemplos
+### **STEP 3: Consult the Specific Module**
+- Find applicable project decisions
+- Check templates and examples
 
-### **PASSO 4: Aplicar Clean Code + SOLID**
+### **STEP 4: Apply Clean Code + SOLID**
 - DRY (Don't Repeat Yourself)
 - KISS (Keep It Simple, Stupid)
 - YAGNI (You Aren't Gonna Need It)
 - Single Responsibility
 
-### **PASSO 5: Validar**
-- ESLint passou?
-- Imports corretos?
-- Seguiu padrões do projeto?
-- Consultou Playwright docs?
+### **STEP 5: Validate**
+- Did ESLint pass?
+- Are imports correct?
+- Did you follow project standards?
+- Did you consult Playwright docs?
 
 ---
 
-## ✅ **Checklist de Autonomia**
+## ✅ **Autonomy Checklist**
 
-Antes de implementar, pergunte:
+Before implementing, ask:
 
-- [ ] **Li a documentação do Playwright** sobre o tópico?
-- [ ] **Entendi as best practices** oficiais?
-- [ ] **Identifiquei decisões específicas** do projeto?
-- [ ] **Apliquei Clean Code** e princípios SOLID?
-- [ ] **Validei com grep_search** (imports)?
+- [ ] **Did I read Playwright documentation** on this topic?
+- [ ] **Did I understand official best practices**?
+- [ ] **Did I identify project-specific decisions**?
+- [ ] **Did I apply Clean Code** and SOLID principles?
+- [ ] **Did I validate with `grep_search`** (imports)?
 
 ---
 
-## 🚫 **Anti-Padrões Críticos**
+## 🚫 **Critical Anti-Patterns**
 
-### **❌ Dependência Excessiva:**
+### **❌ Excessive Dependency:**
 
 ```javascript
-// ❌ ERRADO - Seguir template cegamente
-await this.locators.botao.waitFor({ state: 'visible' }); // Playwright usa expect()
+// ❌ WRONG - Following template blindly
+await this.locators.button.waitFor({ state: 'visible' }); // Playwright uses expect()
 ```
 
 ```javascript
-// ✅ CORRETO - Consultar Playwright best practices
-await expect(this.locatorConfirmarButton).toBeVisible(); // Assertion correta
+// ✅ CORRECT - Consult Playwright best practices
+await expect(this.locatorConfirmButton).toBeVisible(); // Correct assertion
 ```
 
-### **❌ Micro-Gerenciamento:**
+### **❌ Micromanagement:**
 
 ```markdown
-❌ Instruções: "Use expect().toBeVisible() para validar visibilidade"
-✅ Melhor: "Consulte Playwright assertions docs para validações"
+❌ Instructions: "Use expect().toBeVisible() to validate visibility"
+✅ Better: "Consult Playwright assertions docs for validations"
 ```
 
-### **❌ Ignorar Documentação Oficial:**
+### **❌ Ignoring Official Documentation:**
 
 ```javascript
-// ❌ ERRADO - Criar locator sem consultar docs
-this.locatorGenericDiv = this.page.locator('.classe-complexa[attr="valor"]');
+// ❌ WRONG - Creating locator without consulting docs
+this.locatorGenericDiv = this.page.locator('.complex-class[attr="value"]');
 ```
 
 ```javascript
-// ✅ CORRETO - Prioridade Playwright: getByRole > getByText > getByLabel
-this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });
+// ✅ CORRECT - Playwright priority: getByRole > getByText > getByLabel
+this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
 ```
 
 ---
 
-## 💡 **Princípio de Ouro**
+## 💡 **Golden Principle**
 
-> **"As instruções do projeto definem O QUE fazer (decisões arquiteturais).**
-> **A documentação do Playwright define COMO fazer (implementação técnica)."**
+> **"Project instructions define WHAT to do (architectural decisions).**
+> **Playwright documentation defines HOW to do it (technical implementation)."**
 
-**Exemplo:**
+**Example:**
 
-- **Instrução (O QUE):** "Métodos em português, locators diretos no constructor"
-- **Playwright (COMO):** "Use getByRole() com prioridade, expect() para assertions"
-
----
-
-## 🎓 **Responsabilidade da IA**
-
-1. **Consultar Playwright docs** antes de decidir implementação técnica
-2. **Seguir best practices** oficiais (locators, assertions, waits)
-3. **Aplicar decisões do projeto** (idioma, estrutura, convenções)
-4. **Usar Clean Code** e princípios de engenharia
-5. **Validar autonomamente** (ESLint, imports, fluxo)
+- **Instruction (WHAT):** "Methods in English, direct locators in constructor"
+- **Playwright (HOW):** "Use `getByRole()` with priority, `expect()` for assertions"
 
 ---
 
-## 🔗 **Hierarquia de Prioridades**
+## 🎓 **AI Responsibility**
+
+1. **Consult Playwright docs** before deciding technical implementation
+2. **Follow official best practices** (locators, assertions, waits)
+3. **Apply project decisions** (language, structure, conventions)
+4. **Use Clean Code** and engineering principles
+5. **Validate autonomously** (ESLint, imports, flow)
+
+---
+
+## 🔗 **Priority Hierarchy**
 
 ```
 ┌─────────────────────────────────────────┐
 │  1. Playwright Best Practices          │
-│  (Documentação oficial - COMO fazer)   │
+│  (Official documentation - HOW to do)  │
 └─────────────────────────────────────────┘
               ↓
 ┌─────────────────────────────────────────┐
 │  2. Clean Code + SOLID                  │
-│  (Engenharia de software universal)     │
+│  (Universal software engineering)       │
 └─────────────────────────────────────────┘
               ↓
 ┌─────────────────────────────────────────┐
-│  3. Instruções do Projeto               │
-│  (Decisões específicas - O QUE fazer)   │
+│  3. Project Instructions                │
+│  (Specific decisions - WHAT to do)      │
 └─────────────────────────────────────────┘
 ```
 
-**Em caso de dúvida:**
-- **Técnica de implementação?** → Playwright docs
-- **Convenção do projeto?** → Módulos de instruções
-- **Qualidade de código?** → Clean Code + SOLID
+**In case of doubt:**
+- **Implementation technique?** → Playwright docs
+- **Project convention?** → Instruction modules
+- **Code quality?** → Clean Code + SOLID
 
 ---
 
-## 🚀 **Conclusão**
+## 🚀 **Conclusion**
 
-**Este projeto confia na sua capacidade de:**
-1. Ler e interpretar documentação técnica (Playwright)
-2. Aplicar boas práticas de engenharia (Clean Code)
-3. Adaptar ao contexto específico (instruções do projeto)
+**This project relies on your ability to:**
+1. Read and interpret technical documentation (Playwright)
+2. Apply engineering best practices (Clean Code)
+3. Adapt to specific context (project instructions)
 
-**Não siga instruções cegamente. Pense, consulte, decida.**
+**Do not follow instructions blindly. Think, consult, decide.**

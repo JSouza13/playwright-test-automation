@@ -1,172 +1,172 @@
-# 🧭 **Playwright CLI - Geração de Snapshots e Arquivos de Teste**
+# 🧭 **Playwright CLI - Snapshot and Test File Generation**
 
-> **Módulo 02:** Processo para executar passos do usuário com `playwright-cli` (sem headed), capturar snapshots e preparar geração de arquivos de teste conforme as instruções do projeto.
-
----
-
-## 🎯 **Objetivo**
-
-Este módulo define como:
-
-- Receber um passo a passo do usuário (o que acessar, clicar, preencher e validar)
-- Executar o fluxo no navegador com `playwright-cli` **sem modo headed**
-- Capturar snapshots durante e ao final do fluxo
-- Gerar arquivos de teste alinhados com `.github/copilot-instructions.md` e módulos 05/06
+> **Module 02:** Process for executing user steps with `playwright-cli` (without headed mode), capturing snapshots, and preparing test file generation according to project instructions.
 
 ---
 
-## 📥 **Entrada Obrigatória do Usuário**
+## 🎯 **Objective**
 
-### **📄 Fonte Padrão do Passo a Passo (OBRIGATÓRIO)**
+This module defines how to:
 
-Quando não houver outro documento explícito enviado no chat, usar como padrão:
+- Receive a user step-by-step flow (what to access, click, fill, and validate)
+- Execute browser flow with `playwright-cli` **without headed mode**
+- Capture snapshots during and at the end of the flow
+- Generate test files aligned with `.github/copilot-instructions.md` and modules 05/06
 
-- A estrutura do documento de exemplo do projeto
+---
 
-**Processo obrigatório de leitura:**
+## 📥 **Mandatory User Input**
 
-1. Ler o documento completo de referência
-2. Extrair os passos da seção `## 🚀 Implementação do Cenário`
-3. Executar os passos em ordem com `playwright-cli` (headless)
+### **📄 Default Step-by-Step Source (MANDATORY)**
 
-O usuário deve informar, no mínimo:
+When no other explicit document is provided in chat, use as default:
 
-1. URL inicial
-2. Sequência de ações (acessar, clicar, preencher, selecionar, validar)
-3. Resultado esperado por etapa (quando aplicável)
+- The project example document structure
 
-### **Formato recomendado**
+**Mandatory reading process:**
+
+1. Read the full reference document
+2. Extract steps from section `## 🚀 Scenario Implementation`
+3. Execute steps in order with `playwright-cli` (headless)
+
+The user must provide at minimum:
+
+1. Initial URL
+2. Sequence of actions (access, click, fill, select, validate)
+3. Expected result per step (when applicable)
+
+### **Recommended format**
 
 ```markdown
-# 📋 Informações Gerais do Teste
+# 📋 Test General Information
 
-- **Nº Roteiro:** 01
-- **Nr issue Jira:** ERPONU-0000
-- **Tipo:** Teste de Jornada
-- **Produto:** Nome do produto
-- **Nome:** Nome do cenário
-- **Descrição:** Descrição resumida do cenário
+- **Script No.:** 01
+- **Jira issue No.:** ERPONU-0000
+- **Type:** Journey Test
+- **Product:** Product name
+- **Name:** Scenario name
+- **Description:** Short scenario description
 
 ---
 
-## 🚀 Implementação do Cenário
+## 🚀 Scenario Implementation
 
-### **1. 🖥️ Acessar tela inicial**
+### **1. 🖥️ Access initial screen**
 
-- **Ações:**
-  - **Ação:** Acessar https://site.com/login.
-  - **Validação:** Validar Login está visível.
+- **Actions:**
+  - **Action:** Access https://site.com/login.
+  - **Validation:** Validate Login is visible.
 
-### **2. 🖥️ Executar login**
+### **2. 🖥️ Execute login**
 
-- **Ações:**
-  - **Ação:** Preencher Email com teste@dominio.com.
-  - **Ação:** Preencher Senha com 123456.
-  - **Ação:** Clicar em Entrar.
-  - **Validação:** Validar texto Bem-vindo está visível.
+- **Actions:**
+  - **Action:** Fill Email with test@domain.com.
+  - **Action:** Fill Password with 123456.
+  - **Action:** Click Sign In.
+  - **Validation:** Validate Welcome text is visible.
 
-### **3. 🖥️ Executar fluxo principal**
+### **3. 🖥️ Execute main flow**
 
-- **Ações:**
-  - **Ação:** Clicar em Novo Cadastro.
-  - **Ação:** Preencher Nome com João Teste.
-  - **Ação:** Clicar em Salvar.
-  - **Validação:** Validar mensagem Registro salvo com sucesso.
+- **Actions:**
+  - **Action:** Click New Register.
+  - **Action:** Fill Name with John Test.
+  - **Action:** Click Save.
+  - **Validation:** Validate message Record saved successfully.
 ```
 
-**Regras do formato:**
+**Format rules:**
 
-- Manter passos numerados e em ordem de execução real.
-- Cada passo deve conter bloco Ações.
-- Usar bullets com Ação e Validação de forma explícita.
-- Texto do elemento deve ser igual ao texto visível em tela.
+- Keep steps numbered and in real execution order.
+- Each step must contain an Actions block.
+- Use explicit bullets with Action and Validation.
+- Element text must match the text visible on screen.
 
 ---
 
-## 🧪 **Execução Obrigatória com Playwright CLI (Headless)**
+## 🧪 **Mandatory Execution with Playwright CLI (Headless)**
 
-> **REGRA ABSOLUTA:** NÃO usar `--headed` neste fluxo.
+> **ABSOLUTE RULE:** DO NOT use `--headed` in this flow.
 
-### **Passo 1: Abrir sessão headless**
+### **Step 1: Open headless session**
 
 ```bash
-playwright-cli open {url_inicial}
+playwright-cli open {initial_url}
 ```
 
-### **Passo 2: Executar cada ação em ordem**
+### **Step 2: Execute each action in order**
 
-Comandos permitidos (exemplos):
+Allowed commands (examples):
 
 ```bash
 playwright-cli goto {url}
 playwright-cli click {ref}
-playwright-cli fill {ref} "{texto}"
+playwright-cli fill {ref} "{text}"
 playwright-cli press Enter
-playwright-cli select {ref} "{valor}"
+playwright-cli select {ref} "{value}"
 playwright-cli check {ref}
 playwright-cli uncheck {ref}
 playwright-cli snapshot
 ```
 
-### **Passo 3: Validar etapas com snapshot**
+### **Step 3: Validate stages with snapshot**
 
-- Capturar snapshot após etapas críticas
-- Capturar snapshot final do fluxo
-- Usar referências do snapshot para cliques/preenchimentos seguintes
-
----
-
-## ⚠️ **Tratamento de Impedimentos (Obrigatório)**
-
-Se ocorrer qualquer bloqueio, **parar e perguntar ao usuário** antes de continuar.
-
-### **Exemplos de bloqueio**
-
-- Elemento não encontrado no tempo padrão
-- Múltiplos elementos com mesmo texto e sem contexto claro
-- CAPTCHA, MFA, pop-up de permissão, modal inesperado
-- Dados ausentes (credenciais, valores de formulário, URL correta)
-- Documento de referência ausente ou sem a seção `## 🚀 Implementação do Cenário`
-
-### **Regra de decisão**
-
-- ❌ Não inventar dado faltante
-- ❌ Não assumir clique em elemento ambíguo
-- ✅ Fazer pergunta objetiva e curta para desbloqueio
+- Capture snapshot after critical stages
+- Capture final flow snapshot
+- Use snapshot references for subsequent clicks/fills
 
 ---
 
-## 📸 **Saída de Snapshots**
+## ⚠️ **Impediment Handling (Mandatory)**
 
-Ao final da execução, garantir:
+If any blocker occurs, **stop and ask the user** before continuing.
 
-1. Snapshot final da tela alvo
-2. Snapshots intermediários relevantes (quando houver transição de estado)
-3. Registro dos arquivos gerados em `.playwright-cli/`
+### **Blocker examples**
 
----
+- Element not found within default timeout
+- Multiple elements with same text and no clear context
+- CAPTCHA, MFA, permission pop-up, unexpected modal
+- Missing data (credentials, form values, correct URL)
+- Missing reference document or missing `## 🚀 Scenario Implementation` section
 
-## 🏗️ **Geração de Arquivos de Teste (Com Copilot Instructions)**
+### **Decision rule**
 
-Após concluir os snapshots:
-
-1. Aplicar `.github/copilot-instructions.md` para fluxo de análise/planejamento
-2. Usar módulo 05 para Page Objects
-3. Usar módulo 06 para arquivos `*.spec.js`
-4. Gerar os arquivos necessários do cenário solicitado (Page, Spec e JSON quando aplicável)
-
-### **Diretriz de consistência**
-
-- Locators do Page Object devem refletir os elementos identificados nos snapshots
-- Estrutura AAA deve ser aplicada no teste
-- Nomenclatura e organização devem seguir os módulos do projeto
+- ❌ Do not invent missing data
+- ❌ Do not assume click on ambiguous element
+- ✅ Ask an objective and short question to unblock
 
 ---
 
-## ✅ **Checklist Rápido**
+## 📸 **Snapshot Output**
 
-- [ ] Recebi passo a passo completo do usuário
-- [ ] Executei `playwright-cli` sem `--headed`
-- [ ] Capturei snapshots intermediários e final
-- [ ] Em bloqueios, perguntei ao usuário antes de prosseguir
-- [ ] Gerei arquivos de teste conforme `copilot-instructions` + módulos 05/06
+At the end of execution, ensure:
+
+1. Final snapshot of target screen
+2. Relevant intermediate snapshots (when state transition exists)
+3. Record of generated files in `.playwright-cli/`
+
+---
+
+## 🏗️ **Test File Generation (With Copilot Instructions)**
+
+After finishing snapshots:
+
+1. Apply `.github/copilot-instructions.md` for analysis/planning flow
+2. Use module 05 for Page Objects
+3. Use module 06 for `*.spec.js` files
+4. Generate required files for requested scenario (Page, Spec, and JSON when applicable)
+
+### **Consistency guideline**
+
+- Page Object locators must reflect elements identified in snapshots
+- AAA structure must be applied in the test
+- Naming and organization must follow project modules
+
+---
+
+## ✅ **Quick Checklist**
+
+- [ ] I received complete step-by-step instructions from the user
+- [ ] I executed `playwright-cli` without `--headed`
+- [ ] I captured intermediate and final snapshots
+- [ ] For blockers, I asked the user before proceeding
+- [ ] I generated test files according to `copilot-instructions` + modules 05/06

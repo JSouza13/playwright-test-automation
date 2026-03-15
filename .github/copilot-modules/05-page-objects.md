@@ -1,468 +1,481 @@
-# 📄 **Estrutura de Page Objects (`*Page.js`)**
+# 📄 **Page Objects Structure (`*Page.js`)**
 
-> **Módulo 05:** Templates e regras para classes Page Object
+> **Module 05:** Templates and rules for classes Page Object
 
 ---
 
-## 🚨 **BLOQUEIO CRÍTICO - LER ANTES DE CRIAR/MODIFICAR PAGE OBJECT**
+## 🚨 **CRITICAL BLOCK - READ BEFORE CREATING/MODIFYING PAGE OBJECT**
 
-> **⛔ SE VOCÊ ESTÁ CRIANDO OU MODIFICANDO UM ARQUIVO `*Page.js`:**
+> **⛔ IF YOU ARE CREATING OR MODIFYING A `*Page.js` FILE:**
 >
-> **PARE AGORA E LEIA ESTAS 3 REGRAS CRÍTICAS (SÃO AS MAIS VIOLADAS):**
+> **STOP NOW AND READ THESE 3 CRITICAL RULES:**
 
-### **🔴 REGRA CRÍTICA #1: `acessarTela()` NUNCA RECEBE PARÂMETROS**
+### **🔴 CRITICAL RULE #1: `accessScreen()` NEVER RECEIVES PARAMETERS**
 
-**❌ ERRADO (NÃO FAZER):**
+**❌ WRONG (DO NOT DO):**
+
 ```javascript
-async acessarTela(url) { // ❌ PARÂMETRO = ERRO CRÍTICO
+async accessScreen(url) { // PARAMETER = CRITICAL ERROR
   await this.page.goto(url);
 }
 ```
 
-**✅ CORRETO (FAZER SEMPRE):**
-```javascript
-// 1. IMPORTAR constante no topo do arquivo
-import { NOME_FUNCIONALIDADE_REAL } from '../../helpers/navegacao.js';
+**✅ Correct:**
 
-// 2. Método SEM parâmetros - Usar page.goto() se variável tem .URL
-async acessarTela() {
-  await this.page.goto(NOME_FUNCIONALIDADE_REAL.URL);
-  await expect(this.locatorTituloHeading).toBeVisible();
+```javascript
+// 1. IMPORT constant at the top of the file
+import { REAL_FEATURE_NAME } from '../../helpers/navegacao.js';
+
+// 2. Method NO parameters - Use page.goto() if variable has .URL
+async accessScreen() {
+  await this.page.goto(REAL_FEATURE_NAME.URL);
+  await expect(this.locatorTitleHeading).toBeVisible();
 }
 
-// OU - Usar navegarParaPagina() se variável tem .DIRETORIO
-async acessarTela() {
-  await this.funcionalidadePage.navegarParaPagina(...NOME_FUNCIONALIDADE_REAL.DIRETORIO);
-  await expect(this.locatorTituloHeading).toBeVisible();
+// OR - Use navigationToPage() if variable has .Directory
+async accessScreen() {
+  await this.featurePage.navigateToPage(...REAL_FEATURE_NAME.DIRECTORY);
+  await expect(this.locatorTitleHeading).toBeVisible();
 }
 ```
 
-**Por quê:** URL/DIRETORIO é responsabilidade de `navegacao.js`. `acessarTela()` deve ser chamado **sem parâmetros** nos testes.
+**Why:** URL/DIRECTORY is the responsibility of `navegacao.js`. `accessScreen()` must be called **without parameters** in tests.
 
 ---
 
-### **🔴 REGRA CRÍTICA #2: TODOS OS LOCATORS NO CONSTRUCTOR**
+### **🔴 CRITICAL RULE #2: ALL LOCATORS IN CONSTRUCTOR**
 
-**❌ ERRADO:**
+**❌ Wrong:**
+
 ```javascript
-async clicarSalvar() {
-  await this.page.getByRole('button', { name: 'Salvar' }).click(); // ❌ Inline
+async clickSave() {
+  await this.page.getByRole('button', { name: 'Save' }).click(); // ❌ Inline
 }
 ```
 
-**✅ CORRETO:**
+**✅ Correct:**
+
 ```javascript
 constructor(page) {
-  this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });
+  this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
 }
 
-async clicarSalvar() {
-  await this.locatorSalvarButton.click();
-}
-```
-
----
-
-### **🔴 REGRA CRÍTICA #3: IMPORTAR APENAS O QUE SERÁ USADO**
-
-**❌ ERRADO:**
-```javascript
-import { FUNCIONALIDADE_A, FUNCIONALIDADE_B, FUNCIONALIDADE_C } from '../../helpers/navegacao.js'; // ❌ Importa 3, usa 1
-
-async acessarTela() {
-  await this.page.goto(FUNCIONALIDADE_A.URL); // Usa apenas 1
-}
-```
-
-**✅ CORRETO:**
-```javascript
-import { NOME_FUNCIONALIDADE_REAL } from '../../helpers/navegacao.js'; // ✅ Importa apenas o necessário
-
-async acessarTela() {
-  await this.page.goto(NOME_FUNCIONALIDADE_REAL.URL);
+async clickSave() {
+  await this.locatorSaveButton.click();
 }
 ```
 
 ---
 
-### **🔴 REGRA CRÍTICA #4: NOMENCLATURA OBRIGATÓRIA DE LOCATORS**
+### **🔴 CRITICAL RULE #3: IMPORT ONLY WHAT WILL BE USED**
 
-> **⚠️ PADRÃO OBRIGATÓRIO: `locator{Descrição}{Tipo}`**
+**❌ Wrong:**
 
-**Estrutura:**
-- Sempre começar com `locator`
-- Seguido da descrição breve do elemento (ex: `DocumentoVisitante`, `Salvar`, `NomeCompleto`)
-- Terminar com o tipo do elemento: `Button`, `Input`, `Link`, `Heading`, `Checkbox`, `Table`, etc.
-
-**❌ ERRADO:**
 ```javascript
-constructor(page) {
-  this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });  // ❌ Ordem errada
-  this.locatorInputNome = this.page.getByLabel('Nome');                        // ❌ Input no meio
-  this.botaoAdicionar = this.page.getByRole('button', { name: 'Adicionar' }); // ❌ Sem "locator"
-  this.salvar = this.page.getByRole('button', { name: 'Salvar' });            // ❌ Sem padrão
+import { FEATURE_A, FEATURE_B, FEATURE_C } from '../../helpers/navegacao.js'; // ❌ Imports 3, uses 1
+
+async accessScreen() {
+  await this.page.goto(FEATURE_A.URL); // Use only 1
 }
 ```
 
-**✅ CORRETO:**
+**✅ Correct:**
+
 ```javascript
-constructor(page) {
-  this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });        // ✅ Tipo no final
-  this.locatorNomeInput = this.page.getByLabel('Nome');                                // ✅ Tipo no final
-  this.locatorAdicionarButton = this.page.getByRole('button', { name: 'Adicionar' }); // ✅ Padrão correto
-  this.locatorTituloHeading = this.page.getByRole('heading', { name: 'Cadastro' });   // ✅ Padrão correto
+import { REAL_FEATURE_NAME } from '../../helpers/navegacao.js'; // Only what is necessary
+
+async accessScreen() {
+  await this.page.goto(REAL_FEATURE_NAME.URL);
 }
 ```
 
-**Tipos Comuns:**
-- **Button** - Botões (`getByRole('button')`)
-- **Input** - Campos de entrada (`getByLabel`, `getByPlaceholder`)
+---
+
+### **🔴 CRITICAL RULES #4: NOMENCLATURE MANDATORY OF LOCATORS**
+
+> **⚠MANDATORY STANDARD: `locator{Description}{Type}`**
+
+**Structure:**
+
+- Always start with ‘locator’
+- Followed by brief description of the element (e.g. 'Visitor Document', 'Save', 'Complete Name')
+- Finish with element type: `Button`, `Input`, `Link`, `Heading`, `Checkbox`, `Table`, etc.
+
+**❌ Wrong:**
+
+```javascript
+constructor(page) {
+  this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });  // ❌ Wrong order
+  this.locatorNameInput = this.page.getByLabel('Name');                        // ❌ Type in the middle
+  this.addButton = this.page.getByRole('button', { name: 'Add' }); // Missing "locator"
+  this.save = this.page.getByRole('button', { name: 'Save' });            // Missing standard name
+}
+```
+
+**✅ Correct:**
+
+```javascript
+constructor(page) {
+  this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });        // ✅ Type at the end
+  this.locatorNameInput = this.page.getByLabel('Name');                                // ✅ Type at the end
+  this.locatorAddButton = this.page.getByRole('button', { name: 'Add' }); // ✅ Correct pattern
+  this.locatorTitleHeading = this.page.getByRole('heading', { name: 'Registration' });   // ✅ Correct pattern
+}
+```
+
+**Common Types:**
+
+- **Button** - Buttons (getByRole('button')`)
+- **Input** - Input fields (`getByLabel`, `getByPlaceholder`)
 - **Link** - Links (`getByRole('link')`)
-- **Heading** - Títulos (`getByRole('heading')`)
+- **Heading** - Titles (getByRole('heading')`)
 - **Checkbox** - Checkboxes (`getByRole('checkbox')`)
-- **Table** - Tabelas (`getByRole('table')`)
+- **Table** - Tables (`getByRole('table')`)
 - **Dialog** - Modais (`getByRole('dialog')`)
-- **Alert** - Alertas/Toasts (`getByRole('alert')`)
+- **Alert** - Alerts/Toasts (`getByRole('alert')`)
 
 ---
 
-## 🚨 **REGRA CRÍTICA: NUNCA ALTERAR CÓDIGO PRÉ-EXISTENTE**
+## 🚨 **CRITICAL RULE: NEVER MODIFY PRE-EXISTING CODE**
 
-> **⚠️ ATENÇÃO MÁXIMA: Ao implementar em arquivo já existente**
+> **⚠MAXIMUM WARNING: When implementing in existing file**
 
-**REGRA ABSOLUTA - SEM EXCEÇÕES:**
+**ABSOLUTE RULE - NO EXCEPTIONS:**
 
-- ❌ **NUNCA modificar** métodos já existentes
-- ❌ **NUNCA alterar** locators no constructor já criados
-- ❌ **NUNCA remover** constantes ou imports já existentes
-- ❌ **NUNCA mudar** assinaturas de métodos existentes
-- ✅ **APENAS ADICIONAR** novos métodos ao final da classe
-- ✅ **APENAS ADICIONAR** novos locators/IDs ao final do constructor
-- ✅ **APENAS ADICIONAR** novos imports necessários
+- ❌ **NEVER modify** existing methods
+- ❌ **NEVER change** locators in the constructor already created
+- ❌ **NEVER remove** existing constants or imports
+- ❌ **NEVER change** signatures of existing methods
+- ✅ **ONLY ADD** new methods at the end of the class
+- ✅ **ONLY ADDITIONAL** new locators/IDs at the end of the constructor
+- ✅ **ONLY ADDITIONAL** new imports required
 
-**Motivo:** Alterar código existente quebra testes já funcionando. Toda implementação deve ser ADITIVA, nunca modificativa.
+**Reason:** Change existing code breaks tests already working. Every implementation must be ADDITIVE, never modifying.
 
-**Exemplo Correto:**
+**Correct Example:**
 
 ```javascript
-// ✅ CORRETO - Adicionar ao final do constructor
+// Correct - Add to constructor end
 constructor(page) {
   this.page = page;
-  // ... código existente preservado ...
+  // ...preserved existing code...
 
   // ✅ Novos locators adicionados AO FINAL
   this.locatorNovoElementoButton = this.page.getByRole('button', { name: 'Novo' });
 }
 
-// ✅ CORRETO - Adicionar novos métodos AO FINAL da classe
+// Correct - Add new methods TO THE end of the class
 async metodoPreeexistente1() { /* preservado */ }
 async metodoPreeexistente2() { /* preservado */ }
 
-// ✅ Novo método adicionado AO FINAL
-async novoMetodo(dados) {
-  // nova implementação
+// New added method TO THE FINAL
+async novoMetodo(data) {
+  // new implementation
 }
 ```
 
-**Exemplo Incorreto:**
+**Incorrect Example:**
 
 ```javascript
-// ❌ ERRADO - Modificar método existente
+// Wrong - Modify existing method
 async metodoPreeexistente1() {
-  // ❌ Alterou implementação existente - PROIBIDO
-  await this.novaLogica(); // QUEBRA TESTES EXISTENTES
+  // Changed existing implementation - PROHIBITED
+  await this.newLogic(); // BREAKS EXISTING TESTS
 }
 
-// ❌ ERRADO - Alterar locator no constructor
+// WRONG - Change locator in constructor
 constructor(page) {
   this.page = page;
-  // ❌ Alterou locator existente - PROIBIDO
-  this.locatorSalvarButton = this.page.getByRole('button', { name: 'Save' });
+  // ❌ Changed existing locator - FORBIDDEN
+  this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
 }
 ```
 
 ---
 
-## 🎭 **MELHORES PRÁTICAS OBRIGATÓRIAS - PLAYWRIGHT PAGE OBJECTS**
+## 🎭 **MANDATORY BEST PRACTICES - PLAYWRIGHT PAGE OBJECTS**
 
-> **🚨 LEIA ESTAS PRÁTICAS ANTES DE CRIAR QUALQUER PAGE OBJECT**
+> **🚨 READ THESE PRACTICES BEFORE CREATING ANY PAGE OBJECT**
 >
-> **Estas não são sugestões - são REGRAS OBRIGATÓRIAS do projeto**
+> **These are not suggestions - they are the rules of the project**
 >
-> **🏆 FUNDAMENTO:** Todos os princípios abaixo derivam dos pilares **Clean Code** (Robert C. Martin)
+> **🏆 GROUND:** All the principles below derive from the pillars **Clean Code** (Robert C. Martin)
 
-### **📋 6 Princípios Fundamentais (Baseados em Clean Code):**
+### **📋 6 Fundamental Principles (Based on Clean Code):**
 
-#### **1. 🧹 Clean Code (Princípio FUNDAMENTAL)**
+#### **1
 
-> **REGRA:** Código limpo é **legível, simples, direto e autoexplicativo**. Priorize clareza sobre "inteligência".
+> **RULE:** Clean code must be readable, simple, direct, and self-explanatory. Prioritize clarity over cleverness.
 
-**Princípios Clean Code Aplicados a Page Objects:**
+**Clean Code Principles Applied to Page Objects:**
 
-**✅ Nomes Reveladores de Intenção:**
+**✅ Intent Revealing Names:**
+
 ```javascript
-// ✅ CORRETO - Nome revela exatamente o que faz
-async cadastrarNegocioCompleto(dados) {
-  // Nome deixa claro: cadastra negócio com TODOS os dados
+// Correct - Name reveals exactly what it does
+async registerCompleteBusiness(data) {
+  // Clear intent: register a business with all required data
 }
 ```
 
 ```javascript
-// ❌ ERRADO - Nome genérico, não revela intenção
-async salvar(dados) {
-  // Salvar o quê? Como? Com quais validações?
+// WRONG - Generic name, does not reveal intention
+async save(data) {
+  // Save what? How? What validations?
 }
 
-async processo1(dados) {
-  // O que é "processo1"? Não expressa intenção de negócio
-}
-```
-
-**✅ Sem Comentários Óbvios (Código Autoexplicativo):**
-```javascript
-// ✅ CORRETO - Código é autoexplicativo
-async preencherFormularioCadastro(dados) {
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.locatorDescricaoInput.fill(dados.descricao);
-  await this.formUtils.fillFieldSLookup(this.ID_RESPONSAVEL_LOOKUP, dados.responsavel);
+async processStep1(data) {
+  // What is process step 1? It does not express business intent
 }
 ```
 
+**✅ Avoid Obvious Comments:**
+
 ```javascript
-// ❌ ERRADO - Comentários óbvios (redundantes)
-async preencherFormularioCadastro(dados) {
-  // Preenche o campo nome
-  await this.locatorNomeInput.fill(dados.nome);
-  // Preenche o campo descrição
-  await this.locatorDescricaoInput.fill(dados.descricao);
-  // Preenche o lookup de responsável
-  await this.formUtils.fillFieldSLookup(this.ID_RESPONSAVEL_LOOKUP, dados.responsavel);
+// Correct - Code is self-explanatory
+async fillRegistrationForm(data) {
+  await this.locatorNameInput.fill(data.name);
+  await this.locatorDescriptionInput.fill(data.description);
+  await this.formUtils.fillFieldSLookup(this.ID_OWNER_LOOKUP, data.owner);
 }
 ```
 
-**✅ Formatação Consistente:**
 ```javascript
-// ✅ CORRETO - Formatação clara e consistente
-async cadastrarNegocio(dados) {
-  // Abrir formulário
+// WRONG - Obvious comments (redundant)
+async fillRegistrationForm(data) {
+  // Fill the name field
+  await this.locatorNameInput.fill(data.name);
+  // Fill in the description field
+  await this.locatorDescriptionInput.fill(data.description);
+  // Fill in the responsible lookup
+  await this.formUtils.fillFieldSLookup(this.ID_OWNER_LOOKUP, data.owner);
+}
+```
+
+**✅ Formatting Consistent:**
+
+```javascript
+// Correct - Clear and consistent formatting
+async registerBusiness(data) {
+  // Open Form
   await this.locatorAdicionarButton.click();
   await expect(this.locatorModalDialog).toBeVisible();
 
-  // Preencher dados
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.formUtils.fillFieldSLookup(this.ID_CONTA_LOOKUP, dados.conta);
+  // Fill data
+  await this.locatorNameInput.fill(data.name);
+  await this.formUtils.fillFieldSLookup(this.ID_CONTA_LOOKUP, data.account);
 
-  // Salvar e validar
-  await this.locatorSalvarButton.click();
+  // Save and validate
+  await this.locatorSaveButton.click();
   await expect(this.locatorToast).toBeVisible();
 }
 ```
 
 ```javascript
-// ❌ ERRADO - Sem organização, difícil de ler
-async cadastrarNegocio(dados) {
+// Wrong - Without organization, hard to read
+async registerBusiness(data) {
   await this.locatorAdicionarButton.click();
   await expect(this.locatorModalDialog).toBeVisible();
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.formUtils.fillFieldSLookup(this.ID_CONTA_LOOKUP, dados.conta);
-  await this.locatorSalvarButton.click();
+  await this.locatorNameInput.fill(data.name);
+  await this.formUtils.fillFieldSLookup(this.ID_CONTA_LOOKUP, data.account);
+  await this.locatorSaveButton.click();
   await expect(this.locatorToast).toBeVisible();
 }
 ```
 
-**🎯 Checklist Clean Code para Page Objects:**
+**🎯 Checklist Clean Code for Page Objects:**
 
-- [ ] **Nomes:** Métodos e variáveis revelam intenção sem necessidade de comentários?
-- [ ] **Responsabilidade:** Cada método faz UMA coisa e faz bem?
-- [ ] **Tamanho:** Métodos têm no máximo 30-45 linhas (se maior, organizar em blocos)?
-- [ ] **Comentários:** Código é autoexplicativo (comentários apenas quando inevitável)?
-- [ ] **Formatação:** Blocos lógicos separados por linhas em branco?
-- [ ] **Duplicação:** Nenhum código repetido (DRY)?
+- [ ] **Names:** Methods and variables reveal intention without comment?
+- [ ] **Liability:** Does every method do ONE thing and do good?
+- [ ] **Size:** Methods have maximum 30-45 lines (if larger, organize in blocks)?
+- [ ] **Comments:** Code is self-explanatory (comments only when inevitable)?
+- [ ] **Formatting:** Logical blocks separated by blank lines?
+- [ ] **Duplication:** No repeated code (DRY)?
 
-**⛔ SE QUALQUER RESPOSTA = NÃO: Refatorar antes de finalizar**
-
----
-
-#### **2. 🎯 Modelagem Baseada em Tarefas (Task-Based Architecture)**
-
-> **REGRA:** Page Objects devem expor **fluxos de negócio completos**, não ações isoladas da UI.
-
-**❌ ANTI-PADRÃO: Action-Based (Granular Demais)**
-
-```javascript
-// ❌ ERRADO - Métodos fragmentados sem contexto de negócio
-await page.negocioPage.clicarAdicionar();
-await page.negocioPage.preencherNome('Empresa X');
-await page.negocioPage.preencherResponsavel('João Silva');
-await page.negocioPage.clicarSalvar();
-await page.negocioPage.validarMensagemSucesso();
-
-// PROBLEMA: Teste precisa conhecer 5 passos técnicos da UI
-// IMPACTO: Dificulta manutenção, expõe detalhes técnicos, quebra encapsulamento
-```
-
-**✅ PADRÃO CORRETO: Task-Based (Focado no Negócio)**
-
-```javascript
-// ✅ CORRETO - Método encapsula fluxo completo de negócio
-await page.{funcionalidade}Page.cadastrar{Funcionalidade}(JSON_{CONSTANTE});
-
-// BOM porque:
-// - Teste expressa INTENÇÃO de negócio (cadastrar negócio)
-// - Método encapsula TODOS os passos técnicos (adicionar, preencher, salvar, validar)
-// - Mudança na UI = alterar 1 método, não 5 testes
-// - Reutilizável em múltiplos cenários
-```
-
-**🎯 Regra Prática:**
-
-- ✅ **CRIAR:** Métodos que representam tarefas do usuário (`cadastrarNegocio`, `editarPortaria`, `aplicarFiltros`)
-- ❌ **NUNCA CRIAR:** Métodos triviais de 1 ação (`clicarSalvar`, `preencherNome`, `digitarValor`)
-- ✅ **EXCEÇÃO:** Métodos auxiliares reutilizados 3+ vezes com lógica complexa
+### ⛔ IF ANY ANSWER = NO: Refactor before finishing
 
 ---
 
-#### **3. 🔍 Seletores Resilientes (User-Facing Locators)**
+#### **2
 
-> **REGRA:** Priorize locators que **simulam o comportamento do usuário**, não a estrutura do DOM.
+> **RULE:** Page Objects should expose complete business flows, not isolated UI actions.
 
-**Ordem de Prioridade (ABSOLUTA):**
-
-1. **`getByRole()`** - Elemento pelo papel semântico (button, heading, textbox)
-2. **`getByLabel()`** - Input associado a um label
-3. **`getByText()`** - Elemento pelo texto visível
-4. **`getByPlaceholder()`** - Input pelo placeholder visível
-5. **`locator()` com CSS selector** - APENAS quando nenhuma opção acima funciona
-
-**✅ Seletores Resilientes (Resistem a Refatorações de Front-End):**
+**❌ ANTI-PATTERN: Action-Based
 
 ```javascript
-// ✅ CORRETO - Seletores user-facing com padrão locator{Descrição}{Tipo}
-this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });
-this.locatorNomeInput = this.page.getByLabel('Nome');
-this.locatorDescricaoInput = this.page.getByPlaceholder('Digite a descrição');
-this.locatorTituloHeading = this.page.getByRole('heading', { name: 'Cadastro de Negócio' });
-this.locatorProcedimentosNenhumRegistroText = this.page.getByLabel('Procedimentos').getByText('Nenhum registro encontrado');
+// WRONG - Fragmented methods without business context
+await page.businessPage.clickAdd();
+await page.businessPage.fillName('Company X');
+await page.businessPage.fillOwner('John Smith');
+await page.businessPage.clickSave();
+await page.businessPage.validateSuccessMessage();
 
-// BOM porque:
-// - Não depende da estrutura HTML (classes, hierarquia)
-// - Refatoração de CSS não quebra o teste
-// - Simula como usuário localiza elementos
+// PROBLEM: The test needs to know 5 technical UI steps
+// IMPACT: Harder maintenance, technical leakage, weaker readability
 ```
 
-**❌ Seletores Frágeis (Quebram com Mudanças de CSS):**
+### ✅ RIGHT STANDARD: Task-Based
 
 ```javascript
-// ❌ ERRADO - Seletores dependentes de estrutura DOM
-this.locatorSalvarButton = this.page.locator('div.form-actions > button.btn-primary:nth-child(2)');
-this.locatorNomeInput = this.page.locator('#root > div > form > div:nth-child(1) > input');
+// Correct - Method encapsulates complete business flow
+await page.{feature}Page.register{Feature}(JSON_{CONSTANT});
 
-// PROBLEMA: Quebra se CSS mudar, hierarquia mudar, ordem mudar
-// IMPACTO: Manutenção alta, testes instáveis
+// GOOD because:
+// - Expresses business intent in the test (register business)
+// - Method encapsulates ALL technical steps (add, fill, save, validate)
+// - Change in UI = change 1 method, not 5 tests
+// - Reusable in multiple scenarios
 ```
 
-**🎯 Exceções Permitidas para `locator()` com ID:**
+**🎯 Practical Rule:**
+
+- ✅ **CREATE:** Methods that represent user tasks (`registerBusiness`, `editOrder`, `applyFilters`)
+- ❌ **NEVER CREATE:** Trivial methods with only 1 action (`clickSave`, `fillName`, `typeValue`)
+- ✅ **EXCEPTION:** Auxiliary methods reused 3+ times with complex logic
+
+---
+
+#### **3
+
+> **RULE:** Prioritize locators that simulate user behavior, not DOM structure.
+
+**Priority Order (ABSOLUTE):**
+
+1. **`getByRole()`** - Element by semantic role (button, heading, textbox)
+2. **`getByLabel()`** - Input associated with a label
+3. **`getByText()`** - Element by visible text
+4. **`getByPlaceholder()`** - Input by visible placeholder
+5. **`locator()` with CSS selector** - ONLY when none of the options above applies
+
+**✅ Resilient Selectors:**
 
 ```javascript
-// ✅ CORRETO - ID mantido quando há justificativa técnica clara
+// Correct - User-facing selectors using pattern locator{Description}{Type}
+this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
+this.locatorNameInput = this.page.getByLabel('Name');
+this.locatorDescriptionInput = this.page.getByPlaceholder('Enter description');
+this.locatorTitleHeading = this.page.getByRole('heading', { name: 'Business Registration' });
+this.locatorNoRecordsProceduresText = this.page.getByLabel('Procedures').getByText('No records found');
+
+// GOOD because:
+// - Does not depend on HTML structure (classes, hierarchy)
+// - CSS refactoring is less likely to break tests
+// - Mirrors how users find elements
+```
+
+**❌ Fragile Selectors:**
+
+```javascript
+// ERROR - DOM-structure-dependent selectors
+this.locatorSaveButton = this.page.locator('div.form-actions > button.btn-primary:nth-child(2)');
+this.locatorNameInput = this.page.locator('#root > div > form > div:nth-child(1) > input');
+
+// PROBLEM: Breaks if CSS, hierarchy, or order changes
+// IMPACT: High maintenance, unstable tests
+```
+
+**🎯 Exceptions Allowed for `locator()` with ID:**
+
+```javascript
+// RIGHT - ID maintained when there is clear technical justification
 this.ID_RESPONSAVEL_LOOKUP = '#responsible-autocomplete';
-await this.formUtils.fillFieldSLookup(this.ID_RESPONSAVEL_LOOKUP, dados.responsavel);
+await this.formUtils.fillFieldSLookup(this.ID_RESPONSAVEL_LOOKUP, data.owner);
 
-// JUSTIFICATIVA: o fluxo depende de um método utilitário que recebe ID como parâmetro
+// JUSTIFICATIVE: the flow depends on a utility method that receives ID as parameter
 ```
 
-**📘 Referência Completa:** Consulte `.github/copilot-modules/03-locators-semanticos.md`
+**📘 Complete Reference:** See `.github/copilot-modules/03-semantic locators.md`
 
 ---
 
-#### **4. 🔄 DRY (Don't Repeat Yourself)**
+#### **4. DRY (Don't Repeat Yourself)**
 
-> **REGRA:** Elimine duplicações - cada lógica deve existir em **1 único lugar**.
+> **RULE:** Eliminate duplications - each logic must exist in **1 single place**.
 
-**❌ VIOLAÇÃO: Código Duplicado em Múltiplos Métodos**
+### ❌ VIOLATION: Code Duplicated in Multiple Methods
 
 ```javascript
-// ❌ ERRADO - Lógica duplicada em 3 métodos
-async cadastrarNegocio(dados) {
-  await this.locatorAdicionarButton.click();
+// Wrong - Double logic in 3 methods
+async registerBusiness(data) {
+  await this.locatorAddButton.click();
   await expect(this.locatorModalDialog).toBeVisible();
-  // ... preenchimento ...
+  // ... filling ...
 }
 
-async editarNegocio(dados) {
-  await this.locatorEditarButton.click();
-  await expect(this.locatorModalDialog).toBeVisible(); // ❌ Duplicado
-  // ... preenchimento ...
+async editBusiness(data) {
+  await this.locatorEditButton.click();
+  await expect(this.locatorModalDialog).toBeVisible(); // ❌ Duplicated
+  // ... filling ...
 }
 
-async duplicarNegocio(dados) {
-  await this.locatorDuplicarButton.click();
-  await expect(this.locatorModalDialog).toBeVisible(); // ❌ Duplicado
-  // ... preenchimento ...
+async duplicateBusiness(data) {
+  await this.locatorDuplicateButton.click();
+  await expect(this.locatorModalDialog).toBeVisible(); // ❌ Duplicated
+  // ... filling ...
 }
 ```
 
-**✅ CORRETO: Lógica Centralizada**
+### ✅ Correct: Centralised logic
 
 ```javascript
-// ✅ Método auxiliar reutilizável (usado 3+ vezes)
-async aguardarModalAberto() {
+// Reusable auxiliary method (used 3+ times)
+async waitForOpenModal() {
   await expect(this.locatorModalDialog).toBeVisible();
-  await expect(this.locatorCarregandoSpinner).toBeHidden();
+  await expect(this.locatorLoadingSpinner).toBeHidden();
 }
 
-// ✅ Métodos reutilizam auxiliar
-async cadastrarNegocio(dados) {
-  await this.locatorAdicionarButton.click();
-  await this.aguardarModalAberto(); // Reutilização
-  // ... preenchimento ...
+// Methods Reuse Helper
+async registerBusiness(data) {
+  await this.locatorAddButton.click();
+  await this.waitForOpenModal(); // Reuse
+  // ... filling ...
 }
 
-async editarNegocio(dados) {
-  await this.locatorEditarButton.click();
-  await this.aguardarModalAberto(); // Reutilização
-  // ... preenchimento ...
+async editBusiness(data) {
+  await this.locatorEditButton.click();
+  await this.waitForOpenModal(); // Reuse
+  // ... filling ...
 }
 ```
 
-**🎯 Quando Criar Método Auxiliar:**
+**🎯 When Create Auxiliary Method:**
 
-- ✅ Lógica repetida em **3+ lugares**
-- ✅ Sequência complexa de comandos (5+ linhas)
-- ❌ **NÃO criar** para 1 comando trivial (`async clicar() { await this.botao.click(); }`)
+- ✅ Logic repeated in **3+ places**
+- ✅ Complex sequence of commands (5+ lines)
+- ❌ **Do not create** for 1 trivial command (`async click() {await this.botao.click()); }`)
 
 ---
 
 #### **5. 🎨 YAGNI (You Aren't Gonna Need It)**
 
-> **REGRA:** Implemente **apenas o necessário**. Não crie código para "possíveis" cenários futuros.
+> **RULE:** Implement **only as necessary**. Do not create code for "possible" future scenarios.
 
-**❌ VIOLAÇÃO: Over-Engineering**
+### ❌ Over-Engineering
 
 ```javascript
-// ❌ ERRADO - Métodos criados "por precaução"
-async cadastrarNegocioCompleto(dados) { /* nunca usado */ }
-async cadastrarNegocioSimplificado(dados) { /* nunca usado */ }
-async cadastrarNegocioRapido(dados) { /* nunca usado */ }
-async cadastrarNegocioComValidacao(dados) { /* usado 1x */ }
+// WRONG - Methods created "just in case"
+async registerFullBusiness(data) { /* never used */ }
+async registerSimpleBusiness(data) { /* never used */ }
+async registerFastBusiness(data) { /* never used */ }
+async registerBusinessWithValidation(data) { /* used once */ }
 
-// PROBLEMA: 4 métodos criados, apenas 1 realmente necessário
-// IMPACTO: Código morto, manutenção desnecessária, confusão
+// PROBLEM: 4 methods created, only 1 really needed
+// IMPACT: Dead code, unnecessary maintenance, confusion
 ```
 
-**✅ CORRETO: Implementar Sob Demanda**
+### ✅ Correct: Implement Under Demand
 
 ```javascript
-// ✅ Criar APENAS quando cenário de teste requer
-async cadastrarNegocio(dados) {
-  // Método criado porque teste precisa cadastrar negócio
-  // Se futuramente precisar de variação, criar naquele momento
+// ✅ Create ONLY when the test scenario requires it
+async registerBusiness(data) {
+  // Method created because testing needs to register business
+  // If in future you need variation, create at that moment
 }
 
-// ✅ Parâmetros opcionais se cenário variar
-async cadastrarNegocio(dados, opcoes = { validar: true }) {
-  // ... preenchimento ...
-  if (opcoes.validar) {
+// Optional parameters if scenario varies
+async registerBusiness(data, options = { validate: true }) {
+  // ... filling ...
+  if (options.validate) {
     await expect(this.locatorToast).toBeVisible();
   }
 }
@@ -470,2390 +483,2390 @@ async cadastrarNegocio(dados, opcoes = { validar: true }) {
 
 **🎯 Checklist Anti-Over-Engineering:**
 
-- [ ] Este método é usado por algum teste **existente**?
-- [ ] Este locator é referenciado em algum método **existente**?
-- [ ] Este parâmetro é usado em algum cenário **real**?
-- [ ] Esta validação é necessária **agora** (não "talvez no futuro")?
+- [ ] Is this method used by any existing ** test?
+- [ ] Is this locator referenced in any **existing method**?
+- [ ] Is this parameter used in some scenario **real**?
+- [ ] Is this validation necessary now** (not "maybe in the future")?
 
-**⛔ SE QUALQUER RESPOSTA = NÃO: Não implemente. Aguarde necessidade real.**
+**⛔ IF ANY ANSWER = NO: Don't implement it. Wait for real need.**
 
 ---
 
-#### **6. 🚫 Evite Over-Engineering**
+#### **6
 
-> **REGRA:** Page Objects devem servir aos **fluxos reais**, não a cenários hipotéticos futuros.
+> **RULE:** Page Objects should serve the **real flows**, not future hypothetical scenarios.
 
-**❌ Exemplos de Over-Engineering:**
+**❌ Examples of Over-Engineering:**
 
 ```javascript
-// ❌ ERRADO - Abstração excessiva sem necessidade
+// WRONG - Over-abstraction without need
 class BaseModal {
-  async abrir() { }
-  async fechar() { }
-  async validar() { }
+  async open() { }
+  async close() { }
+  async validate() { }
 }
-class CadastroModal extends BaseModal { }
-class EdicaoModal extends BaseModal { }
+class RegistrationModal extends BaseModal { }
+class EditModal extends BaseModal { }
 
-// PROBLEMA: Hierarquia complexa para funcionalidade simples
-// IMPACTO: Dificulta entendimento, debug, manutenção
+// PROBLEM: Complex hierarchy for simple functionality
+// IMPACT: Difficulty understanding, debug, maintenance
 
-// ❌ ERRADO - Métodos genéricos "configuráveis"
-async preencherFormulario(campos, opcoes = { validar: true, limpar: false, aguardar: true }) {
-  // ... 50 linhas de lógica condicional ...
+// ERROR - generic "configurable" methods
+async fillForm(fields, options = { validate: true, clear: false, wait: true }) {
+  // ... 50 lines of conditional logic...
 }
 
-// PROBLEMA: Método "faz tudo" com muitas condicionais
-// IMPACTO: Difícil testar, debug, entender comportamento
+// PROBLEM: Method "does everything" with many conditionals
+// IMPACT: Hard to test, debug, understand behavior
 ```
 
-**✅ Abordagem Pragmática:**
+**✅ Pragmatic Approach:**
 
 ```javascript
-// ✅ CORRETO - Classes simples, métodos diretos
-export class NegocioPage {
-  async cadastrarNegocio(dados) {
-    // Implementação direta, sem abstrações desnecessárias
-    await this.locatorAdicionarButton.click();
-    await this.locatorNomeInput.fill(dados.nome);
+// Correct - Simple classes, direct methods
+export class BusinessPage {
+  async registerBusiness(data) {
+    // Direct implementation without unnecessary abstractions
+    await this.locatorAddButton.click();
+    await this.locatorNameInput.fill(data.name);
     // ...
   }
 
-  async editarNegocio(dados) {
-    // Outro método simples, direto
-    await this.locatorEditarButton.click();
-    await this.locatorNomeInput.fill(dados.nome);
+  async editBusiness(data) {
+    // Another simple, direct method
+    await this.locatorEditButton.click();
+    await this.locatorNameInput.fill(data.name);
     // ...
   }
 }
 
-// BOM porque:
-// - Código legível e autoexplicativo
-// - Fácil debug (sem camadas de abstração)
-// - Manutenção direta (sem herança complexa)
-// - Atende necessidade real sem complexidade artificial
+// GOOD because:
+// - Code readable and self-explanatory
+// - Easy debug (no layers of abstraction)
+// - Direct maintenance (without complex inheritance)
+// - What? Meets real need without artificial complexity
 ```
 
-**🎯 Regra de Ouro:**
+**🎯 Golden Rule:**
 
-**"Simplicidade primeiro. Abstrair apenas quando dor real de manutenção surgir 3+ vezes."**
-
----
-
-### **📊 RESUMO EXECUTIVO - 6 PRÁTICAS OBRIGATÓRIAS**
-
-| # | Prática | O Que Fazer | O Que NÃO Fazer |
-|---|---------|-------------|-----------------|
-| **1** | **Clean Code** | Código legível, autoexplicativo, SRP, nomes reveladores | Comentários óbvios, métodos gigantes, nomes genéricos |
-| **2** | **Task-Based** | Métodos = fluxos completos (`cadastrarNegocio`) | Métodos triviais (`clicarSalvar`) |
-| **3** | **User-Facing Locators** | getByRole, getByLabel (ordem de prioridade) | CSS/XPath complexos dependentes de DOM |
-| **4** | **DRY** | Centralizar lógica repetida (3+ vezes) | Duplicar código em múltiplos métodos |
-| **5** | **YAGNI** | Implementar apenas o necessário **agora** | Criar código "por precaução" |
-| **6** | **Anti-Over-Engineering** | Classes simples, métodos diretos | Hierarquias complexas, abstrações prematuras |
+### "Simplicity first. Abstract only when real maintenance pain appears 3+ times."
 
 ---
 
-### **🔗 COMPLEMENTO OBRIGATÓRIO: Documentação Playwright Oficial**
+### **📊 EXECUTIVE SUMMARY - 6 THANKS PRACTICES**
 
-> **⚠️ ANTES de implementar qualquer Page Object, consulte:**
+| # Oh, yeah | Practice | What to Do | WHAT NOT TO DO |
+...----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| **1** | **Clean Code** | Legible code, self-explanatory, SRP, revealing names | Obvious comments, giant methods, generic names |
+| **2** | **Task-Based** | Methods = complete flows ('registration') | Trivial methods (`click Save`) |
+| **3** | **User-Facing Locators** | getByRole, getByLabel (priority order) | Complex CSS/XPath DOM-dependent |
+| **4** | **DRY** | Centralize repeated logic (3+ times) | Duplicate code in multiple methods |
+| **5** | **YAGNI** | Implement only what is necessary now | Create code "just in case" |
+| **6** | **Anti-Over-Engineering** | Simple classes, direct methods | Complex hierarchies, premature abstractions |
+
+---
+
+### **🔗 COMPLETION: Official Playwright documentation**
+
+> **⚠BEFORE implementing any Page Object, see:**
 >
-> - **Locators:** https://playwright.dev/docs/locators
-> - **Best Practices:** https://playwright.dev/docs/best-practices
-> - **Assertions:** https://playwright.dev/docs/test-assertions
-> - **Auto-waiting:** https://playwright.dev/docs/actionability
+> - **Locators:** <https://playwright.dev/docs/locators>
+> - **Best Practices:** <https://playwright.dev/docs/best-practices>
+> - **Assertions:** <https://playwright.dev/docs/test-assertions>
+> - **Auto-waiting:** <https://playwright.dev/docs/actionability>
 
-**Princípio Fundamental:** As 6 práticas acima **complementam** a documentação oficial do Playwright. Para estratégias de wait, assertions e escolha técnica de locators, **siga a documentação oficial**.
+**Basic Principle:** The 6 practices above **complement** the official Playwright documentation. For wait strategies, assertions and technical locator choice, **follow the official documentation**.
 
 ---
 
-## ⚠️ **BOA PRÁTICA: Try/Catch APENAS Quando Necessário**
+## ⚠️ **BEST PRACTICE: Try/Catch ONLY When Necessary**
 
-> **🚨 REGRA DE OURO:** Playwright tem auto-waiting robusto. Try/catch é necessário APENAS em casos técnicos específicos.
+> **🚨 Golden Rule:** Playwright has robust self-waiting. Try/catch is required ONLY in specific technical cases.
 
-**✅ QUANDO USAR Try/Catch:**
+**✅ WHEN YOU USE Try/Catch:**
 
-- s-button tipo "Ações" ou "Opções" (com `<p-tieredmenu appendto="body">`) - **SEMPRE com `{ force: true }`**
-- Elementos com comportamento instável conhecido
-- Justificativa técnica documentada no código
+- S-button type "Actions" or "Options" (with `<p-tieredmenu appendto="body">`) - **ALWAYS WITH `{force: true }`**
+- Elements with known unstable behavior
+- Technical justification documented in code
 
-**❌ QUANDO NÃO USAR Try/Catch:**
+**❌ WHEN YOU DON'T USE Try/Catch:**
 
-- Cliques normais (getByRole('button').click())
-- Preenchimento de campos (fill, fillFieldSLookup)
-- Validações (expect, toBeVisible, toHaveText)
-- Ações que Playwright auto-wait já trata
+- Normal clicks (getByRole('button').click()
+- Fill, fillFieldSLookup
+- Validations (expect, toBeVisible, toHaveText)
+- Actions that Playwright auto-wait already treats
 
-**Padrão Retry para Botões "Ações"/"Opções":**
+**Retry Standard for Action/Options Buttons:**
 
 ```javascript
-// ✅ CORRETO - Loop retry com { force: true } (evita SonarQube S1871 - branches duplicados)
-for (let tentativa = 1; tentativa <= 2; tentativa++) {
+// ✅ CORRECT - Retry loop with { force: true } (avoids SonarQube S1871 - duplicated branches)
+for (let attempt = 1; attempt <= 2; attempt++) {
   try {
-    await this.locatorAcoesButton.click({ force: true });
-    await this.locatorMenuEditarLink.click({ force: true });
+    await this.locatorActionsButton.click({ force: true });
+    await this.locatorMenuEditLink.click({ force: true });
     break;
   } catch (error) {
-    if (tentativa === 2) throw error;
+    if (attempt === 2) throw error;
   }
 }
 ```
 
 ```javascript
-// ❌ ERRADO - Branches duplicados (viola SonarQube S1871 / ESLint sonarjs/no-duplicated-branches)
+// ERROR - Duplicate Branches (Violates SonarQube S1871 / ESLint sonarjs/no-duplicated-branches)
 try {
-  await this.locatorAcoesButton.click({ force: true });
-  await this.locatorMenuEditarLink.click({ force: true });
+  await this.locatorActionsButton.click({ force: true });
+  await this.locatorMenuEditLink.click({ force: true });
 } catch {
-  await this.locatorAcoesButton.click({ force: true });
-  await this.locatorMenuEditarLink.click({ force: true });
+  await this.locatorActionsButton.click({ force: true });
+  await this.locatorMenuEditLink.click({ force: true });
 }
 ```
 
 ```javascript
-// ❌ ERRADO - Sem { force: true }
-for (let tentativa = 1; tentativa <= 2; tentativa++) {
+// WRONG - Missing { force: true }
+for (let attempt = 1; attempt <= 2; attempt++) {
   try {
-    await this.locatorAcoesButton.click();
-    await this.locatorMenuEditarLink.click();
+    await this.locatorActionsButton.click();
+    await this.locatorMenuEditLink.click();
     break;
   } catch (error) {
-    if (tentativa === 2) throw error;
+    if (attempt === 2) throw error;
   }
 }
 ```
 
-**Motivo:** Playwright auto-waiting é suficiente para 95% dos casos. Try/catch desnecessário polui código e viola YAGNI (You Aren't Gonna Need It). Para botões "Ações"/"Opções", usamos loop retry com `{ force: true }` que ignora checagens de visibilidade garantindo retry eficaz, sem violar SonarQube S1871.
+**Reason:** Playwright auto-waiting is sufficient for 95% of cases. Try/unnecessary catch pollutes code and violates YAGNI (You Aren't Gonna Need It). For "Actions"/"Options" buttons, we use loop retry with `{force: true }` which ignores visibility checks ensuring effective retry, without violating SonarQube S1871.
 
 ---
 
-## 🚨 **REGRAS ESPECÍFICAS DO PROJETO (NÃO do Playwright)**
+## 🚨 **PROJECT-SPECIFIC RULES (NOT Playwright)**
 
-### **A. Organização de Locators (Padrão do Projeto)**
+### **A. Locator Organisation (Project Standard)**
 
-> **⚠️ Decisão arquitetural:** TODOS os locators com strings literais, IDs, classes e seletores CSS NO CONSTRUCTOR
+> **⚠Architectural decision:** ALL locations with literal strings, IDs, classes and selectors CSS IN THE CONSTRUCTOR
 
-**🚨 REGRAS ABSOLUTAS - SEMPRE OBRIGATÓRIAS:**
+**🚨 ABSOLUTE RULES
 
-1. **TODOS os `expect()` com getByText/getByRole + string literal NO CONSTRUCTOR**
-   - ❌ PROIBIDO: `await expect(this.page.getByText('Data de Fechamento -')).toBeVisible();` dentro de método
-   - ✅ OBRIGATÓRIO: `this.locatorDataFechamentoText = this.page.getByText('Data de Fechamento -');` no constructor
+1. **ALL `expect()` with getByText/getByRole + literal string NO CONSTRUCTOR**
+   - ❌ PROHIBITED: `await expect(this.page.getByText('Close Date - ')). toBeVisible();` within method
+   - ✅ CORRECT: `this.locatorDataCloseText = this.page.getByText('Close Date -');` in the constructor
 
-2. **TODOS os IDs/Classes/CSS inline NO CONSTRUCTOR como constantes**
-   - ❌ PROIBIDO: `await this.formUtils.fillFieldPDropdown('#businessOrigin', dados.origem);`
-   - ✅ OBRIGATÓRIO: `this.ID_ORIGEM_NEGOCIO_DROPDOWN = '#businessOrigin';` no constructor + `await this.formUtils.fillFieldPDropdown(this.ID_ORIGEM_NEGOCIO_DROPDOWN, dados.origem);`
+2. **ALL IDs/Classes/CSS inline IN CONSTRUCTOR as constants**
+   - ❌ PROHIBITED: `await this.formUtils.fillFieldPDropdown('#businessOrigin', data. origin);`
 
-3. **Locators-base para aninhamento (.filter, .locator) NO CONSTRUCTOR**
-   - ❌ PROIBIDO: `const locator = this.page.locator('.kanban-card-title').filter({ hasText: dados.descricao });`
-   - ✅ OBRIGATÓRIO: `this.locatorKanbanCardTitleDiv = this.page.locator('.kanban-card-title');` no constructor + `const locator = this.locatorKanbanCardTitleDiv.filter({ hasText: dados.descricao });` no método
+- ✅ CORRECT: `this.ID_BUSINESS_ORIGIN_DROPDOWN = '#businessOrigin';` in the constructor + `await this.formUtils.fillFieldPDropdown(this.ID_BUSINESS_ORIGIN_DROPDOWN, data.origin);`
+
+1. **Locators for nesting (.filter, .locator) NO CONSTRUCTOR**
+   - ❌ PROHIBITED: `const locator = this.page.locator('.kanban-card-title'). filter({hasText: data. description });`
+   - ✅ CORRECT: `this.locatorKanbanCardTitleDiv = this.page.locator('.kanban-card-title');` in constructor + `const locator = this.locatorKanbanCardTitleDiv.filter({hasText: data. description });` in the method
 
 ---
 
-### **A.1 Elementos com Múltiplos Contextos (OBRIGATÓRIO)**
+### **A.1 Elements with Multiple Contexts (MANDATORY)**
 
-> **⚠️ ERRO CRÍTICO COMUM:** Assumir que elementos com MESMO NOME têm IDs/seletores iguais em contextos diferentes
+> **⚠COMMON CRITICAL ERROR:** Assuming elements with same NAME have identical IDs/selectors in different contexts
 
-**📋 Contextos Comuns em Page Objects:**
+**📋 Common Page Objects Contexts:**
 
-- **Cadastro/Edição:** Formulário principal de criação/modificação
-- **Filtro:** Campos de busca/filtro na listagem
-- **Visualização:** Campos read-only em modal/tela de detalhes
-- **Duplicação:** Formulário de cópia de registro
+- **Register/Edit:** Main creation/modification form
+- **Filter:** Search fields/filter in listing
+- **View:** Read-only fields in modal/detail screen
+- **Duplication:** Record copy form
 
-**🚨 PROCESSO OBRIGATÓRIO:**
+**🚨 MANDATORY PROCEDURE:**
 
-1. **Identificar TODOS os contextos** onde o Page Object será usado
-2. **Para CADA contexto:** Validar HTMLs específicos com `grep_search`
-3. **NUNCA assumir** que campo "Descrição" no cadastro = campo "Descrição" no filtro
-4. **Criar constantes ESPECÍFICAS** para cada contexto quando IDs/seletores forem diferentes
+1. **Identify ALL contexts** where Page Object will be used
+2. **For EVERY context:** Validate specific HTMLs with `grep search`
+3. **NEVER assume** which field "Description" in the register = field "Description" in the filter
+4. **Create SPECIFIC constants** for each context when IDs/selectors are different
 
-**❌ ANTI-PADRÃO CRÍTICO (NÃO FAZER):**
+**❌ CRITICAL ANTI-PATTERN (NOT TO DO):**
 
 ```javascript
-// ❌ ERRADO - Assumiu que ID é igual em todos os contextos
+// WRONG - He assumed that ID is equal in all contexts
 constructor(page) {
   this.page = page;
-  // Analisou apenas crudPrincipal.html
-  this.ID_DESCRICAO_INPUT = '#description'; // Usado em múltiplos métodos
+  // He only analyzed rawMain.html
+  this.ID_DESCRIPTION_INPUT = '#description'; // Used in multiple methods
 }
 
-async cadastrar(dados) {
+async register(data) {
   // HTML: crudPrincipal.html
-  await this.page.locator(this.ID_DESCRICAO_INPUT).fill(dados.descricao); // Funciona neste HTML
+  await this.page.locator(this.ID_DESCRIPTION_INPUT).fill(data.description); // Works in this HTML
 }
 
-async filtrar(dados) {
-  // HTML: filtro.html
-  await this.page.locator(this.ID_DESCRICAO_INPUT).fill(dados.descricao); // ERRO: ID diferente!
+async filter(data) {
+  // HTML: filter.html
+  await this.page.locator(this.ID_DESCRIPTION_INPUT).fill(data.description); // ERROR: Different ID!
 }
 ```
 
-**✅ PADRÃO CORRETO:**
+**✅ Correct pattern:**
 
 ```javascript
-// ✅ CORRETO - Validou HTMLs de CADA contexto independentemente
+// Correct - Validated HTMLs from EVERY context independently
 constructor(page) {
   this.page = page;
 
-  this.ID_DESCRICAO_CADASTRO_INPUT = '#description';
-  this.ID_EMPRESA_CADASTRO_LOOKUP = '#company-autocomplete';
-  this.ID_DESCRICAO_FILTRO_INPUT = '#filter-description';
-  this.ID_EMPRESA_FILTRO_INPUT = '#filter-company';
+  this.ID_DESCRIPTION_REGISTRATION_INPUT = '#description';
+  this.ID_COMPANY_REGISTRATION_LOOKUP = '#company-autocomplete';
+  this.ID_DESCRIPTION_FILTER_INPUT = '#filter-description';
+  this.ID_COMPANY_FILTER_INPUT = '#filter-company';
 
-  this.locatorDescricaoView = this.page.getByText(/Descrição:/);
+  this.locatorDescriptionText = this.page.getByText(/Description:/);
 }
 
-async cadastrar(dados) {
-  // Usa IDs específicos do contexto de CADASTRO
-  await this.page.locator(this.ID_DESCRICAO_CADASTRO_INPUT).fill(dados.descricao);
-  await this.formUtils.fillFieldSLookup(this.ID_EMPRESA_CADASTRO_LOOKUP, dados.empresa);
+async register(data) {
+  // Use specific IDs from the REGISTRATION context
+  await this.page.locator(this.ID_DESCRIPTION_REGISTRATION_INPUT).fill(data.description);
+  await this.formUtils.fillFieldSLookup(this.ID_COMPANY_REGISTRATION_LOOKUP, data.company);
 }
 
-async filtrar(dados) {
-  // Usa IDs específicos do contexto de FILTRO
-  await this.page.locator(this.ID_DESCRICAO_FILTRO_INPUT).fill(dados.descricao);
-  await this.page.locator(this.ID_EMPRESA_FILTRO_INPUT).fill(dados.empresa);
+async filter(data) {
+  // Use FILTER context specific IDs
+  await this.page.locator(this.ID_DESCRIPTION_FILTER_INPUT).fill(data.description);
+  await this.page.locator(this.ID_COMPANY_FILTER_INPUT).fill(data.company);
 }
 
-async validarVisualizacao(dados) {
-  // Usa locators específicos do contexto de VISUALIZAÇÃO
-  await expect(this.locatorDescricaoView).toBeVisible();
+async validateView(data) {
+  // Uses specific locators of the context
+  await expect(this.locatorDescriptionText).toBeVisible();
 }
 ```
 
-**📊 DOCUMENTAÇÃO NO PLANO TÉCNICO (NÃO no código):**
+**📊 DOCUMENTATION ON THE TECHNICAL PLAN (NO code):**
 
-> **🚨 ATENÇÃO:** Comentários de contexto/HTML são APENAS para documentação no PLANO TÉCNICO durante análise. **NUNCA adicionar no código do Page Object.**
+> **🚨 WARNING:** Context/HTML comments are ONLY for documentation in the TECHNICAL PLAN during analysis. **NEVER add in Page Object code.**
 
-**Documentar no plano técnico (Markdown):**
+**Document in the Technical Plan (Markdown):**
 
 ```markdown
-## Mapeamento de Constantes por Contexto
+## Constants Mapping by Context
 
-| Constante | Contexto | HTML Origem | Linha | ID/Seletor Real |
+| Constant | Context | Source HTML | Line | Real ID/Selector |
 |-----------|----------|-------------|-------|-----------------|
-| `ID_DESCRICAO_CADASTRO` | Cadastro/Edição | crudPrincipal.html | 150 | `#description` |
-| `ID_EMPRESA_CADASTRO` | Cadastro/Edição | crudPrincipal.html | 160 | `#company-autocomplete` |
-| `ID_DESCRICAO_FILTRO` | Filtro | filtro.html | 89 | `#filter-description` |
-| `ID_EMPRESA_FILTRO` | Filtro | filtro.html | 95 | `#filter-company` |
-| `locatorDescricaoView` | Visualização | visualizacao.html | 45 | `getByText(/Descrição:/)` |
+| `ID_DESCRIPTION_REGISTRATION` | Registration/Edit | crudPrincipal.html | 150 | `#description` |
+| `ID_COMPANY_REGISTRATION` | Registration/Edit | crudPrincipal.html | 160 | `#company-autocomplete` |
+| `ID_DESCRIPTION_FILTER` | Filter | filter.html | 89 | `#filter-description` |
+| `ID_COMPANY_FILTER` | Filter | filter.html | 95 | `#filter-company` |
+| `locatorDescriptionText` | View | view.html | 45 | `getByText(/Description:/)` |
 
-**⚠️ Atenção:** Campos "Descrição" e "Empresa" têm IDs DIFERENTES entre cadastro e filtro!
+**⚠️ Attention:** "Description" and "Company" fields have DIFFERENT IDs between registration and filter!
 ```
 
-**❌ NUNCA FAZER (comentários verbose no código):**
+**❌ NEVER DO (comments verbose in code):**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ============================================ ❌ ERRADO
-  // CONTEXTO: CADASTRO/EDIÇÃO                  ❌ ERRADO
-  // HTML: crudPrincipal.html                   ❌ ERRADO
-  // Validado: grep_search em crudPrincipal.html ❌ ERRADO
-  // ============================================ ❌ ERRADO
+  // ============================================ ❌ WRONG
+  // CONTEXT: CORRESPONDENT/EDITION
+  // HTML: rawMain.html
+  // Validated: grep search in rawHome. html
+  // ============================================ ❌ WRONG
   this.ID_DESCRICAO_CADASTRO_INPUT = '#description';
 }
 ```
 
-**✅ QUEBRAS DE LINHAS SEM COMENTÁRIOS:**
+**✅ Line breaks without comments:**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  this.ID_DESCRICAO_CADASTRO_INPUT = '#description';
-  this.ID_EMPRESA_CADASTRO_LOOKUP = '#company-autocomplete';
+  this.ID_DESCRIPTION_REGISTRATION_INPUT = '#description';
+  this.ID_COMPANY_REGISTRATION_LOOKUP = '#company-autocomplete';
 
-  this.ID_DESCRICAO_FILTRO_INPUT = '#filter-description';
-  this.ID_EMPRESA_FILTRO_INPUT = '#filter-company';
+  this.ID_DESCRIPTION_FILTER_INPUT = '#filter-description';
+  this.ID_COMPANY_FILTER_INPUT = '#filter-company';
 }
 ```
 
-**💡 Checklist Anti-Erro:**
+**💡 Checklist Anti-Error:**
 
-- [ ] Identifiquei TODOS os contextos onde o Page Object será usado?
-- [ ] Executei `grep_search` em CADA HTML de CADA contexto?
-- [ ] Validei que elementos com MESMO NOME podem ter IDs/seletores DIFERENTES?
-- [ ] Criei constantes ESPECÍFICAS para cada contexto (ex: `_CADASTRO`, `_FILTRO`)?
-- [ ] Documentei no constructor qual HTML cada constante referencia?
-- [ ] Usei constante CORRETA em cada método (método `filtrar()` usa `ID_DESCRICAO_FILTRO`)?
+- [ ] Have I identified ALL contexts where Page Object will be used?
+- [ ] Did I run `grep search' in EVERY HTML context?
+- [ ] I validated that elements with same NAME may have IDs/selectors different?
+- [ ] I've created constants SPECIFIC for each context (e.g. `REGISTRATION`, `FILTER`)?
+- [ ] Did I document in the constructor which HTML each constant reference?
+- [ ] Did I use Correct constant in each method (`filter()')?
 
-**⛔ SE QUALQUER RESPOSTA FOR "NÃO":** Voltar e analisar TODOS os contextos antes de implementar
+**⛔ IF ANY ANSWER FOR "NO":** Back and analyze all contexts before implementing
 
-**Padrão do Projeto:**
+**Project Pattern:**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ✅ IDs de campos com símbolo CSS (#) — Padrão: ID_{DESCRICAO}_{TipoElemento}
-  this.ID_CAMPO_LOOKUP = '#campo-autocomplete';
+  // ✅ Field IDs with CSS symbol (#) — Pattern: ID_{DESCRIPTION}_{ElementType}
+  this.ID_FIELD_LOOKUP = '#field-autocomplete';
   this.ID_ORIGEM_NEGOCIO_DROPDOWN = '#businessOrigin';
   this.ID_TIPO_NEGOCIO_DROPDOWN = '#businessType';
   this.ID_CONTA_LOOKUP = '#account-autocomplete';
   this.ID_FUNIL_DROPDOWN = '#funnel';
   this.ID_ETAPA_FUNIL_DROPDOWN = '#funnelStep';
 
-  // ✅ Classes CSS — Padrão: CLASS_{DESCRICAO}_{TipoElemento}
+  // ✅ CSS classes — Pattern: CLASS_{DESCRIPTION}_{ElementType}
   this.CSS_SELECTOR_SUBMIT_BUTTON = 'button[type="submit"]';
   this.CSS_SELECTOR_REQUIRED_INPUT = 'input[required]';
   this.CSS_SELECTOR_KANBAN_DONE = '.kanban-card[data-status="done"]';
 
-  // ✅ Locators DIRETOS (não aninhados em objeto) - Padrão: locator{Descrição}{Tipo}
-  this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });
-  this.locatorTituloHeading = this.page.getByRole('heading', { name: 'Gerenciar' });
+  // ✅ DIRECT locators (not nested in object) - Pattern: locator{Description}{Type}
+  this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
+  this.locatorTitleHeading = this.page.getByRole('heading', { name: 'Manage' });
 
-  // ✅ Locators com strings literais (para expect estáticos)
-  this.locatorDataFechamentoText = this.page.getByText('Data de Fechamento -');
-  this.locatorValorEstimadoText = this.page.getByText('Valor Estimado R$0,00');
-  this.locatorValorRealizadoText = this.page.getByText('Valor Realizado R$0,00');
+  // ✅ Locators with literal strings (for static expect checks)
+  this.locatorClosingDateText = this.page.getByText('Closing Date -');
+  this.locatorEstimatedValueText = this.page.getByText('Estimated Value $0.00');
+  this.locatorActualValueText = this.page.getByText('Actual Value $0.00');
 
-  // ✅ Locators-base para aninhamento posterior
+  // Base locators for later nesting
   this.locatorKanbanCardTitleDiv = this.page.locator('.kanban-card-title');
   this.locatorKanbanCardDescriptionDiv = this.page.locator('.kanban-card-description');
   this.locatorKanbanCardFooterDiv = this.page.locator('.kanban-card-footer');
 }
 
 async validarDados() {
-  // ✅ CORRETO - Usar locator do constructor
-  await expect(this.locatorDataFechamentoText).toBeVisible();
-  await expect(this.locatorValorEstimadoText).toBeVisible();
+  // Correct - Use constructor locator
+  await expect(this.locatorClosingDateText).toBeVisible();
+  await expect(this.locatorEstimatedValueText).toBeVisible();
 }
 
-async preencherFormulario(dados) {
-  // ✅ CORRETO - Usar constante ID do constructor
-  await this.formUtils.fillFieldPDropdown(this.ID_ORIGEM_NEGOCIO_DROPDOWN, dados.origem);
-  await this.formUtils.fillFieldSLookup(this.ID_CONTA_LOOKUP, dados.conta);
+async preencherFormulario(data) {
+  // Correct - Use Constructor ID constant
+  await this.formUtils.fillFieldPDropdown(this.ID_ORIGEM_NEGOCIO_DROPDOWN, data.origin);
+  await this.formUtils.fillFieldSLookup(this.ID_CONTA_LOOKUP, data.account);
 }
 
-async validarCardKanban(dados) {
-  // ✅ CORRETO - Usar locator-base do constructor + filtro dinâmico
-  const locatorCardDescricao = this.locatorKanbanCardTitleDiv.filter({ hasText: dados.descricao });
-  await expect(locatorCardDescricao).toBeVisible();
+async validarCardKanban(data) {
+  // Correct - Use builder base locator + dynamic filter
+  const locatorCardDescription = this.locatorKanbanCardTitleDiv.filter({ hasText: data.description });
+  await expect(locatorCardDescription).toBeVisible();
 }
 ```
 
-**❌ Anti-Padrões do Projeto:**
+**❌ Project Anti-standards:**
 
 ```javascript
-// ❌ NÃO criar expect com string literal no método
+// DO NOT create expect with literal string in the method
 async validarDados() {
-  await expect(this.page.getByText('Data de Fechamento -')).toBeVisible(); // PROIBIDO
-  await expect(this.page.getByText('Valor Estimado R$0,00')).toBeVisible(); // PROIBIDO
+  await expect(this.page.getByText('Closing Date -')).toBeVisible(); // FORBIDDEN
+  await expect(this.page.getByText('Estimated Value $0.00')).toBeVisible(); // FORBIDDEN
 }
 
-// ❌ NÃO usar IDs/Classes inline nos métodos
-async preencherFormulario(dados) {
-  await this.formUtils.fillFieldPDropdown('#businessOrigin', dados.origem); // PROIBIDO
-  await this.formUtils.fillFieldSLookup('#account-autocomplete', dados.conta); // PROIBIDO
+// DO NOT use inline IDs/Classes in the methods
+async preencherFormulario(data) {
+  await this.formUtils.fillFieldPDropdown('#businessOrigin', data.origin); // FORBIDDEN
+  await this.formUtils.fillFieldSLookup('#account-autocomplete', data.account); // FORBIDDEN
 }
 
-// ❌ NÃO criar locator-base inline sem constructor
-async validarCard(dados) {
-  const locator = this.page.locator('.kanban-card-title').filter({ hasText: dados.descricao }); // PROIBIDO
+// DO NOT create inline base locator without constructor
+async validarCard(data) {
+  const locator = this.page.locator('.kanban-card-title').filter({ hasText: data.description }); // FORBIDDEN
   await expect(locator).toBeVisible();
 }
 
-// ❌ NÃO usar objeto aninhado
+// ❌ DO NOT use nested object
 this.locators = {
-  botaoSalvar: this.page.getByRole('button', { name: 'Salvar' })
+  saveButton: this.page.getByRole('button', { name: 'Save' })
 };
 
-// ❌ NÃO criar método factory
-static async create(page) { return new MinhaPage(page); }
+// DO NOT create factory method
+static async create(page) { return new MyPage(page); }
 
-// ❌ IDs/Classes sem símbolo CSS e sem sufixo de tipo
-this.ID_CAMPO = 'campo-autocomplete'; // Falta '#' e sufixo _LOOKUP
-this.CLASS_MODAL = 'modal-content';   // Falta '.' e sufixo _DIV
-this.ID_ENVIAR = 'button[type="submit"]'; // Não é ID, é CSS → deveria ser CSS_ENVIAR_BUTTON
+// ❌ IDs/Classes without CSS symbol and without type suffix
+this.ID_FIELD = 'field-autocomplete'; // # and suffix LOOKUP missing
+this.CLASS_MODAL = 'modal-content';   // Missing '.' and  DIV suffix
+this.ID_ENVIAR = 'button[type="submit"]'; // It's not ID, it's CSS → it should be CSS SEND BUTTON
 ```
 
-### **B. IDs de Campos no Constructor**
+### **B. Field IDs in Builder**
 
-> **⚠️ TODOS os IDs de campos (s-lookup, p-dropdown, etc.) DEVEM ser constantes no constructor**
+> **⚠Must be constant in the constructor**
 >
-> **🚨 FORMATO OBRIGATÓRIO: IDs e Classes DEVEM incluir o símbolo do seletor CSS**
+> **🚨 MANDATORY FORMAT: IDs and Classes MUST include the CSS selector symbol**
 
-**NOMENCLATURA OBRIGATÓRIA DE CONSTANTES: `TIPO_{DESCRICAO}_{TipoElemento}`**
+**MANDATORY NAME OF CONSTANTS: `TYPE {DESCRIPTION} {ElementType}`**
 
-- **ID** (começa com `#`): `this.ID_CONTA_LOOKUP = '#account-autocomplete';`
-- **Class** (começa com `.`): `this.CLASS_CONTEUDO_DIV = '.modal-content';`
-- **CSS** (seletor genérico — tag, atributo, combinação, etc.): `this.CSS_ENVIAR_BUTTON = 'button[type="submit"]';`
-- **XPath** (path — `//`, `/`, `[@attr]`, etc.): `this.XPATH_SALVAR_BUTTON = '//button[contains(text(),"Salvar")]';`
+- **ID** (starts with `#`): `this.ID_ACCOUNT_LOOKUP = '#account-autocomplete';`
+- **Class** (starts with `.`): `this.CLASS CONTEUDO DIV = '.modal-content';`
+- **CSS** (generic selector — tag, attribute, combination, etc.): `this.CSS SEND BUTTON = 'button[type="submit"]';`
+- **XPath** (path — `//`, `/`, `[@attr]`, etc.): `this.XPATH_SAVE_BUTTON = '//button[contains(text(), "Save")]';`
 
-**Sufixos `{TipoElemento}` comuns:**
+**Common suffix(s):**
 
-| Sufixo | Uso |
-|--------|-----|
-| `INPUT` | Campos de texto (`<input>`, `<textarea>`) |
-| `LOOKUP` | Componentes s-lookup (`<s-lookup>`) |
-| `DROPDOWN` | Componentes p-dropdown (`<p-dropdown>`) |
-| `BUTTON` | Botões (`<button>`) |
-| `TABLE` | Tabelas (`<table>`) |
-| `DIV` | Containers/divs genéricos |
-| `SPAN` | Elementos span |
-| `CALENDAR` | Componentes p-calendar (`<p-calendar>`) |
-| `DIALOG` | Modais/diálogos |
-| `LABEL` | Labels |
+| Suffix | Usage |
+| -------- | ----- |
+| ‘INPUT’ | Text fields (`<input>`, `<textarea>`) |
+| ‘LOOKUP’ | S-lookup components (`<s-lookup>`) |
+| 'DROPDOWN' | p-dropdown components (`<p-dropdown>`) |
+| 'Button' | Buttons (`<button>`) |
+| ‘TABLE’ | Tables (`<table>`) |
+| ‘DIV’ | Generic containers/divs |
+| ‘SPAN’ | Span widgets |
+| 'CALEND' | p-calendar components (`<p-calendar>`) |
+| ‘DIALOG’ | Modal/dialogues |
+| 'LABEL' | Labels |
 
-> **Regra de decisão — Prefixo:** Se o valor começa com `#` → `ID_`. Se começa com `.` → `CLASS_`. Se é XPath (`//`, `/`) → `XPATH_`. Qualquer outro caso → `CSS_`.
+> **Decision rule — Prefix:** If the value starts with `#` → `ID`. If it starts with `.` → `CLASS`. If it is XPath (`/`, `/`) → `XPATH`. Any other case → `CSS`.
 >
-> **Regra de decisão — Sufixo:** O último segmento SEMPRE indica o tipo de elemento HTML/componente alvo do seletor.
+> **Decision rule — Suffix:** The last segment ALWAYS indicates the type of HTML element/target component of the selector.
 
-**❌ ANTI-PADRÃO CRÍTICO (NÃO FAZER):**
+**❌ CRITICAL ANTI-PATTERN (NOT TO DO):**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ❌ ERRADO - IDs/Classes sem símbolo seletor CSS e sem sufixo de tipo
-  this.ID_CAMPO = 'id-campo';           // Falta '#' e sufixo _LOOKUP
-  this.CLASS_MODAL = 'modal-content';   // Falta '.' e sufixo _DIV
-  this.ID_INPUT = 'container input';    // Seletor CSS, não é ID → deveria ser CSS_CONTAINER_INPUT
+  // Wrong - IDs/Classes without CSS selector symbol and without type suffix
+  this.ID_FIELD = 'id-field';           // # and suffix LOOKUP missing
+  this.CLASS_MODAL = 'modal-content';   // Missing '.' and  DIV suffix
+  this.ID_INPUT = 'container input';    // CSS selector, not ID → should be CSS CONTAINER INPUT
 }
 ```
 
 ```javascript
-async validarDadosEdicao(dados) {
-  // ❌ ERRADO - Locators FIXOS fora do constructor (strings literais e seletores CSS fixos)
-  await expect(this.page.getByText('Data de Fechamento -')).toBeVisible();
-  await expect(this.page.getByText('Valor Estimado R$0,00')).toBeVisible();
+async validateEditData(data) {
+  // WRONG - FIXED locators outside the constructor (literal strings and fixed CSS selectors)
+  await expect(this.page.getByText('Closing Date -')).toBeVisible();
+  await expect(this.page.getByText('Estimated Value $0.00')).toBeVisible();
   await expect(this.page.locator('table tbody tr')).toBeVisible();
-  await this.formUtils.fillFieldSLookup('#id-campo', dados.valor);
+  await this.formUtils.fillFieldSLookup('#id-field', data.value);
 
-  // ❌ ERRADO - Usar ID inline sem estar no constructor
-  await this.page.locator('.class-campo').click();
+  // Wrong - Use inline ID without being in the constructor
+  await this.page.locator('.class-field').click();
 }
 ```
 
 ```javascript
-async validarDadosEdicao(dados) {
-  // ✅ CORRETO - Locators DINÂMICOS no método (usa variável)
-  await expect(this.page.getByText(dados.descricao)).toBeVisible();
-  await expect(this.page.getByText(`Data ${dataAtual}`)).toBeVisible();
-  await expect(this.page.locator(`tr[id="${dados.id}"]`)).toBeVisible();
-  await this.formUtils.fillFieldSLookup(this.ID_CAMPO_LOOKUP, dados.valor);
+async validateEditData(data) {
+  // Correct - DINAMIC locators in the method (variable use)
+  await expect(this.page.getByText(data.description)).toBeVisible();
+  await expect(this.page.getByText(`Date ${currentDate}`)).toBeVisible();
+  await expect(this.page.locator(`tr[id="${data.id}"]`)).toBeVisible();
+  await this.formUtils.fillFieldSLookup(this.ID_FIELD_LOOKUP, data.value);
 }
 ```
 
-**✅ PADRÃO CORRETO COMPLETO:**
+**✅ COMPLETE RIGHT STANDARD:**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ✅ CORRETO - Nomenclatura TIPO_{DESCRICAO}_{TipoElemento}
-  this.ID_CAMPO_LOOKUP = '#campo-autocomplete';                       // ID + descricao + tipo componente
-  this.CLASS_CONTEUDO_DIV = '.modal-content';                         // CLASS + descricao + tipo elemento
-  this.CSS_CONTAINER_INPUT = 'div#container input#campo';             // CSS + descricao + tipo elemento
-  this.CSS_ENVIAR_BUTTON = 'button[type="submit"]';                   // CSS + descricao + tipo elemento
-  this.XPATH_SALVAR_BUTTON = '//button[contains(text(),"Salvar")]';   // XPATH + descricao + tipo elemento
+  // CORRECT - Nomenclature TYPE {DESCRIPTION} {ElementType}
+  this.ID_FIELD_LOOKUP = '#field-autocomplete';                       // ID + description + component type
+  this.CLASS_CONTENT_DIV = '.modal-content';                         // CLASS + description + element type
+  this.CSS_CONTAINER_INPUT = 'div#container input#field';             // CSS + description + element type
+  this.CSS_SUBMIT_BUTTON = 'button[type="submit"]';                   // CSS + description + element type
+  this.XPATH_SAVE_BUTTON = '//button[contains(text(),"Save")]';   // XPATH + description + element type
 
-  // ✅ CORRETO - Locators FIXOS no constructor (strings literais e seletores CSS fixos)
-  this.locatorDataFechamentoText = this.page.getByText('Data de Fechamento -');
-  this.locatorValorEstimadoText = this.page.getByText('Valor Estimado R$0,00');
-  this.locatorTabelaBody = this.page.locator('table tbody tr');
+  // ✅ CORRECT - FIXED locators in constructor (literal strings and fixed CSS selectors)
+  this.locatorClosingDateText = this.page.getByText('Closing Date -');
+  this.locatorEstimatedValueText = this.page.getByText('Estimated Value $0.00');
+  this.locatorTableBody = this.page.locator('table tbody tr');
 }
 
-async validarDadosEdicao(dados) {
-  // ✅ CORRETO - Usar locators FIXOS do constructor
-  await expect(this.locatorDataFechamentoText).toBeVisible();
-  await expect(this.locatorValorEstimadoText).toBeVisible();
-  await expect(this.locatorTabelaBody).toBeVisible();
+async validateEditData(data) {
+  // Correct - Use FIXED constructor locators
+  await expect(this.locatorClosingDateText).toBeVisible();
+  await expect(this.locatorEstimatedValueText).toBeVisible();
+  await expect(this.locatorTableBody).toBeVisible();
 
-  // ✅ CORRETO - Usar constantes do constructor (IDs/Classes)
-  await this.formUtils.fillFieldSLookup(this.ID_CAMPO_LOOKUP, dados.valor);
-  await this.page.locator(this.CLASS_CONTEUDO_DIV).click();
-  await this.page.locator(this.CSS_CONTAINER_INPUT).fill(dados.valor);
+  // Correct - Use constructor constants (IDs/Classes)
+  await this.formUtils.fillFieldSLookup(this.ID_FIELD_LOOKUP, data.value);
+  await this.page.locator(this.CLASS_CONTENT_DIV).click();
+  await this.page.locator(this.CSS_CONTAINER_INPUT).fill(data.value);
 
-  // ✅ CORRETO - Locators DINÂMICOS no método (depende de variável)
-  await expect(this.page.getByText(dados.descricao)).toBeVisible();
-  await expect(this.page.getByText(`Data ${dataAtual}`)).toBeVisible();
-  await expect(this.page.locator(`tr[id="${dados.id}"]`)).toBeVisible();
+  // Correct - DINAMIC locators in the method (depends on variable)
+  await expect(this.page.getByText(data.description)).toBeVisible();
+  await expect(this.page.getByText(`Date ${currentDate}`)).toBeVisible();
+  await expect(this.page.locator(`tr[id="${data.id}"]`)).toBeVisible();
 }
 ```
 
-**VALIDAÇÃO OBRIGATÓRIA:**
+**MANDATORY VALIDATION:**
 
-Antes de finalizar, verificar se TODAS as constantes:
+Before finishing, check if ALL constants:
 
-- **IDs** começam com `#` e têm sufixo de tipo (ex: `_LOOKUP`, `_DROPDOWN`, `_INPUT`)
-- **Classes** começam com `.` e têm sufixo de tipo (ex: `_DIV`, `_SPAN`)
-- **Seletores compostos** incluem símbolos completos e prefixo `CSS_`
-- **XPaths** têm prefixo `XPATH_` e sufixo de tipo
-- **TODAS** as constantes seguem o padrão `TIPO_{DESCRICAO}_{TipoElemento}`
+- **IDs** start with `#` and have type suffix (e.g. `LOOKUP`, `DROPDOWN`, `INPUT`)
+- **Class** start with `.` and have type suffix (e.g. `DIV`, `SPAN`)
+- **Compound selectors** include complete symbols and prefix `CSS`
+- **XPaths** have prefix `XPATH` and type suffix
+- **ALL** constants follow the pattern `TYPE {DESCRIPTION} {ElementType}`
 
-**Motivo:** Constantes sem símbolo seletor CSS causam erro ao tentar localizar elementos. O Playwright requer seletor CSS completo em `page.locator()`.
+**Reason:** Constants without CSS selector symbol cause error while trying to locate elements. Playwright requires full CSS selector in `page.locator()`.
 
 ---
 
-### **C. Não Repetir Valor em fillFieldSLookup**
+### **C. Do not Repeat Value in fillFieldSLookup**
 
-> **⚠️ Se valor e valorClique são iguais, passar apenas valor**
+> **⚠If value and valueClick are equal, pass only value**
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-// ❌ ERRADO - Repetir valor desnecessariamente
+// Wrong - Repeat value unnecessarily
 await this.formUtils.fillFieldSLookup(this.ID_CAMPO_LOOKUP, valor, valor);
 ```
 
-**✅ PADRÃO CORRETO:**
+**✅ Correct pattern:**
 
 ```javascript
-// ✅ CORRETO - Passar apenas valor (valorClique é opcional)
+// Correct - Pass only value (Click value is optional)
 await this.formUtils.fillFieldSLookup(this.ID_CAMPO_LOOKUP, valor);
 
-// ✅ CORRETO - Passar valorClique somente se diferente
+// Correct - Pass ValueClick only if different
 await this.formUtils.fillFieldSLookup(this.ID_CAMPO_LOOKUP, valor, valorDiferente);
 ```
 
-**Motivo:** O método `fillFieldSLookup` usa o valor como clique se valorClique não for fornecido.
+**Reason:** The `fillFieldSLookup' method uses the value as click if valueClick is not provided.
 
 ---
 
-## **REGRAS CRÍTICAS DE JSDOC**
+## **CRITICAL RULES OF JSDOC**
 
-> **📘 Regras completas, exemplos corretos/incorretos e checklist de validação: consulte a seção `📝 JSDoc - OBRIGATÓRIO` mais abaixo neste módulo.**
+> **📘 Complete rules, correct/incorrect examples and validation checklist: refer to section `**
 
-### **JSDoc Obrigatório para Parâmetros Object (RESUMO)**
+### **JSDoc Required for Object Parameters**
 
-> **🚨 REGRA ABSOLUTA: NUNCA DETALHAR CAMPOS INDIVIDUAIS DO JSON**
+> **🚨 ABSOLUTE RULE: NEVER DETAIL JSON'S INDIVIDUAL FIELDS**
 >
-> **Motivo:** Evita duplicação de informação (dados estão no JSON) e desatualização quando JSON mudar.
+> **Reason:** Avoids duplication of information (data is in JSON) and outdated when JSON changes.
+> **⛔ THANK YOU: `@param {object}` ↔ `Example: JSON {CONSTANT}`**
+>
+> The line `Example: JSON_{CONSTANT}` is **MANDATORY** and **EXCLUSIVELY LINKED** to a `@param {object}`.
+>
+> **Where NOT applicable:** `@param {object} page` (Playwright parameter, not JSON data)
+>
+> **🛡CHECKLIST BEFORE WRITTEN `Example:` (TRY FOR EVERY JSDoc):**
+>
+> 1. I'm writing JSDoc's class? → **PROHIBITED `Example:`** — describes only general purpose
+> 2. Does the method have `@param {object}` representing JSON data? → **MANDATORY `Example: JSON {CONSTANT}`**
+> 3. The method **NO** has `@param {object}`? (e.g. `accessate()`, `clean()`, `save()`) → **PROHIBITED `Example:`**
+> 4. `@param {object}` is Playwright 'page'? → **DO NOT apply** (not JSON data)
+>
+> **⛔ If answer 1 or 3 = YES: REMOVE `Example:` IMMEDIATELY**
 
-> **⛔ VÍNCULO OBRIGATÓRIO: `@param {object}` ↔ `Exemplo: JSON_{CONSTANTE}`**
->
-> A linha `Exemplo: JSON_{CONSTANTE}` é **OBRIGATÓRIA** e **EXCLUSIVAMENTE VINCULADA** a um `@param {object}`.
->
-> - ✅ Existe `@param {object}` → **DEVE** existir `Exemplo: JSON_{CONSTANTE}` na linha seguinte
-> - ✅ Existe `Exemplo: JSON_{CONSTANTE}` → **DEVE** existir `@param {object}` na linha anterior
-> - ❌ **NUNCA** adicionar `Exemplo: JSON` sem `@param {object}` correspondente
-> - ❌ **NUNCA** adicionar `@param {object}` sem `Exemplo: JSON` correspondente (quando JSON é conhecido)
-> - ❌ **NUNCA** adicionar `Exemplo: JSON` no JSDoc da **classe** (exclusivo de métodos)
->
-> **Onde NÃO se aplica:** `@param {object} page` (parâmetro do Playwright, não é JSON de dados)
->
-> **🛡️ CHECKLIST ANTES DE ESCREVER `Exemplo:` (VALIDAR MENTALMENTE PARA CADA JSDoc):**
->
-> 1. Estou escrevendo JSDoc de **classe** (`export class`)? → **PROIBIDO `Exemplo:`** — descreve apenas propósito geral
-> 2. O método tem `@param {object}` que represente JSON de dados? → **OBRIGATÓRIO `Exemplo: JSON_{CONSTANTE}`**
-> 3. O método **NÃO** tem `@param {object}`? (ex: `acessaTela()`, `limpar()`, `salvar()`) → **PROIBIDO `Exemplo:`**
-> 4. O `@param {object}` é `page` do Playwright? → **NÃO se aplica** (não é JSON de dados)
->
-> **⛔ SE resposta 1 ou 3 = SIM: REMOVA `Exemplo:` IMEDIATAMENTE**
-
-**Exemplo completo de classe — onde `Exemplo:` é PROIBIDO vs CORRETO:**
+**Full class example — where ‘Example:’ is prohibited vs Correct:**
 
 ```javascript
-// ❌ ERRADO - Exemplo: aparece na classe e em método sem @param {object}
+// Wrong - Example: appears in the class and in method without @param {object}
 /**
- * Page Object para {NomeFuncionalidade}
- * Encapsula ações de {descrição}
- * Exemplo: JSON_{CONSTANTE}              ← ❌ PROIBIDO: JSDoc de classe
+ * Page Object for {FeatureName}
+ * Encapsulates actions for {description}
+ * Example: JSON_{CONSTANT}              ← ❌ FORBIDDEN: class JSDoc
  */
 export class {NomeFuncionalidade}Page {
   constructor(page) { /* ... */ }
 
   /**
-   * Acessa a tela de {funcionalidade}
-   * Exemplo: JSON_{CONSTANTE}            ← ❌ PROIBIDO: método sem @param {object}
+   * Access the {feature} screen
+  * Example: JSON_{CONSTANT}            ← ❌ FORBIDDEN: method without @param {object}
    */
-  async acessaTela() { }
+  async accessScreen() { }
 
   /**
-   * Adiciona registro com dados
-   * @param {object} dados - Dados do registro
-   * Exemplo: JSON_{CONSTANTE}            ← ✅ CORRETO: método com @param {object}
+   * Add record with data
+   * @param {object} data - Record data
+  * Example: JSON_{CONSTANT}            ← ✅ CORRECT: method with @param {object}
    */
-  async adicionarRegistro(dados) { }
+  async addRecord(data) { }
 }
 ```
 
 ```javascript
-// ✅ CORRETO - Exemplo: aparece APENAS no método com @param {object}
+// Correct - Example: appears ONLY in the method with @param {object}
 /**
- * Page Object para {NomeFuncionalidade}
- * Encapsula ações de {descrição}
+ * Page Object for {FeatureName}
+ * Encapsulates actions for {description}
  */
 export class {NomeFuncionalidade}Page {
   constructor(page) { /* ... */ }
 
   /**
-   * Acessa a tela de {funcionalidade}
+   * Access the {feature} screen
    */
-  async acessaTela() { }
+  async accessScreen() { }
 
   /**
-   * Adiciona registro com dados
-   * @param {object} dados - Dados do registro
-   * Exemplo: JSON_{CONSTANTE}
+   * Add record with data
+   * @param {object} data - Record data
+  * Example: JSON_{CONSTANT}
    */
-  async adicionarRegistro(dados) { }
+  async addRecord(data) { }
 }
 ```
 
-**Estrutura Obrigatória (APENAS em métodos, NUNCA em classes):**
+**Mandatory structure (Only in methods, NEVER in classes):**
 
 ```javascript
 /**
- * Descrição do que o método faz
- * @param {object} dados - Descrição do parâmetro
- * Exemplo: JSON_{CONSTANTE}
+ * Description of what the method does
+ * @param {object} data - Parameter description
+ * Example: JSON_{CONSTANT}
  */
-async nomeDoMetodo(dados) {
-  // implementação
+async nomeDoMetodo(data) {
+  // implementation
 }
 ```
 
-> **⚠️ ATENÇÃO:** A linha `Exemplo: JSON_{CONSTANTE}` é EXCLUSIVA de JSDoc de **métodos**.
-> O JSDoc da **classe** NUNCA deve conter `Exemplo:` — descreve apenas a funcionalidade.
+> **⚠WARNING:** The line `Example: JSON {CONSTANT}` is EXCLUSIVE from JSDoc of **methods**.
+> The JSDoc of the**class** NEVER contains `Example:` — describes only functionality.
 
-**Regras Rápidas:**
+**Quick Rules:**
 
-- ✅ **1 JSON:** `Exemplo: JSON_{CONSTANTE}`
-- ✅ **Múltiplos JSONs:** `Exemplo: JSON_{CONSTANTE_1} ou JSON_{CONSTANTE_2}`
-- ✅ Usar placeholder `JSON_{CONSTANTE}` nos templates, substituir pelo nome REAL do JSON na implementação
-- ❌ **NUNCA detalhar campos:** `dados.campo1`, `dados.campo2`
-- ❌ **NUNCA omitir** linha `Exemplo:` quando `@param {object}` existir e JSON for conhecido
-- ❌ **NUNCA adicionar** linha `Exemplo:` sem `@param {object}` correspondente na linha anterior
+- ✅ **1 JSON:**`Example: JSON {CONSTANT}`
+- ✅ **Multiple JSONs:**`Example: JSON {CONSTANT 1} or JSON {CONSTANT 2}`
+- ✅ Use placeholder `JSON {CONSTANT}` in templates, replace with JSON's REAL name in implementation
+- ❌ **NEVER detail fields:** `data. field1`, 'data. field2`
+- ❌ **NEVER omit** line `Example:` when `@stop {object}` exists and JSON is known
+- ❌ **NEVER add** line `Example:` without `@param {object}` corresponding on the previous line
 
-**❌ ANTI-PADRÃO:**
+**❌ ANTI-PATTERN:**
 
 ```javascript
-// ❌ ERRADO - Detalhando campos (PROIBIDO)
+// WRONG - Detailing fields (FORBIDDEN)
 /**
- * @param {object} dados - Dados do registro
- * @param {string} dados.acao - 'incluir' ou 'editar'
- * @param {string} dados.descricao - Descrição
+ * @param {object} data - Record data
+ * @param {string} data.action - 'add' or 'edit'
+ * @param {string} data.description - Description
  */
-async adicionarOuEditarRegistro(dados) { }
+async addOrEditRecord(data) { }
 ```
 
-**✅ PADRÃO CORRETO:**
+**✅ Correct pattern:**
 
 ```javascript
-// ✅ CORRETO - Simples e referenciado
+// Correct - Simple and referenced
 /**
- * Adiciona ou edita registro conforme ação especificada
- * @param {object} dados - Dados do registro
- * Exemplo: JSON_{CONSTANTE}
+ * Adds or edits record according to the specified action
+ * @param {object} data - Record data
+ * Example: JSON_{CONSTANT}
  */
-async adicionarOuEditarRegistro(dados) { }
+async addOrEditRecord(data) { }
 ```
 
 ---
 
-### **Locators Sem Parâmetros SEMPRE no Constructor**
+### **Locators Without Parameters Always in Builder**
 
-> **⚠️ REGRA UNIVERSAL: Qualquer locator que não depende de parâmetros DEVE ser declarado no constructor**
+> **⚠UNIVERSAL RULE: Any locator that does not depend on parameters MUST be declared in the constructor**
 
-**Definição de "Locator Sem Parâmetros":**
+**Definition of "Locator Without Parameters":**
 
-- Locator com valor fixo/hardcoded
-- Locator que não depende de dados do método
-- Locator que não usa valores de parâmetros
+- Locator with fixed value/hardcoded
+- Locator not dependent on method data
+- Locator that does not use parameter values
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-async salvarFormulario() {
-  // ❌ ERRADO - Todos estes locators usam STRINGS FIXAS e devem estar no constructor
-  const locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' }); // ❌ String 'Salvar' é FIXA
-  await locatorSalvarButton.click();
-  await expect(this.page.getByText('Sucesso')).toBeVisible(); // ❌ String 'Sucesso' é FIXA
+async saveForm() {
+  // WRONG - All these locations use FIXED STRINGS and must be in the constructor
+  const locatorSaveButton = this.page.getByRole('button', { name: 'Save' }); // ❌ String 'Save' is FIXED
+  await locatorSaveButton.click();
+  await expect(this.page.getByText('Success')).toBeVisible(); // ❌ String 'Success' is FIXED
 }
 
-async preencherNome(nome) {
-  // ❌ ERRADO - Locator com string FIXA fora do constructor
-  const locatorNomeInput = this.page.getByLabel('Nome'); // ❌ String 'Nome' é FIXA
-  await locatorNomeInput.fill(nome);
-  await expect(this.page.getByRole('button', { name: 'Balão' })).toBeVisible(); // ❌ String 'Balão' é FIXA
+async fillName(name) {
+  // ERROR - Locator with FIXA string outside the constructor
+  const locatorNameInput = this.page.getByLabel('Name'); // ❌ String 'Name' is FIXED
+  await locatorNameInput.fill(name);
+  await expect(this.page.getByRole('button', { name: 'Balloon' })).toBeVisible(); // ❌ String 'Balloon' is FIXED
 }
 ```
 
-**✅ PADRÃO CORRETO:**
+**✅ Correct pattern:**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ✅ CORRETO - TODOS locators sem parâmetros no constructor
-  this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });
-  this.locatorNomeInput = this.page.getByLabel('Nome');
-  this.locatorTabelaRegistros = this.page.getByRole('table');
-  this.locatorLinhaFaturamentoDevolucao = this.page.getByRole('row').filter({ hasText: 'Faturamento devolução' });
+  // RIGHT - ALL locators without parameters in the constructor
+  this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
+  this.locatorNameInput = this.page.getByLabel('Name');
+  this.locatorRecordsTable = this.page.getByRole('table');
+  this.locatorReturnedBillingRow = this.page.getByRole('row').filter({ hasText: 'Returned billing' });
 }
 
-async salvarFormulario() {
-  // ✅ CORRETO - Usar locator do constructor
-  await this.locatorSalvarButton.click();
+async saveForm() {
+  // Correct - Use constructor locator
+  await this.locatorSaveButton.click();
 }
 
-async preencherNome(nome) {
-  // ✅ CORRETO - Usar locator do constructor
-  await this.locatorNomeInput.fill(nome);
-  await expect(this.locatorLinhaFaturamentoDevolucao).toBeVisible();
+async fillName(name) {
+  // Correct - Use constructor locator
+  await this.locatorNameInput.fill(name);
+  await expect(this.locatorReturnedBillingRow).toBeVisible();
 }
 ```
 
-**Exceção ÚNICA Permitida (Locators Dinâmicos):**
+**Permitted Single Exception (Dynamic Locators):**
 
 ```javascript
-async buscarRegistroPorNome(nomeRegistro) {
-  // ✅ PERMITIDO - Locator dinâmico (usa parâmetro/variável)
-  const locatorLinhaRegistro = this.page.getByRole('row').filter({ hasText: nomeRegistro });
-  await locatorLinhaRegistro.click();
+async findRecordByName(recordName) {
+  // PERMITED - Dynamic locator (use parameter/variable)
+  const locatorRecordRow = this.page.getByRole('row').filter({ hasText: recordName });
+  await locatorRecordRow.click();
 }
 
-async validarDados(dados) {
+async validarDados(data) {
   const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-  // ✅ PERMITIDO - Locators dinâmicos (usam variáveis)
-  await expect(this.page.getByText(dados.descricao)).toBeVisible();
+  // PERMITED - Dynamic locators (use variables)
+  await expect(this.page.getByText(data.description)).toBeVisible();
   await expect(this.page.getByText(`Data de Abertura ${dataAtual}`)).toBeVisible();
 }
 ```
 
-**🔍 VALIDAÇÃO OBRIGATÓRIA (ANTES DE FINALIZAR):**
+**🔍 MANDATORY VALIDATION ( BEFORE FINISHING):**
 
 ```bash
-# Executar grep para encontrar TODOS os locators no arquivo
+# Run grep to find ALL locators in the file
 grep_search(query="this\\.(page|frame)\\.(getBy|locator|frameLocator)",
-            includePattern="{arquivo}Page.js",
+            includePattern="{file}Page.js",
             isRegexp=true)
 
-# Para CADA resultado verificar:
-# 1. Está no constructor? → ✅ OK
-# 2. Está no método E usa STRING FIXA ou SELETOR CSS FIXO? → ❌ MOVER PARA CONSTRUCTOR
-# 3. Está no método E usa VARIÁVEL/PARÂMETRO? → ✅ OK
+# For EACH result, check:
+# 1. Is it in the constructor? -> ✅ OK
+# 2. Is it in the method AND uses FIXED STRING or FIXED CSS SELECTOR? -> ❌ MOVE TO CONSTRUCTOR
+# 3. Is it in the method AND uses VARIABLE/PARAMETER? -> ✅ OK
 
-# Exemplos de STRING/SELETOR FIXO (DEVEM estar no constructor):
-# - this.page.getByRole('button', { name: 'Salvar' })  ← String 'Salvar' é FIXA
-# - this.page.getByText('Sucesso')                     ← String 'Sucesso' é FIXA
-# - this.page.locator('table tbody tr')                ← Seletor CSS é FIXO
-# - this.frame.locator('.modal-content')               ← Classe CSS é FIXA
+# Examples of FIXED STRING/SELECTOR (MUST be in the constructor):
+# - this.page.getByRole('button', { name: 'Save' })  <- String 'Save' is FIXED
+# - this.page.getByText('Success')                     <- String 'Success' is FIXED
+# - this.page.locator('table tbody tr')                <- CSS selector is FIXED
+# - this.frame.locator('.modal-content')               <- CSS class is FIXED
 
-# Exemplos de VARIÁVEL (PODEM ficar no método):
-# - this.page.getByText(dados.nome)                    ← Usa variável
-# - this.page.locator(`tr:has-text("${id}")`)          ← Usa template literal com variável
-# - this.locatorRegistrosTable.locator('tr').filter({ hasText: nome }) ← Encadeia com variável
+# Examples of VARIABLE (CAN remain in the method):
+# - this.page.getByText(data.name)                    <- Uses variable
+# - this.page.locator(`tr:has-text("${id}")`)          <- Uses template literal with variable
+# - this.locatorRecordsTable.locator('tr').filter({ hasText: name }) <- Chains with variable
 ```
 
-**Checklist de Decisão:**
+**Decision Checklist:**
 
-| Pergunta | Resposta | Ação |
-|----------|----------|------|
-| Locator usa valor fixo? | SIM | ✅ Constructor |
-| Locator usa valor de parâmetro? | NÃO | ✅ Constructor |
-| Locator usa `.filter()` com variável? | NÃO | ✅ Constructor |
-| Locator depende de dados do método? | NÃO | ✅ Constructor |
-| Locator usa parâmetro do método? | SIM | ✅ Pode ficar no método |
+| Question | Response | Action |
+♪ ♪ -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+| Locator uses fixed value? | YES | ✅ Constructor |
+| Do you use parameter value? | NO | ✅ Constructor |
+| Locator uses `.filter()` with variable? | NO | ✅ Constructor |
+| Locator depends on method data? | NO | ✅ Constructor |
+| Does locator use method parameter? | YES | You can stay in the method |
 
-**Motivo:** Centralizar todos locators estáticos facilita manutenção e evita duplicação.
+**Reason:** Centralizing all static locators facilitates maintenance and avoids duplication.
 
 ---
 
-### **D. Try/Catch Obrigatório para Botões "Ações" e "Opções"**
+### **D. Try/Catch Required for Action Buttons and Options**
 
-> **⚠️ REGRA CRÍTICA E OBRIGATÓRIA: Botões "Ações" e "Opções" que abrem menu dropdown DEVEM SEMPRE usar try/catch com `{ force: true }` para garantir execução confiável**
+> **⚠CRITICAL AND MANDATORY RULE: Action Buttons and Options that open dropdown menu MUST ALWAYS use try/catch with `{force: true }` to ensure reliable execution**
 
-**🔍 DETECÇÃO AUTOMÁTICA - QUANDO APLICAR:**
+**🔍 AUTOMATIC DETECTION - WHEN TO APPLY:**
 
-Aplicar esta regra quando identificar botão com:
-- Estrutura HTML: `<s-button><p-tieredmenu appendto="body"></p-tieredmenu><button>Ações</button></s-button>`
-- Texto comum: "Ações" ou "Opções" (mas pode ser qualquer texto)
-- Localizado em grids/tabelas
-- Menu items renderizados no `body` (FORA da estrutura do botão)
+Apply this rule when identifying button with:
 
-**🚨 PADRÃO OBRIGATÓRIO:**
+- HTML structure: `<s-button><p-tieredmenu appendto="body"></p-tieredmenu><button>Actions</button></s-button>`
+- Common text: "Actions" or "Options" (but it can be any text)
+- Located in grids/tables
+- Menu items rendered in 'body' (button structure OUTSIDE)
+
+**🚨 MANDATORY STANDARD:**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ✅ Locator do botão (dentro do grid)
-  this.locatorAcoesButton = this.page.getByRole('button', { name: 'Ações' });
+  // ✅ Button locator (inside the grid)
+  this.locatorActionsButton = this.page.getByRole('button', { name: 'Actions' });
 
-  // ✅ Locators das opções do menu (renderizadas no body)
-  this.locatorMenuEditarLink = this.page.getByRole('menuitem', { name: 'Editar' });
-  this.locatorMenuDuplicarLink = this.page.getByRole('menuitem', { name: 'Duplicar' });
-  this.locatorMenuExcluirLink = this.page.getByRole('menuitem', { name: 'Excluir' });
+  // Menu options locators (rendered in body)
+  this.locatorMenuEditLink = this.page.getByRole('menuitem', { name: 'Edit' });
+  this.locatorMenuDuplicateLink = this.page.getByRole('menuitem', { name: 'Duplicate' });
+  this.locatorMenuDeleteLink = this.page.getByRole('menuitem', { name: 'Delete' });
 }
 
 /**
- * Abre modal de edição do registro via menu Ações
+ * Open edit modal for selected record via Actions menu
  */
-async abrirEdicao() {
-  // Retry obrigatório: appendto="body" em s-button causa problema visual intermitente
-  for (let tentativa = 1; tentativa <= 2; tentativa++) {
+async openEdit() {
+  // Required Retry: appendto="body" in s-button causes intermittent visual problem
+  for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      await this.locatorAcoesButton.click({ force: true });
-      await this.locatorMenuEditarLink.click({ force: true });
+      await this.locatorActionsButton.click({ force: true });
+      await this.locatorMenuEditLink.click({ force: true });
       break;
     } catch (error) {
-      if (tentativa === 2) throw error;
+      if (attempt === 2) throw error;
     }
   }
 }
 
 /**
- * Duplica o registro selecionado via menu Ações
+ * Duplicate selected record via Actions menu
  */
-async duplicarRegistro() {
-  // Retry obrigatório: appendto="body" em s-button causa problema visual intermitente
-  for (let tentativa = 1; tentativa <= 2; tentativa++) {
+async duplicateRecord() {
+  // Required Retry: appendto="body" in s-button causes intermittent visual problem
+  for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      await this.locatorAcoesButton.click({ force: true });
-      await this.locatorMenuDuplicarLink.click({ force: true });
+      await this.locatorActionsButton.click({ force: true });
+      await this.locatorMenuDuplicateLink.click({ force: true });
       break;
     } catch (error) {
-      if (tentativa === 2) throw error;
+      if (attempt === 2) throw error;
     }
   }
 }
 ```
 
-**📋 CHECKLIST OBRIGATÓRIO:**
+**📋 CHECKLIST CORRECT:**
 
-- [ ] Loop `for` com `tentativa <= 2` cerca TODA a sequência (botão + opção do menu)
-- [ ] AMBOS os cliques usam `{ force: true }`
-- [ ] Bloco catch faz re-throw na última tentativa (`if (tentativa === 2) throw error`)
-- [ ] Bloco try termina com `break` para sair do loop em caso de sucesso
-- [ ] Comentário documentando motivo: `// Retry obrigatório: appendto="body" em s-button causa problema visual intermitente`
+- [ ] Loop `for` with `try <= 2` around ALL sequence (menu button + menu option)
+- [ ] BOTH clicks use `{force: true }`
+- [ ] Catch block re-throwers in the last attempt (`if (attempt === 2) throw error`)
+- [ ] Try block ends with ‘break’ to quit the loop in case of success
+- [ ] Comment documenting motive: `// Retry mandatory: appendto="body" in s-button causes intermittent visual problem`
 
-**❌ ANTI-PADRÕES (NÃO FAZER):**
+**❌ ANTI-PATTERNS (DO NOT DO):**
 
 ```javascript
-// ❌ ERRADO - Sem retry
-async abrirEdicao() {
-  await this.locatorAcoesButton.click();
-  await this.locatorMenuEditarLink.click();
+// WRONG - No Retry
+async openEdit() {
+  await this.locatorActionsButton.click();
+  await this.locatorMenuEditLink.click();
 }
 
-// ❌ ERRADO - Branches duplicados (viola SonarQube S1871)
-async abrirEdicao() {
+// ERROR - Duplicate Branches (violates SonarQube S1871)
+async openEdit() {
   try {
-    await this.locatorAcoesButton.click({ force: true });
-    await this.locatorMenuEditarLink.click({ force: true });
+    await this.locatorActionsButton.click({ force: true });
+    await this.locatorMenuEditLink.click({ force: true });
   } catch {
-    await this.locatorAcoesButton.click({ force: true });
-    await this.locatorMenuEditarLink.click({ force: true });
+    await this.locatorActionsButton.click({ force: true });
+    await this.locatorMenuEditLink.click({ force: true });
   }
 }
 
-// ❌ ERRADO - Sem { force: true }
-async abrirEdicao() {
-  for (let tentativa = 1; tentativa <= 2; tentativa++) {
+// WRONG - Missing { force: true }
+async openEdit() {
+  for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      await this.locatorAcoesButton.click();
-      await this.locatorMenuEditarLink.click();
+      await this.locatorActionsButton.click();
+      await this.locatorMenuEditLink.click();
       break;
     } catch (error) {
-      if (tentativa === 2) throw error;
+      if (attempt === 2) throw error;
     }
   }
 }
 
-// ❌ ERRADO - Usando timeout/wait
-async abrirEdicao() {
-  await this.locatorAcoesButton.click();
+// WRONG - Using timeout/wait
+async openEdit() {
+  await this.locatorActionsButton.click();
   await this.page.waitForTimeout(1000);
-  await this.locatorMenuEditarLink.click();
+  await this.locatorMenuEditLink.click();
 }
 ```
 
-**⚙️ MOTIVO TÉCNICO:**
+**⚙TECHNICAL REASON:**
 
-- Menu com `appendto="body"` causa problema visual de carregamento
-- Primeiro clique pode não abrir as opções corretamente
-- `{ force: true }` ignora checagens de visibilidade/interatividade
-- Try/catch garante retry automático sem adicionar waits desnecessários
+- Menu with `appendto="body' causes visual loading problem
+- First click may not open the options correctly
+- `{force: true }` ignores visibility/interactivity checks
+- Try/catch ensures automatic retry without adding unnecessary waits
 
-**🎯 APLICAÇÃO:**
+**🎯 APPLICATION:**
 
-- **SEMPRE:** Botões "Ações"/"Opções" em grids com `p-tieredmenu appendto="body"`
-- **NUNCA:** Cliques normais (getByRole('button').click() sem menu dropdown)
+- **ALWAYS:** "Actions"/"Options" buttons in grids with `p-tieredmenu appendto="body"`
+- **NEVER:** Normal clicks (getByRole('button').click() without dropdown menu)
 
 ---
 
-### **E. Proibido Múltiplos Seletores CSS em Um Locator**
+### **E. Forbidden Multiple CSS Selectors in A Locator**
 
-> **⚠️ REGRA CRÍTICA: NUNCA usar múltiplos seletores CSS separados por vírgula ou seletores complexos desnecessários em um único locator**
+> **⚠CRITICAL RULE: NEVER use multiple CSS selectors separated by comma or unnecessary complex selectors in a single locator**
 
-**DEFINIÇÃO DE ANTI-PADRÃO:**
+**DEFINITION OF ANTI-PATTERN:**
 
-- Locator com múltiplos seletores CSS separados por vírgula (`,`)
-- Seletores com wildcards complexos (`[class*="..."][class*="..."]`)
-- Tentar "cobrir todas as possibilidades" em um único locator
+- Location with multiple CSS selectors separated by comma (`,`)
+- Selectors with complex wildcards (`[class*="..."][class*="..."]`)
+- Try "cover all possibilities" in a single locator
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ❌ ERRADO - Múltiplos seletores CSS com vírgula
+  // WRONG - Multiple CSS comma selectors
   this.locatorKanbanCardTitleDiv = this.page.locator('.kanban-card-title, .kanban-item__header, [class*="kanban"][class*="title"]');
 
-  // ❌ ERRADO - Seletor complexo desnecessário
+  // Wrong - Unnecessary complex selector
   this.locatorModalDialog = this.page.locator('[class*="modal"][class*="content"], .modal-dialog, #modal');
 
-  // ❌ ERRADO - Tentando cobrir múltiplas variações
+  // WRONG - Trying to cover multiple variations
   this.locatorBotao = this.page.locator('button.primary, button.main, button[type="submit"]');
 }
 ```
 
-**✅ PADRÃO CORRETO:**
+**✅ Correct pattern:**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ✅ CORRETO - Validar HTML e usar APENAS o seletor REAL que existe
-  // Após grep_search no HTML, identificar que a classe real é .kanban-card-title
+  // Correct - Validate HTML and use ONLY the REAL selector that exists
+  // After grep search in HTML, identify that the real class is .kanban-card-title
   this.locatorKanbanCardTitleDiv = this.page.locator('.kanban-card-title');
 
-  // ✅ CORRETO - Se elemento tem role, usar getByRole
+  // Correct - If element has scroll, use getByRole
   this.locatorModalDialog = this.page.getByRole('dialog');
 
-  // ✅ CORRETO - Usar locator semântico do Playwright
+  // Correct - Use Playwright semantic locator
   this.locatorBotaoSubmit = this.page.getByRole('button', { name: 'Enviar' });
 }
 ```
 
-**PROCESSO OBRIGATÓRIO:**
+**MANDATORY PROCEDURE:**
 
-1. **Executar grep_search no HTML específico** para identificar o seletor REAL
-2. **Usar APENAS o seletor que existe no HTML** (não tentar "prever" variações)
-3. **Priorizar locators semânticos** (getByRole, getByText) ao invés de CSS
-4. **Se precisar de CSS:** Usar APENAS uma classe/ID, não múltiplas opções
+1. **Run grep search in specific HTML** to identify the REAL selector
+2. **Use ONLY the selector that exists in HTML** (do not try to "prevent" variations)
+3. **Prioritize semantic locations** (getByRole, getByText) instead of CSS
+4. **If you need CSS:** Use ONLY a class/ID, not multiple options
 
-**Por quê locators com múltiplos seletores são ruins:**
+**Why locators with multiple selectors are bad:**
 
-- ❌ **Frágeis:** Se qualquer um dos seletores mudar, locator pode quebrar
-- ❌ **Ambíguos:** Não fica claro qual elemento será encontrado
-- ❌ **Difíceis de debugar:** Quando falha, não se sabe qual seletor causou o problema
-- ❌ **Performance:** Playwright precisa testar múltiplos seletores
-- ❌ **Manutenção:** Impossível saber qual seletor está em uso sem testar
+- ❌ **Fragile:** If any of the selectors changes, locator can break
+- ❌ **Ambiguous:** It is unclear which element will be found
+- ❌ **Hard to debugging:** When it fails, it is not known which selector caused the problem
+- ❌ **Performance:**Playwright needs to test multiple selectors
+- ❌ **Maintenance:** Impossible to know which selector is in use without testing
 
-**VALIDAÇÃO OBRIGATÓRIA (grep_search no HTML):**
+**MANDATORY VALIDATION (grep search in HTML):**
 
 ```bash
-# PASSO 1: Identificar elemento no HTML
+# STEP 1: Identificar elemento no HTML
 grep_search(query="{texto_elemento}", includePattern="{arquivo}.html", isRegexp=false)
 
-# PASSO 2: Ler contexto HTML para ver estrutura REAL
+# STEP 2: Ler contexto HTML para ver estrutura REAL
 read_file(startLine={linha-10}, endLine={linha+10})
 
-# PASSO 3: Usar APENAS o seletor/role que existe no HTML
-# NUNCA tentar "cobrir possibilidades" com múltiplos seletores
+# STEP 3: Usar APENAS o seletor/role que existe no HTML
+# NEVER try to "cover possibilities" with multiple selectors
 ```
 
-**Motivo:** Locators devem ser precisos e baseados no HTML REAL, não em suposições ou tentativas de "cobrir variações".
+**Reason:** Locators should be accurate and based on REAL HTML, not on assumptions or attempts to "cover variations".
 
 ---
 
-### **F. Proibido Criar Locators Não Utilizados**
+### **F. Forbidden Create Unused Locators**
 
-> **⚠️ REGRA CRÍTICA: NUNCA criar locators no constructor que não são usados em nenhum método**
+> **⚠CRITICAL RULE: NEVER create locators in the constructor that are not used in any method**
 
-**DEFINIÇÃO DE LOCATOR ÓRFÃO:**
+**DEFINITION OF ORphan LOCATOR:**
 
-Locator declarado no constructor mas que NÃO aparece em NENHUM método da classe.
+Locator declared in constructor but NOT shown in NO method of class.
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
-
-```javascript
-constructor(page) {
-  this.page = page;
-
-  this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });
-  this.locatorBotaoCancelar = this.page.getByRole('button', { name: 'Cancelar' });
-  this.locatorKanbanCardBody = this.page.locator('.kanban-card-body'); // ❌ NUNCA usado
-  this.locatorModalConfirmacao = this.page.getByRole('dialog'); // ❌ NUNCA usado
-}
-
-async salvarRegistro() {
-  await this.locatorSalvarButton.click();
-  // locatorBotaoCancelar, locatorKanbanCardBody e locatorModalConfirmacao NUNCA são usados
-}
-```
-
-**✅ PADRÃO CORRETO:**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
 constructor(page) {
   this.page = page;
 
-  // ✅ CORRETO - Criar APENAS locators que serão usados
-  this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });
-  this.locatorBotaoCancelar = this.page.getByRole('button', { name: 'Cancelar' });
+  this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
+  this.locatorCancelButton = this.page.getByRole('button', { name: 'Cancel' });
+  this.locatorKanbanCardBody = this.page.locator('.kanban-card-body'); // NEVER used
+  this.locatorConfirmationModal = this.page.getByRole('dialog'); // NEVER used
 }
 
-async salvarRegistro() {
-  await this.locatorSalvarButton.click();
-}
-
-async cancelarEdicao() {
-  await this.locatorBotaoCancelar.click();
+async saveRecord() {
+  await this.locatorSaveButton.click();
+  // locatorCancelButton, locatorKanbanCardBody and locatorConfirmationModal NEVER used
 }
 ```
 
-**PROCESSO DE VALIDAÇÃO OBRIGATÓRIO (ANTES DE FINALIZAR):**
+**✅ Correct pattern:**
+
+```javascript
+constructor(page) {
+  this.page = page;
+
+  // RIGHT - Create ONLY locators that will be used
+  this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
+  this.locatorCancelButton = this.page.getByRole('button', { name: 'Cancel' });
+}
+
+async saveRecord() {
+  await this.locatorSaveButton.click();
+}
+
+async cancelEdit() {
+  await this.locatorCancelButton.click();
+}
+```
+
+**MANDATORY VALIDATION PROCEDURE ( BEFORE FINISHING):**
 
 ```bash
-# PASSO 1: Listar TODOS os locators do constructor
-grep_search(query="this\\.locator", includePattern="{arquivo}Page.js", isRegexp=true)
+# STEP 1: Listar TODOS os locators do constructor
+grep_search(query="this\\.locator", includePattern="{file}Page.js", isRegexp=true)
 
-# PASSO 2: Para CADA locator encontrado, verificar se é usado:
-grep_search(query="{nomeLocator}", includePattern="{arquivo}Page.js", isRegexp=false)
+# STEP 2: For EACH locator found, check if it is used:
+grep_search(query="{nomeLocator}", includePattern="{file}Page.js", isRegexp=false)
 
-# PASSO 3: Contar ocorrências:
-# - 1 ocorrência = APENAS no constructor (ÓRFÃO - REMOVER)
-# - 2+ ocorrências = constructor + método(s) (OK)
+# STEP 3: Contar occurrences:
+# - 1 occurrence = ONLY in constructor (ORPHAN - REMOVE)
+# - 2+ occurrences = constructor + method(s) (OK)
 
-# PASSO 4: Remover TODOS os locators com apenas 1 ocorrência
+# STEP 4: Remover TODOS os locators com apenas 1 occurrence
 ```
 
-**Checklist de Validação:**
+**Validation Checklist:**
 
-| Locator | Ocorrências | Status | Ação |
-|---------|-------------|--------|------|
-| `this.locatorSalvarButton` | 3 (constructor + 2 métodos) | ✅ USADO | Manter |
-| `this.locatorKanbanCardBody` | 1 (apenas constructor) | ❌ ÓRFÃO | Remover |
-| `this.locatorModalConfirmacao` | 1 (apenas constructor) | ❌ ÓRFÃO | Remover |
+| Locator | Events | Status | Action |
+| --------- | ----------- | -------- | ------ |
+| `this.locatorSaveButton' | 3 (builder + 2 methods) | USED | Keep |
+| `this.locatorKanbanCardBody' | 1 (constructor only) | ORFAN | Remove |
+| 'this.locatorModalConfirmation' | 1 (constructor only) | ORFAN | Remove |
 
-**Por quê locators órfãos são ruins:**
+**Why orphaned locators are bad:**
 
-- ❌ **Poluição de código:** Dificulta leitura do constructor
-- ❌ **Manutenção:** Alguém pode achar que é usado e ter medo de remover
-- ❌ **Confusão:** Pode indicar funcionalidade incompleta
-- ❌ **Performance mínima:** Consome memória desnecessariamente
+- ❌ **Code pollination:**Difficult constructor reading
+- ❌ **Maintenance:** Someone might think it's used and be afraid to remove
+- ❌ **Confusion:** Can indicate incomplete functionality
+- ❌ **Minimal performance:** Consumes memory unnecessarily
 
-**EXCEÇÃO ÚNICA PERMITIDA:**
+**SINGLE EXCEPTION PERMITED:**
 
-Locators para **funcionalidades futuras** DEVEM ter comentário explícito:
+Locations for future features** Should have explicit comment:
 
 ```javascript
-// TODO: Implementar validação de modal (JIRA-123)
-// this.locatorModalConfirmacao = this.page.getByRole('dialog');
+// ALL: Implement modal validation (JIRA-123)
+// this.locatorConfirmationModal = this.page.getByRole('dialog');
 ```
 
-**Motivo:** Constructor deve conter APENAS locators que são efetivamente utilizados nos métodos implementados.
+**Reason:** Constructor must contain ONLY locators that are effectively used in the implemented methods.
 
 ---
 
-### **G. Proibido eslint-disable Sem Justificativa Válida**
+### **G. Forbidden Slint-disable Without Valid Justification**
 
-> **⚠️ REGRA CRÍTICA: NUNCA usar `// eslint-disable-next-line` ou `// eslint-disable` sem justificativa técnica válida**
+> **⚠CRITICAL RULE: NEVER use `// slint-disable-next-line` or `// slint-disable` without valid technical justification**
 
-**QUANDO eslint-disable É PROIBIDO:**
+**WHEN SLINT-disable It is forbidden:**
 
-- ❌ Para silenciar warning que indica código incorreto
-- ❌ Para "facilitar" implementação ignorando boas práticas
-- ❌ Para contornar regra do Playwright sem entender o motivo
-- ❌ Sem comentário explicando POR QUE é necessário
+- ❌ To silence warning indicating incorrect code
+- ❌ To "facilitate" implementation by ignoring good practices
+- ❌ To bypass Playwright rule without understanding why
+- ❌ No comment explaining why it is necessary
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-// ❌ ERRADO - Silenciando warning de má prática sem justificativa
+// WRONG - Silenced warning of bad practice without justification
 async buscarPrimeiroRegistro() {
   // eslint-disable-next-line playwright/no-nth-methods
   return this.page.locator('tr').first();
 }
 
-// ❌ ERRADO - Desabilitando regra que deveria ser seguida
-async acessarTela() {
+// Wrong - Disabling rule that should be followed
+async accessScreen() {
   // eslint-disable-next-line playwright/missing-playwright-await
   this.page.goto('/tela'); // ❌ Falta await
 }
 
-// ❌ ERRADO - Desabilitando para arquivo inteiro sem razão
+// Wrong - Disable for entire file for no reason
 /* eslint-disable playwright/no-wait-for-timeout */
 ```
 
-**✅ QUANDO eslint-disable É PERMITIDO (RARO):**
+**✅ WHEN SLINT-DISABLE IS PERMITED:**
 
 ```javascript
-// ✅ PERMITIDO - Caso específico com justificativa técnica válida
+// PERMITED - Specific case with valid technical justification
 async buscarRegistroPorPosicao(posicao) {
   // eslint-disable-next-line playwright/no-nth-methods
-  // Justificativa: Posição é parâmetro do método, não pode usar constructor
-  // Alternativas esgotadas: filtros por texto/role não aplicáveis
+  // Reason: Position is method parameter, cannot use constructor
+  // Exhausted alternatives: filters per text/roll not applicable
   return this.page.locator('tr').nth(posicao);
 }
 
-// ✅ PERMITIDO - Biblioteca externa sem tipos
+// PERMITED - External library without types
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const lib = require('biblioteca-legada');
 ```
 
-**PROCESSO OBRIGATÓRIO ANTES DE USAR eslint-disable:**
+**MANDATORY PROCEDURE BEFORE USING SLINT-disable:**
 
-1. **Entender o warning:** Ler documentação da regra no ESLint/Playwright
-2. **Tentar corrigir o código:** Aplicar a correção sugerida pela regra
-3. **Buscar alternativas:** Consultar Playwright docs para solução adequada
-4. **Validar necessidade:** Confirmar que NÃO há forma de seguir a regra
-5. **Documentar justificativa:** Comentário COMPLETO explicando:
-   - Por que a regra não pode ser seguida
-   - Quais alternativas foram tentadas
-   - Por que esta é a única solução
+1. **Understand warning:** Read rule documentation in ESLint/Playwright
+2. **Try to fix code:** Apply the correction suggested by the rule
+3. **Search alternatives:** Consult Playwright docs for proper solution
+4. **Validate need:** Confirm that there is NO way to follow the rule
+5. **Document justification:** Comment COMPLETE EXPLAINING:
+   - Why the rule cannot be followed
+   - What alternatives have been attempted
+   - Why this is the only solution
 
-**REGRAS DE eslint-disable MAIS VIOLADAS (E COMO CORRIGIR):**
+**RULES DE slint-disable MORE VIOLATED (AND HOW TO RUN):**
 
-| Regra Violada | ❌ Código Errado com disable | ✅ Código Correto SEM disable |
-|---------------|------------------------------|--------------------------------|
-| `playwright/no-nth-methods` | `// eslint-disable`<br>`locator.first()` | `this.locatorPrimeiraLinha = this.locator.first();` no constructor |
-| `playwright/missing-playwright-await` | `// eslint-disable`<br>`page.goto(url)` | `await page.goto(url)` |
-| `playwright/no-wait-for-timeout` | `// eslint-disable`<br>`page.waitForTimeout(1000)` | Usar `expect(locator).toBeVisible()` (auto-wait) |
-| `playwright/no-page-pause` | `// eslint-disable`<br>`await page.pause()` | Remover pause (usar apenas em debug local) |
+| Violated Rule | ❌ Wrong code with disable | ✅ Correct code WITHOUT disable |
+...----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| ‘playwright/no-nth-methods’ | `// slint-disable` / `locator.first()` | `this.locatorFirst Line = this.locator.first();` in the constructor |
+| ‘playwright/missing-playwright-await’ | `// slint-disable` / `page.goto(url)` | `await page.goto(url)` |
+| ‘playwright/no-wait-for-timeout’ | `// slint-disable` / `page.waitForTimeout(1000)` | Use `expect(locator).toBeVisible()` (auto-wait) |
+| ‘playwright/no-page-pause’ | `// slint-disable` / `await page.pause()` | Remove pause (use only in local debug) |
 
-**VALIDAÇÃO OBRIGATÓRIA (ANTES DE FINALIZAR):**
+**MANDATORY VALIDATION ( BEFORE FINISHING):**
 
 ```bash
 # Buscar TODOS os eslint-disable no arquivo
-grep_search(query="eslint-disable", includePattern="{arquivo}Page.js", isRegexp=false)
+grep_search(query="eslint-disable", includePattern="{file}Page.js", isRegexp=false)
 
-# Para CADA ocorrência:
+# Para CADA occurrence:
 # 1. Ler contexto (5 linhas antes/depois)
-# 2. Identificar qual regra está sendo desabilitada
-# 3. Verificar se há justificativa técnica em comentário
-# 4. Validar se código pode ser corrigido ao invés de desabilitar
-# 5. Se NÃO houver justificativa válida: REMOVER eslint-disable e CORRIGIR código
+# 2. Identify which rule is being disabled
+# 3. Check if there is technical justification in comment
+# 4. Validate if code can be fixed instead of disabled
+# 5. If there is NO valid justification: REMOVE eslint-disable and FIX the code
 ```
 
-**Por quê eslint-disable sem justificativa é ruim:**
+**Why Slint-disable without justification is bad:**
 
-- ❌ **Silencia problemas reais:** Warnings existem para melhorar qualidade
-- ❌ **Técnica ruim aceita:** Perpetua má prática ao invés de corrigir
-- ❌ **Dificulta code review:** Reviewer não sabe se foi intencional ou esquecimento
-- ❌ **Degrada codebase:** Acúmulo de exceções torna código menos confiável
+- ❌ **Silence real problems:** Warnings exist to improve quality
+- ❌ **Bad technique accepted:** Perpetrates bad practice instead of correcting
+- ❌ **Makes code review harder:** Reviewer does not know if it was intentional or forgotten
+- ❌ **Degrade codebase:** Exceptional accumulation makes code less reliable
 
-**Motivo:** ESLint e regras do Playwright existem para garantir qualidade e confiabilidade. Desabilitar sem justificativa técnica válida compromete estes objetivos.
+**Reason:** ESLint and Playwright rules exist to ensure quality and reliability. Disable without valid technical justification compromises these objectives.
 
 ---
 
-## **REGRAS CRÍTICAS DE IMPORTS**
+## **CRITICAL IMPORT RULES**
 
-### **A. Imports de Dependências Externas**
+### **A. Imports of External Dependencies**
 
-> **⚠️ NUNCA usar caminhos internos de pacotes externos quando houver exportação pública disponível**
+> **⚠NEVER use internal external package paths when public export is available**
 
 ---
 
-### **B. Imports de Navegação Obrigatório**
+### **B. Required Navigation Imports**
 
-> **⚠️ SEMPRE importar constante de navegação de `helpers/navegacao.js`**
+> **⚠js`**
 
-**✅ PADRÃO CORRETO:**
+**✅ Correct pattern:**
 
 ```javascript
-import { NOME_FUNCIONALIDADE } from '../../helpers/navegacao.js';
+import { FEATURE_NAME } from '../../helpers/navegacao.js';
 ```
 
-**Uso no método `acessarTela()`:**
+**Use in the method `accessScreen()`:**
 
 ```javascript
-async acessarTela() {
-  // Navega para a URL especificada
-  await this.page.goto(NOME_FUNCIONALIDADE.URL);
+async accessScreen() {
+  // Navigate to specified URL
+  await this.page.goto(FEATURE_NAME.URL);
   // OU
-  await this.funcionalidadePage.navegarParaPagina(...NOME_FUNCIONALIDADE.DIRETORIO);
+  await this.featurePage.navigateToPage(...FEATURE_NAME.DIRECTORY);
 
   await expect(this.locatorHeadingPrincipal).toBeVisible();
 }
 ```
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-// ❌ ERRADO - Método recebendo parâmetro de URL
-async acessarTela(url) {
+// Wrong - Method receiving URL parameter
+async accessScreen(url) {
   await this.page.goto(url);
 }
 
-// ❌ ERRADO - URL hardcoded
-async acessarTela() {
-  await this.page.goto('https://sistema.com/modulo/tela');
+// ERROR - hardcoded URL
+async accessScreen() {
+  await this.page.goto('https://system. with/module/screen');
 }
 ```
 
 ---
 
-## 📊 **RESUMO EXECUTIVO: 13 Regras de Ouro**
+## 📊 **EXECUTIVE SUMMARY: 13 Golden Rules**
 
-| # | Regra | O que fazer | O que NÃO fazer |
-|---|-------|-------------|-----------------|
-| **1** | **Métodos Completos** | Fluxo inteiro com blocos lógicos internos (comentários estratégicos) | ❌ Fragmentar em micro-métodos OU criar métodos gigantes confusos |
-| **2** | **Locators no Constructor** | TODOS locators estáticos no constructor | ❌ Criar locators inline nos métodos |
-| **3** | **Sem Ações nos Testes** | Encapsular TUDO em métodos do Page Object | ❌ `.click()`, `.fill()`, `expect()` diretos nos testes |
-| **4** | **Auxiliares Úteis** | Criar auxiliar SOMENTE se usado 3+ vezes | ❌ Métodos triviais (1 comando) |
-| **5** | **Clean Code** | Nomes descritivos em português, DRY, validações | ❌ Nomes genéricos, inglês, duplicação |
-| **6** | **Try/Catch "Ações"** | SEMPRE try/catch para botões "Ações"/"Opções" em grids | ❌ Clique direto sem retry (falha intermitente) |
-| **7** | **JSDoc com JSON** | `@param {object} dados` + linha `Exemplo: JSON_CONSTANTE` | ❌ Omitir ou detalhar campos |
-| **8** | **Locators Sem Parâmetro** | SEMPRE no constructor (regra universal) | ❌ Criar locator sem parâmetro no método |
-| **9** | **Timeout Padrão** | Usar timeout global do Playwright (30s) | ❌ NUNCA usar `{ timeout: X }` em expect/ações |
-| **10** | **Imports Públicos** | Usar exportações públicas do pacote | ❌ caminhos internos de dependência |
-| **11** | **Seletor CSS Único** | Usar APENAS seletor real do HTML validado com grep | ❌ Múltiplos seletores com vírgula (`.a, .b, .c`) |
-| **12** | **Sem Locators Órfãos** | Criar APENAS locators usados (validar com grep) | ❌ Locators no constructor não usados em métodos |
-| **13** | **eslint-disable Justificado** | Usar APENAS com comentário explicando motivo técnico | ❌ eslint-disable sem justificativa ou para contornar má prática |
+| # Oh, yeah | Rule | What to do | WHAT NOT TO DO |
+♪ ♪ -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+| **1** | **Full methods** | Full flow with internal logic blocks (strategic comments) | Fragment in micro-methods Or create confusing giant methods |
+| **2** | **Locators in the Builder** | ALL static locators in the constructor | Create inline locators in the methods |
+| **3** | **No Test Actions** | Encapsulate EVERYTHING in Page Object methods | ❌ `.click()`, `.fill()`, `expect()` diretos nos testes |
+| **4** | **Useful Helpers** | Create helper ONLY if used 3+ times | ❌ Trivial methods (1 command) |
+| **5** | **Clean Code** | Descriptive names in English, DRY, validations | Generic names, English, duplication |
+| **6** | **Try/Catch "Actions"** | ALWAYS try/catch for "Actions"/"Options" buttons in grids | ❌ Direct click without retry (intermittent failure) |
+| **7** | **JSDoc with JSON** | `@param {object} data` + line `Example: JSON CONSTANT` | Omit or detail fields |
+| **8** | **Locators Without Parameter** | ALWAYS in the constructor (universal rule) | ❌ Criar locator sem parameter no method |
+| **9** | **Standard Timeout** | Use Playwright (30s global timeout) | NEVER use `{timeout: X }` in expect/actions |
+| **10** | **Public Imports** | Use public package exports | ❌ internal dependency paths |
+| **11** | **Single CSS Selector** | Use real HTML selector only validated with grep | Multiple comma selectors (`a, .b, .c`) |
+| **12** | *No Orphan Locators* | Create ONLY used locators (validate with grep) | ❌ Locators no constructor not usados em methods |
+| **13** | **Justified** | Use ONLY with comment explaining technical reason | ❌ eslint-disable without justification or to bypass bad practice |
 
 ---
 
-## 🎯 **Propósito**
+## 🎯 **Purpose**
 
-Page Objects encapsulam a interação com elementos da interface e ações de usuário em uma página/tela.
+Page Objects encapsulate interaction with interface elements and user actions on a page/screen.
 
-**Quando criar:**
+**When to create:**
 
-- Representar uma tela/funcionalidade específica do sistema
-- Encapsular locators e métodos de interação com a UI
-- Reutilizar ações comuns em múltiplos testes
+- Represent a system-specific screen/functionality
+- Encapsulate locators and methods of interaction with UI
+- Reuse common actions in multiple tests
 
-**Quando NÃO criar:**
+**When NOT to create:**
 
-- Para operações de backend/serviços externos
+- For external backend/services operations
 
 ---
 
 ## 📁 **Page Object Model (POM)**
 
-### **Diretrizes Fundamentais:**
+### **Fundamental Guidelines:**
 
-- ✅ Uma classe por página/componente em `pages/`
-- ✅ **Métodos representam ações de negócio ou ações de usuário específicas**
-- ✅ **Cada método deve ter propósito único, nome claro e ser reutilizável quando aplicável**
-- ✅ **Métodos estruturados de forma semântica:** comandos agrupados com responsabilidade clara
-- ✅ **IDIOMA OBRIGATÓRIO: Português** - Todos os métodos, variáveis e comentários DEVEM ser em português (nunca misturar inglês com português)
-- ❌ **NUNCA** seletores hardcoded nos métodos
-- ❌ **NUNCA** criar métodos triviais como `clicarBotao()`, `clickButton()`, `click()` - prefira ações de negócio como `salvarFormulario()`, `confirmarExclusao()`, `aplicarFiltros()`
-- ❌ **NUNCA** misturar inglês com português na nomenclatura de métodos ou variáveis
+- ✅ One class per page/component in `pages/`
+- ✅ **Methods represent specific business actions or user actions**
+- ✅ **Each method must have a unique purpose, clear name and be reusable when applicable**
+- ✅ **Semantic structured methods:** commands grouped with clear responsibility
+- ✅ **MANDATORY LANGUAGE: English** - All methods, variables and comments MUST be in English (never mix Portuguese with English)
+- ❌ **NEVER** hardcoded selectors in methods
+- ❌ **NEVER** create trivial methods such as 'clickBotao()', 'clickButton()', 'click()' - prefer business actions like 'saveFormulation()', 'confirmExclusion()', 'applyFilters()'
+- ❌ ** NEVER mix English with Portuguese in the nomenclature of methods or variables
 
 ---
 
-## 🎯 **REGRA #1: Métodos Completos e Funcionais**
+## 🎯 **RULE #1: Complete and Functional Methods**
 
-> **⚠️ ESTA É A REGRA MAIS IMPORTANTE DO PAGE OBJECT**
+> **⚠THIS IS THE MOST IMPORTANT RULE FOR PAGE OBJECTS**
 >
-> **Métodos devem realizar FLUXOS COMPLETOS de negócio, organizados internamente em blocos lógicos claros**
+> **Methods to perform COMPLETE business FLOWS, internally organized into clear logical blocks**
 
-### **🏗️ Estrutura de Métodos Ideal:**
+### **🏗Ideal Method Structure:**
 
-**Cada método deve:**
+**Each method shall:**
 
-1. **Realizar um fluxo completo de negócio** (não fragmentar demais)
-2. **Organizar internamente em blocos lógicos** (com comentários estratégicos)
-3. **Manter boa legibilidade** (código limpo e autoexplicativo)
-4. **Validar estados importantes** com `expect()`
-5. **Usar apenas locators do construtor** (nada de criar locators inline, exceto dinâmicos)
+1. **Perform a complete business flow** (not too fragmented)
+2. **Organize internally into logical blocks** (with strategic comments)
+3. **Maintain good readability** (clean and self-explanatory code)
+4. **Validate important states** with `expect()`
+5. **Use only constructor locators** (no inline locators, except dynamic)
 
-> **📘 Para ordem de prioridade ao criar locators:** Consulte `.github/copilot-modules/03-locators-semanticos.md`
-
----
+> **📘 For priority order when creating locators:** See `.github/copilot-modules/03-locators-semanticos.md`
 
 ---
 
-## 📦 **Template de Imports (OBRIGATÓRIO)**
+---
+
+## 📦 **Imports Template**
 
 ```javascript
-// ✅ Imports de navegação (SEMPRE de helpers/navegacao.js)
-import { NOME_FUNCIONALIDADE } from '../../helpers/navegacao.js';
+// Navigation Imports
+import { FEATURE_NAME } from '../../helpers/navegacao.js';
 
-// ✅ Imports de constantes (se necessário)
+// Imports of constants (if necessary)
 import { ID_CONTA_LOOKUP, ID_TIPO_DROPDOWN } from '../../data/{caminho}/{arquivo}Json.js';
 ```
 
-**Checklist de Imports:**
+**Imports Checklist:**
 
-- [ ] Navegação importada de `helpers/navegacao.js`
-- [ ] Extensão `.js` presente em imports relativos
-- [ ] Sem erros de resolução de módulos
-
----
-
-### **✅ CRIAR Métodos Para:**
-
-#### **1. Ações de Negócio Completas (Fluxo Inteiro)**
-
-**Princípio Fundamental:** Um método = uma ação completa do usuário, organizada internamente em blocos lógicos claros.
-
-**🎯 Equilíbrio Ideal:**
-
-- ✅ **Método completo:** Representa fluxo de negócio inteiro (não fragmentar)
-- ✅ **Organização interna:** Dividir em blocos lógicos com comentários estratégicos
-- ❌ **Evitar:** Métodos gigantes e confusos (sem organização)
-- ❌ **Evitar:** Fragmentação exagerada em micro-métodos triviais
-
-**Exemplos de fluxos completos:**
-
-- **Cadastrar registro completo:** Abrir formulário + preencher todos campos + salvar + validar sucesso
-- **Editar registro:** Localizar na tabela + abrir edição + modificar campos + salvar + validar
-- **Excluir com confirmação:** Selecionar item + abrir modal + confirmar + validar remoção
-- **Aplicar filtros:** Expandir painel + preencher critérios + executar busca + validar resultados
-
-**🎯 Exemplo de Organização Interna Ideal:**
-
-```javascript
-async cadastrarPortaria(dados) {
-  // Abre modal de cadastro e aguarda carregamento completo
-  await this.locatorAdicionarButton.click();
-  await expect(this.locatorModalCadastro).toBeVisible();
-
-  // Preenche campos obrigatórios
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.formUtils.fillFieldSLookup(ID_LOCAL_FISICO, dados.localFisico);
-  await this.locatorValidadeProvInput.fill(dados.validadeProvisoria);
-
-  // Preenche campos opcionais
-  if (dados.validadeAgendamento) {
-    await this.locatorValidadeAgendInput.fill(dados.validadeAgendamento);
-  }
-
-  if (dados.controleVisitas) {
-    await this.locatorControleVisitasCheckbox.check();
-  }
-
-  // Submete o formulário e valida sucesso
-  await this.locatorSalvarButton.click();
-  await expect(this.locatorSucessoAlert).toBeVisible();
-  await expect(this.locatorModalCadastro).toBeHidden();
-}
-```
-
-**✅ BOM porque:**
-
-- **Fluxo completo:** Um método contém toda a jornada de cadastro
-- **Blocos claros:** Cada seção tem propósito bem definido (Abertura, Preenchimento, Submissão)
-- **Comentários estratégicos:** Demarcam início de cada bloco lógico
-- **Legibilidade:** Fácil entender o que cada parte faz
-- **Manutenibilidade:** Mudanças localizadas em blocos específicos
-- **Sem fragmentação:** Não precisa chamar 5 métodos diferentes para cadastrar
-
-**❌ CONTRA-EXEMPLO: Fragmentação Excessiva (NÃO FAZER):**
-
-```javascript
-// ❌ ERRADO: 4 métodos pequenos para uma ação só
-async abrirModalCadastro() {
-  await this.locatorAdicionarButton.click();
-  await expect(this.locatorModalCadastro).toBeVisible();
-}
-
-async preencherCamposObrigatorios(dados) {
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.formUtils.fillFieldSLookup(ID_LOCAL_FISICO, dados.localFisico);
-}
-
-async preencherCamposOpcionais(dados) {
-  if (dados.validadeAgendamento) {
-    await this.locatorValidadeAgendInput.fill(dados.validadeAgendamento);
-  }
-}
-
-async submeterFormulario() {
-  await this.locatorSalvarButton.click();
-  await expect(this.locatorSucessoAlert).toBeVisible();
-}
-
-// PROBLEMA: Agora o teste precisa chamar 4 métodos para 1 ação:
-// await page.abrirModalCadastro();
-// await page.preencherCamposObrigatorios(dados);
-// await page.preencherCamposOpcionais(dados);
-// await page.submeterFormulario();
-// IMPACTO: Código verboso, dificulta manutenção, viola Clean Code
-```
-
-**❌ CONTRA-EXEMPLO: Método Gigante Sem Organização (NÃO FAZER):**
-
-```javascript
-// ❌ ERRADO: Método gigante sem blocos lógicos
-async cadastrarPortaria(dados) {
-  await this.locatorAdicionarButton.click();
-  await expect(this.locatorModalCadastro).toBeVisible();
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.formUtils.fillFieldSLookup(ID_LOCAL_FISICO, dados.localFisico);
-  await this.locatorValidadeProvInput.fill(dados.validadeProvisoria);
-  if (dados.validadeAgendamento) {
-    await this.locatorValidadeAgendInput.fill(dados.validadeAgendamento);
-  }
-  if (dados.controleVisitas) {
-    await this.locatorControleVisitasCheckbox.check();
-  }
-  await this.locatorSalvarButton.click();
-  await expect(this.locatorSucessoAlert).toBeVisible();
-  await expect(this.locatorModalCadastro).toBeHidden();
-}
-// PROBLEMA: Difícil identificar onde começa/termina cada etapa
-// IMPACTO: Manutenção confusa, dificulta debug
-```
-
-**🎯 Regra Prática:**
-
-| Situação | Solução |
-|----------|---------|
-| **Fluxo de negócio completo** (cadastrar, editar, excluir, filtrar) | ✅ **1 método completo** com blocos lógicos internos |
-| **Método ficando muito grande** (>25 linhas) | ✅ **Dividir em blocos** com comentários claros (NÃO criar micro-métodos) |
-| **Lógica se repete 3+ vezes** | ✅ **Criar método auxiliar** reutilizável (ex: `aguardarCarregamento()`) |
-| **Método trivial** (1-2 comandos) | ❌ **NÃO criar** - incorporar no método principal |
+- [ ] Imported navigation of 'helpers/navigation. js`
+- [ ] Extension `.js' present in relative imports
+- [ ] No module resolution errors
 
 ---
 
-#### **2. Validações de Negócio (Estado/Resultado)**
+### **✅ CREATE Methods For:**
 
-- **Validar carregamento completo da tela:** Título + elementos principais + ausência de loading
-- **Validar resultado de ação:** Toast + atualização de dados + estado final correto
-- **Validar presença de registro:** Buscar na tabela + extrair dados + retornar objeto
+#### **1. Complete Business Actions (Flow Whole)**
 
-**Exemplo:**
+**Basic Principle:** A method = a complete user action, internally organized into clear logical blocks.
+
+**🎯 Ideal Balance:**
+
+- ✅ **Complete method:** Represents entire business flow (not fragmentary)
+- ✅ **Internal organisation:** Split into logical blocks with strategic comments
+- ❌ **Avoid:** Giant and confusing methods (without organization)
+- ❌ **Avoid:** Excessive fragmentation in trivial micro-methods
+
+**Full flow examples:**
+
+- **Register complete record:** Open form + fill all fields + save + validate success
+- **Edit Register:** Find in table + open edit + modify fields + save + validate
+- **Delete with Confirmation:** Select item + open modal + confirm + validate removal
+- **Apply filters:** Expand panel + meet criteria + execute search + validate results
+
+**🎯 Example of Ideal Internal Organization:**
 
 ```javascript
-async validarPortariaCadastrada(nomePortaria) {
-  // Aguardar desaparecimento do loading
-  await expect(this.locatorCarregandoSpinner).toBeHidden();
+async registerGateEntry(data) {
+  // Open registration modal and wait for full load
+  await this.locatorAdicionarButton.click();
+  await expect(this.locatorRegistrationModal).toBeVisible();
 
-  // Localizar registro na tabela
-  const locatorLinha = this.locatorRegistrosTable.locator('tbody tr').filter({ hasText: nomePortaria });
-  await expect(locatorLinha).toBeVisible();
+  // Fill required fields
+  await this.locatorNameInput.fill(data.name);
+  await this.formUtils.fillFieldSLookup(ID_PHYSICAL_LOCATION, data.physicalLocation);
+  await this.locatorTemporaryValidityInput.fill(data.temporaryValidity);
 
-  // Extrair e retornar dados (para validações adicionais no teste)
-  const nome = await locatorLinha.locator('td').nth(1).textContent();
-  const status = await locatorLinha.locator('td').nth(2).textContent();
+  // Fill optional fields
+  if (data.scheduledValidity) {
+    await this.locatorScheduledValidityInput.fill(data.scheduledValidity);
+  }
 
-  return { nome: nome.trim(), status: status.trim() };
+  if (data.visitControl) {
+    await this.locatorVisitControlCheckbox.check();
+  }
+
+  // Submit the form and validate success
+  await this.locatorSaveButton.click();
+  await expect(this.locatorSuccessAlert).toBeVisible();
+  await expect(this.locatorRegistrationModal).toBeHidden();
+}
+```
+
+**✅ GOOD BECAUSE:**
+
+- **Complete flow:** One method contains the entire registration journey
+- **Clear blocks:** Each section has a well-defined purpose (Opening, Filling, Submission)
+- **Strategic comments:** Demarcate the beginning of each logical block
+- **Legibility:** Easy to understand what each part does
+- **Maintenance:** Changes located in specific blocks
+- **No fragmentation:** No need to call 5 different methods to register
+
+**❌ CONTRA-EXAMPLE: Excessive Fragmentation (DO NOT DO):**
+
+```javascript
+// Wrong: 4 small methods for one action only
+async openRegistrationModal() {
+  await this.locatorAdicionarButton.click();
+  await expect(this.locatorRegistrationModal).toBeVisible();
+}
+
+async fillRequiredFields(data) {
+  await this.locatorNameInput.fill(data.name);
+  await this.formUtils.fillFieldSLookup(ID_PHYSICAL_LOCATION, data.physicalLocation);
+}
+
+async fillOptionalFields(data) {
+  if (data.scheduledValidity) {
+    await this.locatorScheduledValidityInput.fill(data.scheduledValidity);
+  }
+}
+
+async submitForm() {
+  await this.locatorSaveButton.click();
+  await expect(this.locatorSuccessAlert).toBeVisible();
+}
+
+// PROBLEM: Now the test needs to call 4 methods for 1 action:
+// await page.openRegistrationModal();
+// await page.fillRequiredFields(data);
+// await page.fillOptionalFields(data);
+// await page.submitForm();
+// IMPACT: Verbose code, difficult maintenance, Violates Clean Code
+```
+
+**❌ CONTRA-EXAMPLE: Giant Method Without Organization (DO NOT DO):**
+
+```javascript
+// WRONG: Giant method without logical blocks
+async registerGateEntry(data) {
+  await this.locatorAdicionarButton.click();
+  await expect(this.locatorRegistrationModal).toBeVisible();
+  await this.locatorNameInput.fill(data.name);
+  await this.formUtils.fillFieldSLookup(ID_PHYSICAL_LOCATION, data.physicalLocation);
+  await this.locatorTemporaryValidityInput.fill(data.temporaryValidity);
+  if (data.scheduledValidity) {
+    await this.locatorScheduledValidityInput.fill(data.scheduledValidity);
+  }
+  if (data.visitControl) {
+    await this.locatorVisitControlCheckbox.check();
+  }
+  await this.locatorSaveButton.click();
+  await expect(this.locatorSuccessAlert).toBeVisible();
+  await expect(this.locatorRegistrationModal).toBeHidden();
+}
+// PROBLEM: Hard to identify where to start/end each step
+// IMPACT: Confused maintenance, difficult debug
+```
+
+**🎯 Practical Rule:**
+
+| Situation | Solution |
+| ---------- | --------- |
+| **Complete business flow** (register, edit, delete, filter) | ✅ **1 method completo** com internal logical blocks |
+| **Method getting too big**(>25 lines) | **Divide into blocks** with clear comments (DO NOT create micro-methods) |
+| **Logic repeats 3+ times** | **Create auxiliary method**reusable (e.g. ‘waitLoading()’) |
+| **Trivial method** (1-2 commands) | **DO NOT create** - incorporate into the main method |
+
+---
+
+#### **2. Business Validations (State/Result)**
+
+- **Validate full screen loading:** Title + main elements + no loading
+- **Validate action result:** Toast + data update + correct final status
+- **Validate registration presence:** Search table + extract data + return object
+
+**Example:**
+
+```javascript
+async validateRegisteredGateEntry(gateEntryName) {
+  // Wait for loading to disappear
+  await expect(this.locatorLoadingSpinner).toBeHidden();
+
+  // Locate record in table
+  const locatorRow = this.locatorRecordsTable.locator('tbody tr').filter({ hasText: gateEntryName });
+  await expect(locatorRow).toBeVisible();
+
+  // Extract and return data (for additional validations in the test)
+  const name = await locatorRow.locator('td').nth(1).textContent();
+  const status = await locatorRow.locator('td').nth(2).textContent();
+
+  return { name: name.trim(), status: status.trim() };
 }
 ```
 
 ---
 
-#### **3. Método `acessarTela()` (OBRIGATÓRIO)**
+#### **3. Method `accessScreen()` (MANDATORY)**
 
-> **🚨 REGRA CRÍTICA ABSOLUTA - VIOLAÇÃO FREQUENTE:**
+> **🚨 ABSOLUTE CRITICAL RULE - FREQUENT VIOLATION:**
 >
-> **⛔ Método `acessarTela()` NUNCA, EM NENHUMA CIRCUNSTÂNCIA, RECEBE PARÂMETROS**
+> **⛔ Method `accessScreen()` NEVER, UNDER ANY CIRCUMSTANCE, RECEIVES PARAMETERS**
 
-**🔴 PROCESSO OBRIGATÓRIO (3 PASSOS):**
+**🔴 MANDATORY PROCEDURE (3 STEPS):**
 
-**PASSO 1:** Importar constante de navegação no topo do arquivo
+**STEP 1:** Import navigation constant at the top of file
 
 ```javascript
-import { NOME_FUNCIONALIDADE_REAL } from '../../helpers/navegacao.js'; // Substitua pelo nome REAL de navegacao.js
+import { REAL_FEATURE_NAME } from '../../helpers/navegacao.js'; // Replace with the real name from navegacao.js
 ```
 
-**PASSO 2:** Criar método SEM parâmetros
+**STEP 2:** Create Method No parameters
 
 ```javascript
 /**
- * Acessa a tela de [Nome da Funcionalidade]
+ * Access the [Feature Name] screen
  */
-async acessarTela() {
-  // Opção 1: Navega diretamente pela URL
-  await this.page.goto(NOME_FUNCIONALIDADE_REAL.URL);
+async accessScreen() {
+  // Option 1: Browse directly through the URL
+  await this.page.goto(REAL_FEATURE_NAME.URL);
 
-  // Opção 2: Navega pelo menu usando spread operator
-  await this.funcionalidadePage.navegarParaPagina(...NOME_FUNCIONALIDADE_REAL.DIRETORIO);
+  // Option 2: Browse the menu using spread operator
+  await this.featurePage.navigateToPage(...REAL_FEATURE_NAME.DIRECTORY);
 
-  // Aguarda elemento principal da tela
-  await expect(this.locatorTituloPrincipal).toBeVisible();
+  // Wait for the main element on screen
+  await expect(this.locatorMainTitle).toBeVisible();
 }
 ```
 
-**PASSO 3:** Usar no teste SEM passar parâmetros
+**STEP 3:** Use in the without passing parameters test
 
 ```javascript
-// ✅ CORRETO - Chamada sem parâmetros
+// Correct - Call without parameters
 test.beforeEach(async ({ page }) => {
   logger.test(test.info().title);
-  await page.funcionalidadePage.login(TOKEN_USUARIO);
-  await page.funcionalidadePage.acessarTela(); // Sem argumentos
+  await page.featurePage.login(TOKEN_USUARIO);
+  await page.featurePage.accessScreen(); // No arguments
 });
 ```
 
 ---
 
-**❌ IMPLEMENTAÇÕES INCORRETAS (NÃO FAZER):**
+**❌ IMPLEMENTATIONS NOT TO DO:**
 
 ```javascript
-// ❌ ERRO CRÍTICO #1 - Parâmetro na assinatura
-async acessarTela(url) { // ❌ NUNCA adicionar parâmetros aqui
+// CRITICAL ERROR #1 - Signature parameter
+async accessScreen(url) { // NEVER add parameters here
   await this.page.goto(url);
 }
 
-// ❌ ERRO CRÍTICO #2 - Parâmetro de constante
-async acessarTela(CONSTANTE_NAVEGACAO) { // ❌ NUNCA adicionar parâmetros aqui
-  await this.page.goto(CONSTANTE_NAVEGACAO.URL);
+// CRITICAL ERROR #2 - Constant parameter
+async accessScreen(NAVIGATION_CONSTANT) { // NEVER add parameters here
+  await this.page.goto(NAVIGATION_CONSTANT.URL);
 }
 
-// ❌ ERRO #3 - URL hardcoded (sem importar constante)
-async acessarTela() {
-  await this.page.goto('https://sistema.com/tela'); // ❌ URL hardcoded
+// ❌ ERROR #3 - URL hardcoded (without importing constant)
+async accessScreen() {
+  await this.page.goto('https://system. with/screen'); //
 }
 
-// ❌ ERRO #4 - Variável indefinida (não importou constante)
-async acessarTela() {
-  await this.page.goto(NOME_FUNCIONALIDADE_REAL.URL); // ❌ Constante não foi importada
+// ❌ ERROR #4 - Undefined variable (constant not imported)
+async accessScreen() {
+  await this.page.goto(REAL_FEATURE_NAME.URL); // Constant was not imported
 }
 ```
 
 ---
 
-**❌ CHAMADAS INCORRETAS NO TESTE:**
+**❌ INCORRECT CALLS IN THE TEST:**
 
 ```javascript
-// ❌ ERRO - Passando constante como parâmetro
-await page.funcionalidadePage.acessarTela(NOME_FUNCIONALIDADE_REAL);
+// ERROR - Passing constant as parameter
+await page.featurePage.accessScreen(REAL_FEATURE_NAME);
 
-// ❌ ERRO - Passando URL como parâmetro
-await page.funcionalidadePage.acessarTela(NOME_FUNCIONALIDADE_REAL.URL);
+// ERROR - Passing URL as parameter
+await page.featurePage.accessScreen(REAL_FEATURE_NAME.URL);
 
-// ❌ ERRO - Passando string
-await page.funcionalidadePage.acessarTela('url');
+// ERROR - Passing string
+await page.featurePage.accessScreen('url');
 ```
 
 ---
 
-**✅ CHECKLIST DE VALIDAÇÃO:**
+**✅ VALIDATION CHECKLIST:**
 
-- [ ] **1.** Importei a constante de navegação no topo do arquivo Page?
-- [ ] **2.** Constante importada tem nome REAL da funcionalidade (ex: `PORTARIAS`, `CONTAS`, não placeholder)?
-- [ ] **3.** Assinatura do método está EXATAMENTE `async acessarTela() {` (SEM parâmetros)?
-- [ ] **4.** Dentro do método uso `CONSTANTE_IMPORTADA.URL` ou `...CONSTANTE_IMPORTADA.DIRETORIO`?
-- [ ] **5.** Importei APENAS constante que será usada (não importei 5 e usei 1)?
-- [ ] **6.** No teste, chamo método SEM argumentos: `await page.xxxPage.acessarTela()`?
+- [ ] **1.** Did I import the navigation constant at the top of the Page file?
+- [ ] **2.** Imported constant has a real name of the functionality (e.g. 'PORTARIAS', 'CONTAS', not placeholder)?
+- [ ] **3.** Is the method signature EXACTLY `async accessScreen() {`(No parameters)?
+- [ ] **4.** Within the method use `CONSTANT IMPORTED.URL` or `...CONSTANT IMPORTED. DIRECTORY`?
+- [ ] **5.** Did I import ONLY constant that will be used (I did not import 5 and used 1)?
+- [ ] **6.** In the test, I call method NO arguments: `await page. xxxPage.accessScreen()`?
 
-**⛔ SE QUALQUER RESPOSTA = NÃO: IMPLEMENTAÇÃO INCORRETA - Ajustar antes de prosseguir**
-
----
-
-**📋 REGRAS ABSOLUTAS:**
-
-1. ✅ SEMPRE importar constante de `helpers/navegacao.js` no topo do arquivo
-2. ✅ Usar `CONSTANTE_REAL.URL` ou `...CONSTANTE_REAL.DIRETORIO` dentro do método
-3. ✅ Validar elemento principal após navegação
-4. ✅ Importar APENAS o que será usado
-5. ❌ NUNCA adicionar parâmetro `url` na assinatura do método
-6. ❌ NUNCA adicionar parâmetro `constante` na assinatura do método
-7. ❌ NUNCA adicionar QUALQUER parâmetro na assinatura do método
-8. ❌ NUNCA hardcoded de URLs
-9. ❌ NUNCA usar variável não importada
+### ⛔ IF ANY ANSWER = NO: IMPLEMENTATION INCORRECT - Adjust before proceeding
 
 ---
 
-#### **🚨 CHECKLIST ANTI-ERRO (VALIDAR ANTES DE IMPLEMENTAR)**
+**📋 ABSOLUTE RULES:**
 
-> **⚠️ ESTES SÃO OS 2 ERROS MAIS FREQUENTES - VALIDAR SEMPRE:**
+1. ✅ Always import constant from 'helpers/navigation. js` at the top of file
+2. ✅ Use `CONSTANT REAL.URL` or `...CONSTANT REAL.Directory' within the method
+3. ✅ Validate main element after navigation
+4. ✅ Import ONLY what will be used
+5. ❌ NEVER add parameter 'url' to the method signature
+6. ❌ NEVER add 'constant' parameter to the method signature
+7. ❌ NEVER add ANY parameter in the method signature
+8. ❌ NEVER hardcoded URLs
+9. ❌ NEVER use unimported variable
 
-**ERRO #1: Parâmetro em `acessarTela()`**
+---
 
-- [ ] ✅ Método `acessarTela()` está SEM parâmetros na assinatura?
-- [ ] ✅ Constante de navegação está importada no topo do arquivo?
-- [ ] ❌ Método NÃO recebe `url`, `constante`, ou qualquer parâmetro?
+#### **🚨 ANTI-ERROR CHECKLIST
 
-**Exemplo CORRETO:**
+> **⚠These are the two most frequent mistakes - always valid:**
+
+**ERROR #1: Parameter on `accessscreen()`**
+
+- [ ] ✅ Method `accessScreen()` is WITHOUT parameters in signature?
+- [ ] ✅ Navigation constant is imported at the top of the file?
+- [ ] ❌ Method DOES NOT receive `url`, `constant', or any parameter?
+
+**Correct example:**
+
 ```javascript
-import { NOME_FUNCIONALIDADE } from '../../helpers/navegacao.js';
-async acessarTela() {
-  await this.page.goto(NOME_FUNCIONALIDADE.URL);
-  await expect(this.locatorTituloHeading).toBeVisible();
+import { FEATURE_NAME } from '../../helpers/navegacao.js';
+async accessScreen() {
+  await this.page.goto(FEATURE_NAME.URL);
+  await expect(this.locatorTitleHeading).toBeVisible();
 }
 ```
 
-**ERRO #2: JSDoc com placeholder genérico ou sem linha Exemplo**
+### ERROR #2: JSDoc with generic placeholder or no line Example
 
-- [ ] ✅ JSDoc tem linha `Exemplo:` VINCULADA ao `@param {object}` (nunca isolada)?
-- [ ] ✅ Nome do JSON usa placeholder `JSON_{CONSTANTE}` no template?
-- [ ] ✅ Na implementação, placeholder foi substituído pelo nome REAL do JSON correspondente ao arquivo em `data/`?
-- [ ] ❌ JSDoc NÃO detalha campos (`dados.campo1`, `dados.campo2`)?
-- [ ] ❌ NÃO existe `Exemplo: JSON` sem `@param {object}` na linha anterior?
+- [ ] ✅ JSDoc has line ‘Example:’ (never isolated)?
+- [ ] ✅ Does JSON's name use placeholder `JSON {CONSTANT}` in the template?
+- [ ] ✅ In the implementation, placeholder was replaced by the REAL JSON name corresponding to the file in `data/`?
+- [ ] ❌ JSDoc DO NOT detail fields ('data. field1`, 'data. field2`)?
+- [ ] ❌ IS THERE NO `Example: JSON` without `@param {object}` on the previous line?
 
-**Exemplo CORRETO:**
+**Correct example:**
+
 ```javascript
 /**
- * Cadastra novo registro no sistema
- * @param {object} dados - Dados do registro
- * Exemplo: JSON_{CONSTANTE}
+ * Registers a new record in the system
+ * @param {object} data - Record data
+ * Example: JSON_{CONSTANT}
  */
-async cadastrarRegistro(dados) { }
+async registerRecord(data) { }
 ```
 
 ---
 
-#### **4. Métodos Auxiliares ÚTEIS (Não Fragmentar Demais)**
+#### **4. USEFUL Auxiliary Methods (Not Too Fragmentary)**
 
-**⚠️ IMPORTANTE: Criar métodos auxiliares SOMENTE quando:**
+**⚠IMPORTANT: Create auxiliary methods ONLY when:**
 
-- A ação se repete em 3+ lugares
-- Envolve lógica complexa reutilizável
-- Melhora significativamente a legibilidade
+- Action repeats in 3+ places
+- It involves reusable complex logic
+- Significantly improves legibility
 
-**✅ Exemplos VÁLIDOS de auxiliares:**
+**✅ VALID examples of assistants:**
 
 ```javascript
-// ✅ BOM: Reutilizado em cadastrar, editar, pesquisar
-async aguardarCarregamentoCompleto() {
-  await expect(this.locatorCarregandoSpinner).toBeHidden();
-  await expect(this.locatorConteudoPrincipal).toBeVisible();
+// ✅ GOOD: Reused in register, edit, and search
+async waitForCompleteLoading() {
+  await expect(this.locatorLoadingSpinner).toBeHidden();
+  await expect(this.locatorMainContent).toBeVisible();
 }
 
-// ✅ BOM: Lógica complexa usada em múltiplos fluxos
-async abrirModalEdicao(identificador) {
-  const locatorLinha = this.locatorRegistrosTable.locator('tbody tr').filter({ hasText: identificador });
-  await locatorLinha.locator(this.locatorBotaoAcoes).click();
-  await this.locatorOpcaoEditar.click();
-  await expect(this.locatorModalEdicao).toBeVisible();
+// ✅ GOOD: Complex logic used in multiple flows
+async openEditModal(identifier) {
+  const locatorRow = this.locatorRecordsTable.locator('tbody tr').filter({ hasText: identifier });
+  await locatorRow.locator(this.locatorActionButton).click();
+  await this.locatorEditOption.click();
+  await expect(this.locatorEditModal).toBeVisible();
 }
 ```
 
-**❌ Exemplos INVÁLIDOS (fragmentação excessiva):**
+**❌ Examples INVALID (excessive fragmentation):**
 
 ```javascript
-// ❌ RUIM: Método trivial (só 1 comando)
-async clicarBotaoSalvar() {
-  await this.locatorSalvarButton.click();
+// ❌ BAD: Trivial method (only 1 command)
+async clickSaveButton() {
+  await this.locatorSaveButton.click();
 }
 
-// ❌ RUIM: Método trivial (só 1 validação)
-async validarBotaoVisivel() {
-  await expect(this.locatorBotao).toBeVisible();
+// ❌ BAD: Trivial method (only 1 validation)
+async validateButtonVisible() {
+  await expect(this.locatorButton).toBeVisible();
 }
 
-// ❌ RUIM: Método usado uma vez só
-async preencherCampoNome(nome) {
-  await this.locatorNomeInput.fill(nome);
+// ❌ BAD: Method used only once
+async fillNameField(name) {
+  await this.locatorNameInput.fill(name);
 }
 ```
 
-**🎯 Regra Prática:**
+**🎯 Practical Rule:**
 
-- **Método auxiliar:** Somente se usar 3+ vezes OU envolver lógica complexa
-- **Método de fluxo:** Sempre criar completo (não fragmentar em micro-métodos)
+- **Auxiliary method:** Only if you use 3+ times OR involve complex logic
+- **Flow method:** Always create complete (not fragmented into micro-methods)
 
 ---
 
-#### **5. Métodos NÃO Devem Ser Criados Para:**
+#### **5. Methods Should NOT be Created For:**
 
-**❌ PROIBIDO: Ações triviais (1 comando apenas):**
+**❌ PROHIBITED: Trivial actions (1 command only):**
 
 ```javascript
-// ❌ NUNCA FAZER
-async clicarBotaoSalvar() {
-  await this.locatorSalvarButton.click();
+// Never do it.
+async clickSaveButton() {
+  await this.locatorSaveButton.click();
 }
 
-async preencherNome(nome) {
-  await this.locatorNomeInput.fill(nome);
+async fillName(name) {
+  await this.locatorNameInput.fill(name);
 }
 
-async validarTituloVisivel() {
-  await expect(this.locatorTituloHeading).toBeVisible();
+async validateTitleVisible() {
+  await expect(this.locatorTitleHeading).toBeVisible();
 }
 ```
 
-**❌ PROIBIDO: Fragmentação excessiva:**
+**❌ PROHIBITED: Excessive fragmentation:**
 
 ```javascript
-// ❌ ERRADO: 5 métodos pequenos
-async abrirModal() { await this.locatorBotao.click(); }
-async aguardarModal() { await expect(this.locatorModalDialog).toBeVisible(); }
-async preencherCampo1() { await this.locator1.fill('...'); }
-async preencherCampo2() { await this.locator2.fill('...'); }
-async salvar() { await this.locatorSalvar.click(); }
+// Wrong: 5 small methods
+async openModal() { await this.locatorButton.click(); }
+async waitForModal() { await expect(this.locatorModalDialog).toBeVisible(); }
+async fillField1() { await this.locator1.fill('...'); }
+async fillField2() { await this.locator2.fill('...'); }
+async save() { await this.locatorSave.click(); }
 ```
 
 ```javascript
-// ✅ CORRETO: 1 método completo
-async cadastrarRegistro(dados) {
-  // Abrir modal
-  await this.locatorBotao.click();
+// Correct: 1 complete method
+async registerRecord(data) {
+  // Open modal
+  await this.locatorButton.click();
   await expect(this.locatorModalDialog).toBeVisible();
 
-  // Preencher campos
-  await this.locator1.fill(dados.campo1);
-  await this.locator2.fill(dados.campo2);
+  // Fill fields
+  await this.locator1.fill(data.field1);
+  await this.locator2.fill(data.field2);
 
-  // Salvar e validar
-  await this.locatorSalvar.click();
+  // Save and validate
+  await this.locatorSave.click();
   await expect(this.locatorToast).toBeVisible();
 }
 ```
 
-**❌ PROIBIDO: Nomes genéricos ou em inglês:**
+**❌ PROHIBITED: Generic or English names:**
 
 ```javascript
-// ❌ NUNCA FAZER
-async validar() { }
-async salvar() { }
+// Never do it.
+async validate() { }
+async save() { }
 async clickButton() { }
 async fillField() { }
-async validarButton() { } // mistura inglês/português
+async validateButton() { } // English-only naming
 ```
 
 ---
 
-## 🔒 **REGRA #2: TODOS os Locators no Construtor**
+## 🔒 **RULE #2: ALL Locators in the Constructor**
 
-> **⚠️ REGRA CRÍTICA: Locators DEVEM estar no constructor, NUNCA inline nos métodos (exceto dinâmicos)**
+> **⚠CRITERIA: Locators MUST be in the constructor and MUST NEVER be inline in methods (except dynamic locators)**
 
-### **📋 Checklist de Locators:**
+### **📋 Locator Checklist:**
 
-**✅ OBRIGATÓRIO no Constructor:**
+**✅ BUSINESS IN CONSTRUCTOR:**
 
-1. **Todos locators estáticos** (valores fixos, sem dependência de parâmetros)
-2. **Todos locators reutilizados** em múltiplos métodos
-3. **Todos elementos base** da página/modal/formulário
-4. **Qualquer locator que NÃO dependa de parâmetro do método**
+1. **All static locators** (fixed values without parameter dependency)
+2. **All locators reused** in multiple methods
+3. **All basic elements** of page/modal/form
+4. **Any locator that does NOT depend on the method parameter**
 
-**✅ PERMITIDO nos Métodos (APENAS se dinâmicos):**
+**✅ Allowed in Methods (Only if dynamic):**
 
-- Locators que dependem de parâmetro do método
-- Locators que usam `.filter()` com valor variável
-- Locators construídos a partir de dados do método
+- Locators that depend on method parameter
+- Locators using variable value `.filter()`
+- Locators built from method data
 
-### **Exemplo CORRETO:**
+### **Correct example:**
 
 ```javascript
 constructor(page) {
   this.page = page;
   this.frame = this.page.frameLocator('iframe[name="ci"]');
 
-  this.ID_{DESCRICAO}_{TIPO_ELEMENTO} = '#{idCampo}';
+  this.ID_{DESCRIPTION}_{ELEMENT_TYPE} = '#{fieldId}';
 
-  // ✅ TODOS os locators estáticos aqui
-  this.locatorTituloHeading = this.frame.getByRole('heading', { name: 'Baloes' });
-  this.locatorAdicionarButton = this.frame.getByRole('button', { name: 'Adicionar' });
-  this.locatorSalvarButton = this.frame.getByRole('button', { name: 'Salvar' });
-  this.locatorCancelarButton = this.frame.getByRole('button', { name: 'Cancelar' });
-  this.locatorNomeInput = this.frame.getByLabel('Nome');
-  this.locatorDescricaoInput = this.frame.getByLabel('Descrição');
+  // ✅ ALL static locators here
+  this.locatorTitleHeading = this.frame.getByRole('heading', { name: 'Balloons' });
+  this.locatorAddButton = this.frame.getByRole('button', { name: 'Add' });
+  this.locatorSaveButton = this.frame.getByRole('button', { name: 'Save' });
+  this.locatorCancelButton = this.frame.getByRole('button', { name: 'Cancel' });
+  this.locatorNameInput = this.frame.getByLabel('Name');
+  this.locatorDescriptionInput = this.frame.getByLabel('Description');
 }
 
-// ✅ Locator dinâmico no método (depende de parâmetro)
-async buscarRegistroPorNome(nomeRegistro) {
-  const locatorLinha = this.locatorRegistrosTable
+// ✅ Dynamic locator in method (depends on parameter)
+async findRecordByName(recordName) {
+  const locatorRow = this.locatorRecordsTable
     .locator('tbody tr')
-    .filter({ hasText: nomeRegistro }); // ✅ Dinâmico: usa parâmetro do método
+    .filter({ hasText: recordName }); // Dynamic: uses method parameter
 
-  await expect(locatorLinha).toBeVisible();
+  await expect(locatorRow).toBeVisible();
 }
 ```
 
-### **Exemplo ERRADO:**
+### **Example Wrong:**
 
 ```javascript
-// ❌ NUNCA FAZER: Locators estáticos dentro de métodos
-async clicarSalvar() {
-  const locatorSalvar = this.frame.getByRole('button', { name: 'Salvar' }); // ❌ ERRADO
-  await locatorSalvar.click();
+// NEVER DO: Static locators within methods
+async clickSave() {
+  const locatorSave = this.frame.getByRole('button', { name: 'Save' }); // WRONG
+  await locatorSave.click();
 }
 
-async preencherNome(nome) {
-  const locatorNome = this.frame.getByLabel('Nome'); // ❌ ERRADO
-  await locatorNome.fill(nome);
+async fillName(name) {
+  const locatorName = this.frame.getByLabel('Name'); // WRONG
+  await locatorName.fill(name);
 }
 ```
 
 ```javascript
-// ✅ CORRETO: Usar locators do constructor
-async salvarFormulario() {
-  await this.locatorSalvarButton.click(); // ✅ Do constructor
+// Correct: Use constructor locators
+async saveForm() {
+  await this.locatorSaveButton.click(); // ✅ From constructor
 }
 
-async preencherCampoNome(nome) {
-  await this.locatorNomeInput.fill(nome); // ✅ Do constructor
+async fillNameField(name) {
+  await this.locatorNameInput.fill(name); // ✅ From constructor
 }
 ```
 
-### **🎯 Regra Prática de Decisão:**
+### **🎯 Practical Decision Rule:**
 
-**Antes de criar um locator em um método, pergunte:**
+**Before creating a locator in a method, ask:**
 
-1. ❓ **Esse locator depende de um parâmetro do método?**
-   - ✅ SIM → Pode ficar no método
-   - ❌ NÃO → DEVE estar no constructor
+1. ❓ **Does this locator depend on a method parameter?**
+   - ✅ YES → You can stay in the method
+   - ❌ NO → Must be in the constructor
 
-2. ❓ **Esse locator usa um valor fixo/hardcoded?**
-   - ✅ SIM → DEVE estar no constructor
-   - ❌ NÃO → Verificar item 1
+2. ❓ **Does this locator use a fixed value/hardcoded?**
+   - ✅ YES → Must be in the constructor
+   - ❌ NO → Check item 1
 
-3. ❓ **Esse locator usa `.filter()` com valor variável?**
-   - ✅ SIM → Pode ficar no método
-   - ❌ NÃO → DEVE estar no constructor
+3. ❓ **Does this locator use '.filter()' with variable value?**
+   - ✅ YES → You can stay in the method
+   - ❌ NO → Must be in the constructor
 
 ---
 
-## 🧪 **REGRA #3: Testes NÃO Devem Ter Ações Diretas**
+## 🧪 **RULES #3: Tests Must NOT Have Direct Actions**
 
-**🚨 REGRA CRÍTICA: Testes NÃO devem ter `.click()`, `.fill()`, `expect()` diretos**
+**🚨 CRITICAL RULE: Tests must not have direct '.click()`, '.fill()`, 'expect()`**
 
-**Tudo deve estar encapsulado em métodos do Page Object:**
+**Everything must be encapsulated in Page Object methods:**
 
 ```javascript
-// ❌ COMPLETAMENTE ERRADO - Ações diretas no teste
+// COMPLETELY WRONG - Direct actions in the test
 test(
-  '001 - Deve cadastrar registro',
+  '001 - Should register a record',
   {
-    tag: '@FUNCIONALIDADE_CREATE',
-    annotation: { type: 'Issue', description: 'https://jira.example.com/TASK-001' }
+    tag: '@FEATURE_CREATE',
+    annotation: { type: 'Issue', description: 'https://jira. example.com/TASK-001'}
   },
   async ({ page }) => {
     // Arrange:
-    const dados = JSON_{CONSTANTE}; // ❌ PROIBIDO
+    const data = JSON_{CONSTANT}; // ❌ FORBIDDEN
 
-    // Act: ❌ AÇÕES DIRETAS NO TESTE
-    await page.funcionalidadePage.locatorNomeInput.fill(dados.nome);           // ❌ PROIBIDO
-    await page.funcionalidadePage.locatorDescricaoInput.fill(dados.descricao); // ❌ PROIBIDO
-    await page.funcionalidadePage.locatorSalvarButton.click();                 // ❌ PROIBIDO
+    // Act:
+    await page.featurePage.locatorNameInput.fill(data.name);           // ❌ FORBIDDEN
+    await page.featurePage.locatorDescriptionInput.fill(data.description); // ❌ FORBIDDEN
+    await page.featurePage.locatorSaveButton.click();                 // ❌ FORBIDDEN
 
-    // Assert: ❌ VALIDAÇÃO DIRETA NO TESTE
-    await expect(page.funcionalidadePage.locatorSucessoAlert).toBeVisible(); // ❌ PROIBIDO
+    // Assert:
+    await expect(page.featurePage.locatorSuccessAlert).toBeVisible(); // ❌ FORBIDDEN
   }
 );
 ```
 
 ```javascript
-// ✅ COMPLETAMENTE CORRETO - Tudo encapsulado em métodos
+// COMPLETELY RIGHT - All encapsulated in methods
 test(
-  '001 - Deve cadastrar registro',
+  '001 - Should register a record',
   {
-    tag: '@FUNCIONALIDADE_CREATE',
-    annotation: { type: 'Issue', description: 'https://jira.example.com/TASK-001' }
+    tag: '@FEATURE_CREATE',
+    annotation: { type: 'Issue', description: 'https://jira. example.com/TASK-001'}
   },
   async ({ page }) => {
-    // Arrange: Preparar contexto para cadastro
-    await page.funcionalidadePage.acessarTela();
+    // Arrange: Prepare context for registration
+    await page.featurePage.accessScreen();
 
-    // Act: Método encapsula TODAS as ações
-    await page.funcionalidadePage.cadastrarRegistro(dados);
+    // Act: Encapsulation method All shares
+    await page.featurePage.registerRecord(data);
 
-    // Assert: Método encapsula TODAS as validações
-    await page.funcionalidadePage.validarRegistroCadastrado(dados.nome);
+    // Assert: Encapsulation method ALL validations
+    await page.featurePage.validateRegisteredRecord(data.name);
   }
 );
 ```
 
-**Por que encapsular TODO?**
+**Why encapsulate ALL?**
 
-- ✅ **Reutilização:** Mesmo método usado em múltiplos testes
-- ✅ **Manutenção:** Mudança no locator = alterar em 1 lugar só
-- ✅ **Clareza:** Teste expressa INTENÇÃO de negócio, não implementação técnica
-- ✅ **Clean Code:** Abstração de detalhes técnicos
-- ✅ **Legibilidade:** Teste lê como linguagem natural
+- ✅ **Reuse:** Same method used in multiple tests
+- ✅ **Maintenance:** Change in locator = change in 1 place only
+- ✅ **Clarity:** Express test Business INTENTION, not technical implementation
+- ✅ **Clean Code:**Extraction of technical details
+- ✅ **Legibility:** Test reads as natural language
 
-## 🎯 **Princípios de Métodos Bem Estruturados**
+## 🎯 **Principles of Well Structured Methods**
 
-**Cada método deve seguir estes 5 princípios:**
+**Each method must follow these 5 principles:**
 
-### **1. Fluxo Completo de Negócio (Sem Fragmentação)**
+### **1. Complete Business Flow (No Fragmentation)**
 
-- Um método = uma ação completa do usuário
-- **Equilíbrio:** Método completo ≠ método gigante confuso
-- Exemplo: `cadastrarBaloes()` faz abertura + preenchimento + salvamento + validação (TUDO em 1 método)
+- A method = a complete user action
+- **Balance:** Complete method
+- Example: `registrarBalooes()` does opening + filling + saving + validation (ALL in 1 method)
 
-### **2. Organização em Blocos Lógicos (Clareza Interna)**
+### **2. Organisation in Logic Blocks (Internal Clarity)**
 
-- Usar **comentários simples** para separar etapas quando o método for mais complexo
-- Comentários descrevem a intenção de cada seção (abertura, preenchimento, submissão, validação)
-- **Não é obrigatório** para métodos simples e diretos
-- Facilita leitura e manutenção **sem criar micro-métodos**
+- Use simple comments** to separate steps when the method is more complex
+- Comments describe the intention of each section (opening, filling, submission, validation)
+- **Not mandatory** for simple and direct methods
+- Facilitates reading and maintenance **without creating micro-methods**
 
 ```javascript
-// Exemplo com comentários (método mais complexo):
-async cadastrarRegistro(dados) {
-  // Abrir modal de cadastro e aguardar carregamento completo
+// Example with comments (more complex method):
+async registerRecord(data) {
+  // Open registration modal and wait for full load
   await this.locatorAdicionarButton.click();
   await expect(this.locatorModalDialog).toBeVisible();
 
-  // Preencher campos obrigatórios
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.locatorDescricaoInput.fill(dados.descricao);
+  // Fill required fields
+  await this.locatorNameInput.fill(data.name);
+  await this.locatorDescriptionInput.fill(data.description);
 
-  // Salvar e validar sucesso da operação
-  await this.locatorSalvarButton.click();
+  // Save and validate operation success
+  await this.locatorSaveButton.click();
   await expect(this.locatorToast).toBeVisible();
 }
 
-// Exemplo sem comentários (método simples):
+// Example without comments (simple method):
 async fecharModal() {
   await this.locatorFecharButton.click();
   await expect(this.locatorModalDialog).toBeHidden();
 }
 ```
 
-### **3. Métodos Auxiliares Apenas se Úteis (Evitar Fragmentação)**
+### **3. Auxiliary Methods Only if Useful (Avoid Fragmentation)**
 
-- Criar auxiliar SOMENTE se usado 3+ vezes OU lógica complexa
-- **NÃO criar** métodos triviais (1 comando)
-- **NÃO fragmentar** fluxos em micro-métodos
-- Exemplos válidos: `aguardarCarregamento()`, `abrirModalEdicao(identificador)`
+- Create Helper ONLY if used 3+ times OR complex logic
+- **DO NOT create** trivial methods (1 command)
+- **NO fragmentary** flows in micro-methods
+- Valid examples: ‘WaitLoad()’, ‘OpenModalEdicate(identifier)’
 
-### **4. Todos Locators no Construtor (Sem Exceções)**
+### **4. All Hirers in Builder (No Exceptions)**
 
-- Locators estáticos = constructor (SEMPRE)
-- Locators dinâmicos = métodos (APENAS se dependem de parâmetro)
-- Seletores estáveis e semânticos
+- Static locators = constructor (ALWAYS)
+- Dynamic locators = methods ( ONLY depend on parameter)
+- Stable and semantic selectors
 
-### **5. Clean Code (Padrões de Qualidade)**
+### **5. Clean Code**
 
-- Nomes descritivos em português
-- Sem duplicação (DRY)
-- Validações com `expect()` em pontos-chave
-- JSDoc completo
+- Descriptive names in English
+- No duplication (DRY)
+- Validations with 'expect()' in key points
+- JSDoc complete
 
 ---
 
-## 🏆 **EXEMPLOS DE MÉTODOS BEM ESTRUTURADOS**
+## 🏆 **EXAMPLES OF WELL-STRUCTURED METHODS**
 
-> **📌 USE ESTES EXEMPLOS COMO REFERÊNCIA PARA TODOS OS MÉTODOS**
+> **📌 USE THESE EXAMPLES AS REFERENCE FOR ALL METHODS**
 >
-> **🚨 LEMBRE-SE: Testes NUNCA devem ter ações diretas, apenas chamadas de métodos**
+> **🚨 REMEMBER: Tests should NEVER have direct actions, only called methods**
 
-### **Exemplo 1: Ação de Negócio Completa**
+### **Example 1: Complete Business Action**
 
 ```javascript
 /**
- * Cadastra novo registro com todos os dados obrigatórios
- * @param {object} dados - Objeto com dados para cadastro
- * Exemplo: JSON_{CONSTANTE} (importado de data/{modulo}/{funcionalidade}Json.js)
+ * Create a new record with all required data
+ * @param {object} data - Object with registration data
+ * Example: JSON_{CONSTANT} (imported from data/{module}/{feature}Json.js)
  */
-async cadastrarRegistro(dados) {
-  // Preencher campos básicos
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.locatorDescricaoInput.fill(dados.descricao);
+async registerRecord(data) {
+  // Fill basic fields
+  await this.locatorNameInput.fill(data.name);
+  await this.locatorDescriptionInput.fill(data.description);
 
-  // Interagir com componentes complexos
-  if (dados.categoria) {
-    await this.formUtils.fillFieldPDropdown(this.ID_CATEGORIA_DROPDOWN, dados.categoria);
+  // Interact with complex components
+  if (data.category) {
+    await this.formUtils.fillFieldPDropdown(this.ID_CATEGORY_DROPDOWN, data.category);
   }
 
-  if (dados.responsavel) {
-    await this.formUtils.fillFieldSLookup(this.ID_RESPONSAVEL_LOOKUP, dados.responsavel);
+  if (data.owner) {
+    await this.formUtils.fillFieldSLookup(this.ID_OWNER_LOOKUP, data.owner);
   }
 
-  if (dados.dataInicio) {
-    await this.formUtils.fillFieldPCalendar(this.ID_DATA_INICIO_CALENDAR, dados.dataInicio);
+  if (data.startDate) {
+    await this.formUtils.fillFieldPCalendar(this.ID_START_DATE_CALENDAR, data.startDate);
   }
 
-  // Submeter formulário
-  await this.locatorSalvarButton.click();
+  // Submit Form
+  await this.locatorSaveButton.click();
 
-  // Validar sucesso
-  await expect(this.locatorSucessoAlert).toBeVisible();
+  // Validate success
+  await expect(this.locatorSuccessAlert).toBeVisible();
 }
 ```
 
-**✅ BOM porque:**
+**✅ GOOD BECAUSE:**
 
-- Representa ação completa de negócio
-- Agrupa múltiplos comandos relacionados
-- Aceita objeto de dados parametrizável
-- Valida resultado da ação
+- Represents full business action
+- Group multiple related commands
+- Accepts parameterable data object
+- Validate action result
 
 ---
 
-### **Exemplo 2: Fluxo Reutilizável com Lógica**
+### **Example 2: Reusable Flow with Logic**
 
 ```javascript
 /**
- * Aplica filtros na listagem e aguarda resultados
- * @param {object} criterios - Critérios de filtro
- * Exemplo: JSON_{CONSTANTE_FILTRO}
+ * Apply filters to the list and wait for results
+ * @param {object} criteria - Filter criteria
+ * Example: JSON_{CONSTANTE_FILTRO}
  */
-async aplicarFiltros(criterios) {
-  // Abrir painel de filtros
-  await this.locatorAbrirFiltrosButton.click();
+async applyFilters(criteria) {
+  // Open filter panel
+  await this.locatorOpenFiltersButton.click();
   await expect(this.locatorPainelFiltros).toBeVisible();
 
-  // Aplicar filtros com lógica condicional
-  if (criterios.status) {
-    await this.locatorStatusSelect.selectOption(criterios.status);
+  // Apply filters with conditional logic
+  if (criteria.status) {
+    await this.locatorStatusSelect.selectOption(criteria.status);
   }
 
-  if (criterios.periodo) {
+  if (criteria.periodo) {
     await this.locatorPeriodoRadio.check();
-    await this.locatorPeriodoSelect.selectOption(criterios.periodo);
+    await this.locatorPeriodoSelect.selectOption(criteria.periodo);
   }
 
-  if (criterios.nome) {
-    await this.locatorNomeFiltroInput.fill(criterios.nome);
+  if (criteria.name) {
+    await this.locatorNameFilterInput.fill(criteria.name);
   }
 
-  // Executar filtro
-  await this.locatorFiltrarButton.click();
+  // Execute filter
+  await this.locatorFilterButton.click();
 
-  // Aguardar atualização de resultados
-  await expect(this.locatorCarregandoSpinner).toBeHidden();
-  await expect(this.locatorResultados).toBeVisible();
+  // Wait for results update
+  await expect(this.locatorLoadingSpinner).toBeHidden();
+  await expect(this.locatorResults).toBeVisible();
 }
 ```
 
-**✅ BOM porque:**
-- Fluxo completo de uso reutilizável
-- Lógica condicional baseada em parâmetros
-- Aguarda estados intermediários
-- Valida estado final
+**✅ GOOD BECAUSE:**
+
+- Full flow of reusable use
+- Conditional logic based on parameters
+- Expects intermediate states
+- Validate final status
 
 ---
 
-### **Exemplo 3: Validação de Negócio Complexa**
+### **Example 3: Complex Business Validation**
 
 ```javascript
 /**
- * Valida se registro foi cadastrado corretamente na tabela
- * @param {string} textoIdentificador - Texto único do registro
- * @returns {Promise<object>} Dados do registro encontrado
+ * Validates if the record was correctly registered in the table
+ * @param {string} identifierText - Unique record text
+ * @returns {Promise<object>} Found record data
  */
-async validarRegistroCadastrado(textoIdentificador) {
-  // Criar locator dinâmico para buscar registro
-  const locatorLinha = this.locatorRegistrosTable
+async validateRegisteredRecord(identifierText) {
+  // Create dynamic locator to search log
+  const locatorRow = this.locatorRecordsTable
     .locator('tbody tr')
-    .filter({ hasText: textoIdentificador });
+    .filter({ hasText: identifierText });
 
-  // Validar visibilidade
-  await expect(locatorLinha).toBeVisible();
+  // Validate visibility
+  await expect(locatorRow).toBeVisible();
 
-  // Extrair dados da linha
-  const nome = await locatorLinha.locator('td').nth(1).textContent();
-  const status = await locatorLinha.locator('td').nth(2).textContent();
-  const data = await locatorLinha.locator('td').nth(3).textContent();
+  // Extract data from row
+  const name = await locatorRow.locator('td').nth(1).textContent();
+  const status = await locatorRow.locator('td').nth(2).textContent();
+  const date = await locatorRow.locator('td').nth(3).textContent();
 
-  // Retornar objeto estruturado
+  // Return Structured Object
   return {
-    nome: nome.trim(),
+    name: name.trim(),
     status: status.trim(),
-    data: data.trim(),
+    date: date.trim(),
   };
 }
 ```
 
-**✅ BOM porque:**
-- Validação estruturada com retorno útil
-- Locator dinâmico baseado em parâmetro
-- Extração organizada de dados
-- Retorno tipado para uso nos testes
+**✅ GOOD BECAUSE:**
+
+- Structured validation with useful return
+- Parameter-based dynamic locator
+- Organized data extraction
+- Typed return for test use
 
 ---
 
-### **Exemplo 4: Interação Complexa com Componentes**
+### **Example 4: Complex Interaction with Components**
 
 ```javascript
 /**
- * Abre modal de edição e preenche dados alterados
- * @param {string} nomeRegistro - Nome do registro a editar
- * @param {object} novosDados - Dados para atualização
- * Exemplo: JSON_{CONSTANTE_EDITAR}
+ * Opens edit modal and fills updated data
+ * @param {string} recordName - Name of the record to edit
+ * @param {object} newData - Data for update
+ * Example: JSON_{CONSTANT_EDIT}
  */
-async editarRegistro(nomeRegistro, novosDados) {
-  // Localizar linha do registro
-  const locatorLinha = this.locatorRegistrosTable
+async editRecord(recordName, newData) {
+  // Locate record row
+  const locatorRow = this.locatorRecordsTable
     .locator('tbody tr')
-    .filter({ hasText: nomeRegistro });
+    .filter({ hasText: recordName });
 
-  // Abrir menu de ações
-  await locatorLinha.locator(this.locatorAcoesButton).click();
-  await this.locatorEditarOption.click();
+  // Open Action Menu
+  await locatorRow.locator(this.locatorActionsButton).click();
+  await this.locatorEditOption.click();
 
-  // Aguardar modal
-  await expect(this.locatorModalEdicao).toBeVisible();
+  // Wait for modal
+  await expect(this.locatorEditModal).toBeVisible();
 
-  // Atualizar apenas campos alterados
-  if (novosDados.nome) {
-    await this.locatorNomeInput.fill(novosDados.nome);
+  // Update only changed fields
+  if (newData.name) {
+    await this.locatorNameInput.fill(newData.name);
   }
 
-  if (novosDados.status) {
-    await this.locatorStatusSelect.selectOption(novosDados.status);
+  if (newData.status) {
+    await this.locatorStatusSelect.selectOption(newData.status);
   }
 
-  // Salvar alterações
-  await this.locatorSalvarButton.click();
+  // Save Changes
+  await this.locatorSaveButton.click();
 
-  // Validar fechamento do modal e sucesso
-  await expect(this.locatorModalEdicao).toBeHidden();
-  await expect(this.locatorSucessoAlert).toBeVisible();
+  // Validate modal close and success
+  await expect(this.locatorEditModal).toBeHidden();
+  await expect(this.locatorSuccessAlert).toBeVisible();
 }
 ```
 
-**✅ BOM porque:**
-- Fluxo completo de edição
-- Lógica condicional para campos opcionais
-- Validações intermediárias e finais
-- Representa ação real do usuário
+**✅ GOOD BECAUSE:**
+
+- Full editing flow
+- Conditional logic for optional fields
+- Intermediate and final validations
+- Represents actual user action
 
 ---
 
-### **Exemplo 5: Método com Try/Catch para Botões "Ações"/"Opções"**
+### **Example 5: Try/Catch Method for "Actions"/"Options" Buttons**
 
 ```javascript
 /**
- * Exclui registro selecionado via menu Ações
- * @param {string} nomeRegistro - Nome do registro a excluir
+ * Delete selected record via Actions menu
+ * @param {string} recordName - Name of the record to delete
  */
-async excluirRegistro(nomeRegistro) {
-  // Localizar e selecionar registro
-  const locatorLinha = this.locatorRegistrosTable
+async deleteRecord(recordName) {
+  // Locate and select record
+  const locatorRow = this.locatorRecordsTable
     .locator('tbody tr')
-    .filter({ hasText: nomeRegistro });
+    .filter({ hasText: recordName });
 
-  await locatorLinha.locator('input[type="checkbox"]').check();
+  await locatorRow.locator('input[type="checkbox"]').check();
 
-  // Retry obrigatório: appendto="body" em s-button causa problema visual intermitente
-  for (let tentativa = 1; tentativa <= 2; tentativa++) {
+  // Required Retry: appendto="body" in s-button causes intermittent visual problem
+  for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      await this.locatorAcoesButton.click({ force: true });
-      await this.locatorMenuExcluirLink.click({ force: true });
+      await this.locatorActionsButton.click({ force: true });
+      await this.locatorMenuDeleteLink.click({ force: true });
       break;
     } catch (error) {
-      if (tentativa === 2) throw error;
+      if (attempt === 2) throw error;
     }
   }
 
-  // Confirmar exclusão
-  await this.locatorConfirmarExclusaoButton.click();
+  // Confirm deletion
+  await this.locatorConfirmDeleteButton.click();
 
-  // Validar sucesso
-  await expect(this.locatorSucessoAlert).toBeVisible();
+  // Validate success
+  await expect(this.locatorSuccessAlert).toBeVisible();
 
-  // Validar que registro não existe mais
+  // Validate that registration no longer exists
   await expect(locatorLinha).toBeHidden();
 }
 ```
 
-**✅ BOM porque:**
+**✅ GOOD BECAUSE:**
 
-- Tratamento robusto com try/catch + `{ force: true }`
-- Recovery automático sem falhar o teste
-- Validações múltiplas de sucesso
-- Representa fluxo completo de exclusão
+- Robust treatment with try/catch + `{force: true }`
+- Automatic Recovery without Failed Test
+- Multiple successful validations
+- Represents complete flow of exclusion
 
 ---
 
-### **❌ CONTRA-EXEMPLOS (NÃO FAZER)**
+### **❌ CONTRA-EXAMPLES (DO NOT DO)**
 
 ```javascript
-// ❌ EXEMPLO 1: Ações diretas no teste (ABSOLUTAMENTE PROIBIDO)
+// EXAMPLE 1: Direct actions in the test (ABSOLUTELY PROHIBITED)
 test(
-  '001 - Teste incorreto',
+  '001 - Incorrect test',
   {
-    tag: '@EXEMPLO_ERRADO',
-    annotation: { type: 'Issue', description: 'https://jira.example.com/TASK-001' }
+    tag: '@EXAMPLE_WRONG',
+    annotation: { type: 'Issue', description: 'https://jira. example.com/TASK-001'}
   },
   async ({ page }) => {
-    // Arrange: (omitido para brevidade)
+    // Arrange: (omitted to brevity)
 
-    // Act: ❌ AÇÕES DIRETAS NO TESTE
-    await page.funcionalidadePage.locatorNomeInput.fill('João');              // ❌ NUNCA FAZER
-    await page.funcionalidadePage.locatorSalvarButton.click();                // ❌ NUNCA FAZER
+    // Act:
+    await page.featurePage.locatorNameInput.fill('John');              // Never do it.
+    await page.featurePage.locatorSaveButton.click();                // Never do it.
 
-    // Assert: ❌ VALIDAÇÃO DIRETA NO TESTE
-    await expect(page.funcionalidadePage.locatorMensagem).toBeVisible();      // ❌ NUNCA FAZER
+    // Assert:
+    await expect(page.featurePage.locatorMensagem).toBeVisible();      // Never do it.
   }
 );
-// PROBLEMA: Teste conhece detalhes técnicos da UI (locators, comandos Playwright)
-// IMPACTO: Dificulta manutenção, não reutilizável, viola Clean Code
-// SOLUÇÃO: Criar método cadastrarRegistro() que encapsula TODAS as ações
+// PROBLEM: Test know technical details of UI (locators, Playwright commands)
+// IMPACT: Hard maintenance, not reusable, violates Clean Code
+// SOLUTION: Create registration methodRegister() encapsulating ALL actions
 
-// ❌ EXEMPLO 2: Método trivial de um comando (ABSOLUTAMENTE PROIBIDO)
-async clicarBotaoSalvar() {
-  await this.locatorSalvarButton.click();
+// EXAMPLE 2: Trivial method of a command (ABSOLUTELY PROHIBITED)
+async clickSaveButton() {
+  await this.locatorSaveButton.click();
 }
-// PROBLEMA: Apenas encapsula 1 comando, sem valor agregado ou contexto de negócio
-// IMPACTO: Viola princípio de métodos de negócio, cria poluição de código
-// SOLUÇÃO: Criar método completo (ex: salvarFormularioComValidacao()) que inclui click + validações
+// PROBLEM: Only encapsulates 1 command without added value or business context
+// IMPACT: Violation of business methods, creates code pollution
+// SOLUTION: Create complete method (e.g. saveFormularyComValidation()) that includes click + validations
 
-// ❌ EXEMPLO 3: Método trivial de um comando em inglês (DUPLAMENTE PROIBIDO)
+// EXAMPLE 3: Trivial method of a command in English
 async clickButton() {
   await this.locatorButton.click();
 }
-// PROBLEMA 1: Método trivial de um comando (proibido)
-// PROBLEMA 2: Nome em inglês (proibido - deve ser português)
-// SOLUÇÃO: Criar método de negócio em português (ex: confirmarAcao())
+// PROBLEM 1: Trivial method of a command (forbidden)
+// PROBLEM 2: Name in Portuguese (forbidden - must be English)
+// SOLUTION: Create business method in English (e.g. ConfirmAction())
 
-// ❌ EXEMPLO 4: Método que apenas preenche um campo
-async preencherNome(nome) {
-  await this.locatorNomeInput.fill(nome);
+// EXAMPLE 4: Method that fills only one field
+async fillName(name) {
+  await this.locatorNameInput.fill(name);
 }
-// PROBLEMA: Apenas 1 comando, sem contexto de negócio
-// SOLUÇÃO: Criar método cadastrarRegistro() que preenche TODOS os campos
+// PROBLEM: Only 1 command, no business context
+// SOLUTION: Create registration methodRegister() that fills all fields
 
-// ❌ EXEMPLO 5: Método com nome genérico
+// EXAMPLE 5: Generic name method
 async validarCampos() {
   await expect(this.locatorCampo1).toBeVisible();
   await expect(this.locatorCampo2).toBeVisible();
 }
-// PROBLEMA: Nome não descreve O QUE está sendo validado
-// SOLUÇÃO: Renomear para validarCamposObrigatoriosFormulario()
+// PROBLEM: Name does not describe WHAT is being validated
+// SOLUTION: Rename to validate Required fieldsFormulatory()
 
-// ❌ EXEMPLO 6: Método misturando inglês com português (PROIBIDO)
+// EXAMPLE 6: Method mixing English with Portuguese (PROHIBIDO)
 async validarButton() { }
 async clickSalvar() { }
-async fillNome() { }
-// PROBLEMA: Mistura idiomas na nomenclatura
-// SOLUÇÃO: Usar APENAS português: validarBotao(), salvarFormulario(), preencherNome()
+async fillName() { }
+// PROBLEM: Mixing languages in nomenclature
+// SOLUTION: Use ONLY English: validateButton(), saveForm(), fillName()
 
-// ❌ EXEMPLO 7: Método com múltiplas responsabilidades
-async cadastrarEValidar(dados) {
-  await this.cadastrarRegistro(dados);
-  await this.validarMensagemSucesso();
-  await this.validarNaTabela(dados.nome);
-  await this.validarNoBanco(dados.id);
+// EXAMPLE 7: Multiple responsibility method
+async registerAndValidate(data) {
+  await this.register(data);
+  await this.validateSuccessMessage();
+  await this.validateInTable(data.name);
+  await this.validateInDatabase(data.id);
 }
-// PROBLEMA: Mistura ação + validações UI + validações banco
-// SOLUÇÃO: Separar em métodos distintos (cadastrar, validarUI, validarDB) e orquestrar no teste
+// PROBLEM: Mixing action + validations UI + bank validations
+// SOLUTION: Separate in different methods (registration, validationUI, validationDB) and orchestrate in the test
 ```
 
-**🚨 RESUMO: O QUE NUNCA FAZER**
+### 🚨 SUMMARY: WHAT NEVER TO DO
 
-| ❌ PROIBIDO | ✅ CORRETO |
-|------------|-----------|
-| **Ações diretas no teste** (`.click()`, `.fill()`, `expect()`) | **Encapsular TUDO em métodos** do Page Object |
-| **Métodos triviais** (`clicarBotao()`, `clickButton()`) | **Métodos de negócio completos** (`salvarFormulario()`, `confirmarExclusao()`) |
-| **Misturar inglês com português** (`validarButton()`, `clickSalvar()`) | **APENAS português** (`validarBotao()`, `salvarFormulario()`) |
-| Método com 1 comando só | Método de negócio completo (múltiplas ações relacionadas) |
-| Nome genérico (`validar()`, `salvar()`) | Nome específico (`validarCarregamentoCompletoDaTela()`) |
-| Método com múltiplas responsabilidades | Métodos separados, responsabilidade única |
+| PROHIBITED | Correct |
+| ------------ | ----------- |
+| **Direct actions in the test** (`.click()`, `.fill()`, `expect()`) | **Encapsulate EVERYTHING in methods** from Page Object |
+| **Trivial methods** (`clickBotao()`, `clickButton()`) | **Full business methods**('saveFormulation()', 'confirmExclusion()') |
+| **Mix English with Portuguese**(`validarButton()`, `clickSave()`) | **Only English**(`validateButton()`, `saveForm()`) |
+| Method with 1 command only | Complete business method (multiple related actions) |
+| Generic name (`valid()`, `save()`) | Specific name(`validateFull-loadFromscreen()`) |
+| Multiple responsibility method | Separate methods, single responsibility |
 
 ---
 
-## 📝 **Diretrizes de Design de Métodos**
+## 📝 **Methods Design Guidelines**
 
-### **1. Nomenclatura Clara e Descritiva (SEMPRE EM PORTUGUÊS)**
+### **1. Clear and Descriptive Nomenclature**
 
 ```javascript
-// ❌ RUIM - Inglês ou genérico
-async validar() { }
-async salvar() { }
-async buscar(id) { }
+// BAD - English or generic
+async validate() { }
+async save() { }
+async fetch(id) { }
 async clickButton() { }
 async fillField() { }
 ```
 
 ```javascript
-// ❌ RUIM - Mistura inglês com português
-async validarButton() { }
-async clickSalvar() { }
-async fillCampo() { }
+// ❌ BAD - Mixes English with Portuguese
+async validateButton() { }
+async clickSave() { }
+async fillField() { }
 ```
 
 ```javascript
-// ✅ BOM - Português, específico e descritivo
-async validarCarregamentoCompletoDaTela() { }
-async salvarFormularioComValidacao() { }
-async buscarRegistroPorIdNaTabela(id) { }
-async confirmarExclusao() { }
-async preencherCamposObrigatorios() { }
+// ✅ GOOD - English, specific and descriptive
+async validateCompleteScreenLoad() { }
+async saveFormWithValidation() { }
+async fetchRecordByIdInTable(id) { }
+async confirmDeletion() { }
+async fillMandatoryFields() { }
 ```
 
-### **2. Responsabilidade Única**
+### **2. Single Responsibility**
 
 ```javascript
-// ❌ RUIM - Faz muitas coisas diferentes
-async processarCadastro(dados) {
-  await this.validarPermissao();
-  await this.cadastrarRegistro(dados);
-  await this.enviarEmail();
-  await this.atualizarDashboard();
+// ❌ BAD - Does many different things
+async processRegistration(data) {
+  await this.validatePermission();
+  await this.registerRecord(data);
+  await this.sendEmail();
+  await this.updateDashboard();
 }
 ```
 
 ```javascript
-// ✅ BOM - Métodos separados, compostos no teste
-async cadastrarRegistro(dados) { /* apenas cadastro */ }
-async validarCadastroNaTabela(nome) { /* apenas validação */ }
-// No teste: await cadastrar(); await validar();
+// GOOD - Separate methods, compound in the test
+async registerRecord(data) { /* registration only */ }
+async validateRegistrationInTable(name) { /* validation only */ }
+// In test: await register(); await validate();
 ```
 
-### **3. Parâmetros Significativos**
+### **3. Significant Parameters**
 
 ```javascript
-// ❌ RUIM
-async editar(a, b, c) { }
+// ❌ BAD
+async edit(a, b, c) { }
 ```
 
 ```javascript
-// ✅ BOM
-async editarRegistro(identificador, novosDados) { }
+// ✅ GOOD
+async editRecord(identifier, newData) { }
 ```
 
-### **4. Timeout Personalizado - PROIBIDO**
+### **4. Custom Timeout - PROHIBITED**
 
 ```javascript
-// ❌ ERRADO - NUNCA usar timeout customizado
-await expect(this.locatorSucessoAlert).toBeVisible({ timeout: 10000 });
+// WRONG - NEVER use custom timeout
+await expect(this.locatorSuccessAlert).toBeVisible({ timeout: 10000 });
 await expect(this.locatorModalDialog).toBeVisible({ timeout: 5000 });
 await this.locatorBotao.click({ timeout: 3000 });
 ```
 
 ```javascript
-// ✅ CORRETO - Usar timeout padrão do Playwright
-await expect(this.locatorSucessoAlert).toBeVisible();
+// Correct - Use Playwright default timeout
+await expect(this.locatorSuccessAlert).toBeVisible();
 await expect(this.locatorModalDialog).toBeVisible();
 await this.locatorBotao.click();
 ```
 
-**🚨 REGRA CRÍTICA: NUNCA usar `{ timeout: X }` em expect ou ações**
+**🚨 CRITICAL RULES: NEVER use `{timeout: X }` in expect or actions**
 
-- ❌ **PROIBIDO:** `toBeVisible({ timeout: 10000 })`
-- ❌ **PROIBIDO:** `toBeHidden({ timeout: 5000 })`
-- ❌ **PROIBIDO:** `click({ timeout: 3000 })`
-- ✅ **CORRETO:** Usar timeout padrão configurado em `playwright.config.js`
+- ❌ **FORBIDDEN:** `toBeVisible({ timeout: 10000 })`
+- ❌ **FORBIDDEN:** `toBeHidden({ timeout: 5000 })`
+- ❌ **FORBIDDEN:** `locator.click({ timeout: 3000 })`
+- ✅ **CORRECT:** Use default timeout set to `playwright. config.js`
 
-**Motivo:** O timeout padrão do projeto (30s) é configurado globalmente e atende todos os casos. Timeouts customizados indicam problemas estruturais (seletores lentos, waits incorretos) que devem ser corrigidos na origem.
+**Reason:** The standard timeout of the project (30s) is configured globally and meets all cases. Custom timeouts indicate structural problems (slow selectors, incorrect waits) that should be corrected at source.
 
-### **5. Validações Condicionais Simplificadas**
+### **5. Simplified Conditional Validations**
 
 ```javascript
-// ❌ ERRADO - Validação redundante
-if (dados.provisoryCredentialsMonthlyLimit !== undefined) {
-  await this.formUtils.fillField(ID_CAMPO_INPUT, dados.provisoryCredentialsMonthlyLimit.toString());
+// ERROR - redundant validation
+if (data.provisoryCredentialsMonthlyLimit !== undefined) {
+  await this.formUtils.fillField(ID_CAMPO_INPUT, data.provisoryCredentialsMonthlyLimit.toString());
 }
 
-if (dados.schedulingCredentialValidityInHours !== undefined) {
-  await expect(celulas.nth(2)).toContainText(dados.schedulingCredentialValidityInHours.toString());
+if (data.schedulingCredentialValidityInHours !== undefined) {
+  await expect(celulas.nth(2)).toContainText(data.schedulingCredentialValidityInHours.toString());
 }
 ```
 
 ```javascript
-// ✅ CORRETO - Validação simplificada
-if (dados.provisoryCredentialsMonthlyLimit) {
-  await this.formUtils.fillField(ID_CAMPO_INPUT, dados.provisoryCredentialsMonthlyLimit.toString());
+// Correct - Simplified validation
+if (data.provisoryCredentialsMonthlyLimit) {
+  await this.formUtils.fillField(ID_CAMPO_INPUT, data.provisoryCredentialsMonthlyLimit.toString());
 }
 
-if (dados.schedulingCredentialValidityInHours) {
-  await expect(celulas.nth(2)).toContainText(dados.schedulingCredentialValidityInHours.toString());
+if (data.schedulingCredentialValidityInHours) {
+  await expect(celulas.nth(2)).toContainText(data.schedulingCredentialValidityInHours.toString());
 }
 ```
 
-**🚨 REGRA: Usar validação truthy/falsy, não comparação explícita com `undefined`**
+### 🚨 RULE: Use true/falsy validation, no explicit comparison with ‘undefined’
 
-- ❌ **REDUNDANTE:** `if (dados.campo !== undefined)`
-- ❌ **REDUNDANTE:** `if (dados.campo !== null)`
-- ✅ **CORRETO:** `if (dados.campo)`
+- ❌ **REDUNDANT:** `if (data.field !== undefined)`
+- ❌ **REDUNDANT:** `if (data.field !== null)`
+- ✅ **CORRECT:** ‘if (data.field)’
 
-**Motivo:** JavaScript avalia automaticamente valores truthy/falsy. Comparação explícita com `undefined` é verbosa e desnecessária.
+**Reason:** JavaScript automatically evaluates trout/falsy values. Explicit comparison with 'undefined' is verbose and unnecessary.
 
 ---
 
-## 📝 **JSDoc - OBRIGATÓRIO**
+## 📝 *JSDoc*
 
-### **Estrutura para Classes:**
+### **Class Structure:**
 
-> **🚨 REGRA ABSOLUTA: JSDoc de CLASSE jamais deve conter linha `Exemplo: JSON_...`**
-> **🚨 REGRA ABSOLUTA: JSDoc de CLASSE jamais deve conter `@param`**
+> **🚨 ABSOLUTE RULE: JSDoc de CLASSE should never contain line `Example: JSON ...'**
+> **🚨 ABSOLUTE RULE: JSDoc de CLASSE must never contain`@param`**
 >
-> A linha `Exemplo:` é EXCLUSIVA de JSDoc de **métodos** que recebem parâmetro `{object}`.
-> O JSDoc da classe descreve apenas O QUE a classe faz — NUNCA referencia JSONs.
-> `@param` de `page` deve existir APENAS no JSDoc do `constructor`, nunca no bloco da classe.
+> The line `Example:` is EXCLUSIVE from JSDoc of **methods** receiving parameter `{object}`.
+> The class JSDoc describes only WHAT the class does — NEVER refers to JSONs.
+> `@param` of `page` must exist ONLY in the 'constructor' JSDoc, never in the class block.
 
 ```javascript
-// ✅ CORRETO - JSDoc de classe SEM Exemplo:
+// Correct - JSDoc class SEM Example:
 /**
  * Page Object para a tela de {NomeFuncionalidade}
- * Encapsula ações de {descrição das ações}
+ * Encapsulates actions for {description of actions}
  */
 export class {NomeFuncionalidade}Page {
   /**
    * Constructor da classe
-   * @param {object} page - Contexto da página do Playwright
+   * @param {object} page - Playwright page context
    */
   constructor(page) {
     // ...implementation...
@@ -2861,16 +2874,16 @@ export class {NomeFuncionalidade}Page {
 }
 ```
 
-> **🚨 REGRA RESUMIDA: `Exemplo:` SÓ EXISTE quando há `@param {object}` de JSON na linha anterior.**
-> **Qualquer outro uso (classe, método sem parâmetro, método com @param {string}) = VIOLAÇÃO.**
+> **🚨 RESUMED RULE: ‘Example:’ ONLY EXISTS when there is JSON {object}` in the previous line.**
+> **Any other use (class, method without parameter, method with @param {string}) = VIOLATION.**
 >
-> **Para exemplos completos de ERRADO vs CORRETO:** Consulte a seção **VÍNCULO OBRIGATÓRIO: `@param {object}` ↔ `Exemplo: JSON_{CONSTANTE}`** acima neste módulo.
+> **For complete examples of Wrong vs Correct:** See section **MANDATORY VICTLE: `@param {object}` ↔ `Example: JSON {CONSTANT}`** above this module.
 
 ```javascript
-// ❌ ERRADO - Misturar descrição da classe com assinatura do constructor no mesmo bloco
+// WRONG - Mix class description with constructor signature in the same block
 /**
- * Page Object da tela de cadastro de usuário.
- * @param {import('@playwright/test').Page} page - Contexto da página.
+ * Page Object for the user registration screen.
+ * @param {import('@playwright/test').Page} page - Page context.
  */
 export class NomeDaFuncionalidadePage {
   constructor(page) {
@@ -2878,14 +2891,14 @@ export class NomeDaFuncionalidadePage {
   }
 }
 
-// ✅ CORRETO - Bloco da classe separado do bloco do constructor
+// RIGHT - Class block separated from the constructor block
 /**
- * Page Object da tela de cadastro de usuário.
+ * Page Object for the user registration screen.
  */
 export class NomeDaFuncionalidadePage {
   /**
-   * Cria a instância da página de cadastro de usuário.
-   * @param {import('@playwright/test').Page} page - Contexto da página do Playwright.
+   * Creates the instance of the user registration page.
+   * @param {import('@playwright/test').Page} page - Playwright page context.
    */
   constructor(page) {
     this.page = page;
@@ -2893,125 +2906,125 @@ export class NomeDaFuncionalidadePage {
 }
 ```
 
-### **Estrutura para Métodos:**
+### **Structure for Methods:**
 
 ```javascript
 /**
- * {Descrição clara do que o método faz}
- * @param {string} parametro - Descrição do parâmetro
- * @returns {Promise<string>} Descrição do retorno
+ * {Clear description of what the method does}
+ * @param {string} parameter - Parameter description
+ * @returns {Promise<string>} Return description
  */
 async meuMetodo(parametro) {
   // ...implementation...
 }
 ```
 
-### **Padrão JSDoc para Parâmetros JSON:**
+### **JSDoc Standard for JSON Parameters:**
 
-> **🚨 REGRA ABSOLUTA: NUNCA DETALHAR CAMPOS INDIVIDUAIS DO JSON**
+> **🚨 ABSOLUTE RULE: NEVER DETAIL JSON'S INDIVIDUAL FIELDS**
 >
-> **✅ CORRETO:** `@param {Object} dados - Objeto com dados` + linha `Exemplo: JSON_CONSTANTE`
+> **✅ Correct:** `@param {Object} data - Data object` + line `Example: JSON CONSTANT`
 >
-> **❌ PROIBIDO:** `@param {string} dados.campo1` ou `@param {Object} dados.campo2`
+> **❌ PROHIBITED:** `@param {string} data. field1` or `@param {Object} data. field2`
 
 ```javascript
 /**
- * {Descrição da funcionalidade}
- * @param {Object} dados - Objeto com dados do negócio
- * Exemplo: JSON_{CONSTANTE}
+ * {Feature description}
+ * @param {Object} data - Object with business data
+ * Example: JSON_{CONSTANT}
  * @returns {Promise<void>}
  */
-async metodoComJSON(dados) {
+async metodoComJSON(data) {
   // ...implementation...
 }
 
 /**
- * {Descrição da funcionalidade com múltiplos JSONs}
- * @param {Object} dados - Objeto com dados
- * Exemplo: JSON_{CONSTANTE_INCLUIR} ou JSON_{CONSTANTE_EDITAR}
+ * {Feature description with multiple JSONs}
+ * @param {Object} data - Objeto com data
+ * Example: JSON_{CONSTANT_INCLUDE} or JSON_{CONSTANT_EDIT}
  * @returns {Promise<void>}
  */
-async metodoComMultiplosJSONs(dados) {
+async metodoComMultiplosJSONs(data) {
   // ...implementation...
 }
 ```
 
 ---
 
-### **✅ EXEMPLOS CORRETOS vs ❌ EXEMPLOS INCORRETOS**
+### **✅ Correct examples vs. INCORRECT EXAMPLES**
 
-#### **✅ CORRETO - JSDoc Simples com Referência:**
+#### **✅ Correct - Simple JSDoc with Reference:**
 
 ```javascript
 /**
- * Adiciona ou edita um negócio conforme ação do JSON
- * @param {Object} dados - Objeto com dados do negócio
- * Exemplo: JSON_{CONSTANTE_INCLUIR} ou JSON_{CONSTANTE_EDITAR}
+ * Adds or edits a business according to JSON action
+ * @param {Object} data - Object with business data
+ * Example: JSON_{CONSTANT_INCLUDE} or JSON_{CONSTANT_EDIT}
  * @returns {Promise<void>}
  */
-async adicionarOuEditarNegocio(dados) {
-  if (dados.acao === 'incluir') {
+async addOrEditBusiness(data) {
+  if (data.action === 'include') {
     await this.botaoAdicionar.click();
   }
-  await this.page.getByLabel('Descrição').fill(dados.descricao);
-  // ... resto da implementação
+  await this.page.getByLabel('Description').fill(data.description);
+  // ...the rest of the implementation
 }
 ```
 
-**Por que está correto:**
+**Why is it correct:**
 
-- ✅ Usa `@param {Object} dados` genérico
-- ✅ Inclui linha `Exemplo: JSON_{CONSTANTE_INCLUIR} ou JSON_{CONSTANTE_EDITAR}`
-- ✅ Desenvolvedor consulta o JSON referenciado para ver estrutura completa
-- ✅ Não duplica informação que está no arquivo JSON
-- ✅ Evita desatualização (se JSON mudar, JSDoc não precisa ser atualizado)
+- ✅ Use `@param {Object} generic data`
+- ✅ Includes line `Example: JSON {CONSTANT INCLUDING} or JSON {CONSTANT EDITING}`
+- ✅ Developer consults referenced JSON to see full structure
+- ✅ Do not duplicate information that is in the JSON file
+- ✅ Avoids out-of-date (if JSON changes, JSDoc does not need to be updated)
 
 ---
 
-#### **❌ INCORRETO - Detalhando Campos (NUNCA FAZER):**
+#### **❌ INCORRECT - Detailing Fields ( NEVER DO):**
 
 ```javascript
 /**
- * Adiciona ou edita um negócio conforme ação do JSON
- * @param {Object} dados - Objeto com dados do negócio
- * @param {string} dados.acao - Ação a ser executada ('incluir' ou 'editar')
- * @param {string} dados.descricao - Descrição do negócio
- * @param {Object} dados.empresaFilial - Dados da empresa/filial
- * @param {string} dados.empresaFilial.valor - Valor para filtrar
- * @param {string} dados.empresaFilial.valorClique - Valor a clicar
- * @param {Object} dados.responsavel - Dados do responsável
- * @param {Object} dados.conta - Dados da conta
- * @param {Object} dados.tipoNegocio - Tipo de negócio
- * @param {Object} dados.origemNegocio - Origem do negócio
- * @param {Object} dados.modalidadeNegocio - Modalidade do negócio
- * @param {Object} dados.funil - Funil
- * @param {Object} dados.etapaFunil - Etapa do funil
- * @param {Array} dados.grid - Array de valores para validar
+ * Adds or edits a business according to JSON action
+ * @param {Object} data - Object with business data
+ * @param {string} data.action - Action to execute ('include' or 'edit')
+ * @param {string} data.description - Business description
+ * @param {Object} data.branchCompany - Branch company data
+ * @param {string} data.branchCompany.value - Value to filter
+ * @param {string} data.branchCompany.clickValue - Value to click
+ * @param {Object} data.owner - Owner data
+ * @param {Object} data.account - Account data
+ * @param {Object} data.businessType - Business type
+ * @param {Object} data.businessSource - Business source
+ * @param {Object} data.businessMode - Business mode
+ * @param {Object} data.funnel - Funnel
+ * @param {Object} data.funnelStage - Funnel stage
+ * @param {Array} data.grid - Array of values to validate
  * @returns {Promise<void>}
  */
-async adicionarOuEditarNegocio(dados) {
+async addOrEditBusiness(data) {
   // ...implementation...
 }
 ```
 
-**Por que está ERRADO:**
+**Why You're Wrong:**
 
-- ❌ Detalha TODOS os campos individuais (`dados.acao`, `dados.descricao`, etc.)
-- ❌ Detalha campos aninhados (`dados.empresaFilial.valor`, `dados.empresaFilial.valorClique`)
-- ❌ JSDoc gigante e difícil de manter
-- ❌ Duplica informação já presente no arquivo JSON
-- ❌ Se estrutura do JSON mudar, JSDoc fica desatualizado
-- ❌ Dificulta leitura do código
+- ❌ Detail all individual fields (`data. action', 'data. description, etc.)
+- ❌ Detail nested fields (`data.branchCompany.value`, `data.branchCompany.valueClick`)
+- ❌ JSDoc giant and hard to maintain
+- ❌ Duplicates information already present in JSON file
+- ❌ If JSON structure changes, JSDoc gets outdated
+- ❌ Hard to read code
 
 ---
 
-#### **✅ CORRETO - Método com Array Simples:**
+#### **✅ Correct - Simple Array Method:**
 
 ```javascript
 /**
- * Valida dados na grid após operação
+ * Validates data in the grid after operation
  * @param {Array<string>} valores - Array de valores esperados na grid
- * Exemplo: JSON_{CONSTANTE}.grid
+ * Example: JSON_{CONSTANT}.grid
  * @returns {Promise<void>}
  */
 async validarGrid(valores) {
@@ -3020,25 +3033,25 @@ async validarGrid(valores) {
 }
 ```
 
-**Por que está correto:**
+**Why is it correct:**
 
-- ✅ Usa tipo simples `Array<string>`
-- ✅ Referencia de onde vem o array (`JSON_{CONSTANTE}.grid`)
-- ✅ Conciso e claro
+- ✅ Uses simple type `Array<string>`
+- ✅ Reference where the array comes from ('JSON {CONSTANT}.grid`)
+- ✅ Tight and clear
 
 ---
 
-#### **❌ INCORRETO - Detalhando Conteúdo do Array:**
+#### **❌ INCORRECT - Detailing Array Content:**
 
 ```javascript
 /**
- * Valida dados na grid após operação
+ * Validates data in the grid after operation
  * @param {Array<string>} valores - Array de valores esperados
- * @param {string} valores[0] - Empresa/Filial completa
- * @param {string} valores[1] - Descrição do negócio
- * @param {string} valores[2] - Responsável
- * @param {string} valores[3] - Conta
- * @param {string} valores[4] - Funil/Etapa
+ * @param {string} values[0] - Full Company/Branch
+ * @param {string} values[1] - Business description
+ * @param {string} values[2] - Owner
+ * @param {string} values[3] - Account
+ * @param {string} values[4] - Funnel/Stage
  * @returns {Promise<void>}
  */
 async validarGrid(valores) {
@@ -3046,360 +3059,362 @@ async validarGrid(valores) {
 }
 ```
 
-**Por que está ERRADO:**
+**Why You're Wrong:**
 
-- ❌ Detalha cada índice do array
-- ❌ Informação desnecessária (array é dinâmico)
-- ❌ Dificulta manutenção
-
----
-
-### **🚨 REGRAS CRÍTICAS DE JSDoc (RESUMO):**
-
-| # | Regra | O que fazer | O que NÃO fazer |
-|---|-------|-------------|-----------------|
-| **1** | **Parâmetros JSON** | `@param {Object} dados` + `Exemplo: JSON_CONSTANTE` | ❌ `@param {string} dados.campo1` |
-| **2** | **Arrays** | `@param {Array<string>} valores` + `Exemplo: JSON.grid` | ❌ `@param {string} valores[0]` |
-| **3** | **Múltiplos JSONs** | `Exemplo: JSON_{CONSTANTE_1} ou JSON_{CONSTANTE_2} ou JSON_{CONSTANTE_3}` | ❌ Detalhar campos de cada JSON |
-| **4** | **Retorno** | `@returns {Promise<void>}` ou `@returns {Promise<Object>}` | ❌ Omitir `@returns` |
-| **5** | **Descrição** | Descrever O QUE o método faz (negócio) | ❌ Descrever COMO (implementação técnica) |
+- ❌ Detail each array index
+- ❌ Unnecessary information (array is dynamic)
+- ❌ Hard to maintain
 
 ---
 
-### **✅ CHECKLIST DE VALIDAÇÃO DE JSDoc:**
+### **🚨 CRITICAL RULES OF JSDoc (summary):**
 
-Antes de finalizar qualquer método, valide:
-
-- [ ] JSDoc possui `/**` abertura e `*/` fechamento
-- [ ] Linha 1: Descrição clara do QUE o método faz (não COMO)
-- [ ] `@param {object}` para JSONs (NUNCA detalhar campos)
-- [ ] **Linha `Exemplo: JSON_{CONSTANTE}` presente SEMPRE que `@param {object}` existir e JSON for conhecido (APENAS em métodos)**
-- [ ] **Linha `Exemplo:` VINCULADA ao `@param {object}` (nunca isolada, nunca sem @param {object})**
-- [ ] Se método aceita múltiplos JSONs: `Exemplo: JSON_{CONSTANTE_1} ou JSON_{CONSTANTE_2} ou JSON_{CONSTANTE_3}`
-- [ ] `@returns` presente (mesmo que seja `Promise<void>`)
-- [ ] NENHUMA linha com `@param {tipo} dados.campo` ou `json.campo` (PROIBIDO)
-- [ ] NENHUMA linha com `@param {tipo} valores[0]` ou similar (PROIBIDO)
-- [ ] **NENHUMA linha `Exemplo:` no JSDoc da CLASSE** (PROIBIDO — exclusivo de métodos)
-- [ ] Todos locators sem parâmetros estão no constructor (NUNCA inline no método)
+| # Oh, yeah | Rule | What to do | WHAT NOT TO DO |
+| --- | --- | --- | --- |
+| **1** | **JSON parameters** | `@param {Object} data` + `Example: JSON CONSTANT` | field1` |
+| **2** | **Arrays** | @param with array of strings + `Example: JSON.grid` | ❌ `@param {string} values[0]` |
+| **3** | **Multiple JSONs** | ‘Example: JSON {CONSTANT 1} or JSON {CONSTANT 2} or JSON {CONSTANT 3}` | Detail fields of each JSON |
+| **4** | **Return** | `@returns {Promise<void>}` or `@returns {Promise<Object>}` | Omit `@returns` |
+| **5** | **Description** | Describe WHAT the method does (business) | ❌ Describe HOW (technical implementation) |
 
 ---
 
-**🎯 MOTIVAÇÃO DESTA REGRA:**
+### **✅ JSDoc's VALIDATION CHECKLIST:**
 
-1. **Evitar duplicação:** JSON já documenta estrutura completa
-2. **Facilitar manutenção:** Se JSON mudar, JSDoc não precisa ser atualizado
-3. **Legibilidade:** JSDoc conciso é mais fácil de ler
-4. **Padrão consistente:** Todos os métodos seguem mesmo formato
-5. **Responsabilidade clara:** JSON define estrutura, JSDoc define uso
+Before finishing any method, validate:
+
+- [ ] JSDoc has `/**` opening and `*/` closing
+- [ ] Line 1: Clear description of what the method does (not HOW)
+- [ ] `@param {object}` for JSONs ( NEVER detail fields)
+- [ ] **Line `Example: JSON {CONSTANT}` PRESENT ALWAYS that `@stop {object}` exist and JSON is known ( ONLY in methods)**
+- [ ] **Line ‘Example:’ VINCULATED TO `@param {object}` (never isolated, never without @param {object})**
+- [ ] Whether method accepts multiple JSONs: `Example: JSON {CONSTANT 1} or JSON {CONSTANT 2} or JSON {CONSTANT 3}`
+- [ ] `@returns` present (even if it is `Promise<void>`)
+- [ ] NO line with `@param {type} data. field` or `json.field` (PROHIBITED)
+- [ ] NO line with `@param {type} values[0]` or similar (PROHIBITED)
+- [ ] **NO line ‘Example:’ in CLASSE’S JSDoc** (PROHIBITED — unique to methods)
+- [ ] All locators without parameters are in the constructor ( NEVER inline in the method)
 
 ---
 
-## 📦 **Import Correto**
+**🎯 MOTIVATION OF THIS RULE:**
 
-Use apenas imports públicos e caminhos relativos válidos do projeto.
+1. **Avoid duplication:** JSON already documents complete structure
+2. **Facilitate maintenance:** If JSON changes, JSDoc does not need to be updated
+3. **Legibility:**JSDoc concise is easier to read
+4. **Consistent pattern:** All methods follow same format
+5. **Clear responsibility:** JSON defines structure, JSDoc defines use
 
 ---
 
-## 📄 **Template Completo: Page Object**
+## 📦 **Import Correct**
+
+Use only public imports and valid project relative paths.
+
+---
+
+## 📄 **Complete Template: Page Object**
 
 ```javascript
 import { expect } from '@playwright/test';
 
-import { NOME_FUNCIONALIDADE } from '../../helpers/navegacao.js';
+import { FEATURE_NAME } from '../../helpers/navegacao.js';
 
 /**
- * Page Object para {Nome da Tela}
- * {Breve descrição da funcionalidade}
- * ⚠️ NUNCA adicionar linha "Exemplo: JSON_..." aqui (exclusivo de métodos)
+ * Page Object for {ScreenName}
+ * {Brief feature description}
+ * ⚠️ NEVER add line "Example: JSON_..." here (exclusive to methods)
  */
 export class {NomeTela}Page {
   /**
-   * Constructor da classe {NomeTela}Page
-   * @param {object} page - Contexto da página do Playwright
+   * Constructor of class {ScreenName}Page
+   * @param {object} page - Playwright page context
    */
   constructor(page) {
     this.page = page;
     this.dataUtils = new DataUtils(this.page);
     this.formUtils = new FormUtils(this.page);
 
-    // 🚨 Se HTML contém <iframe>: descomentar linha abaixo e usar this.frame nos locators
+    // If HTML contains <iframe>: uncomment line below and use this. frame in the locators
     // this.frame = this.page.frameLocator('iframe[name="ci"]');
     // this.formUtils = new FormUtils(this.frame);
 
-    // IDs seguem padrão TIPO_{DESCRICAO}_{TipoElemento}
-    this.ID_CAMPO_LOOKUP = '#{idCampoLookup}';
-    this.ID_CAMPO_DROPDOWN = '#{idCampoDropdown}';
+    // Other Organiser
+    this.ID_LOOKUP_FIELD = '#{lookupFieldId}';
+    this.ID_DROPDOWN_FIELD = '#{dropdownFieldId}';
 
-    this.locatorTituloHeading = this.page.getByRole('heading', { name: '{Título}' });
-    this.locatorSalvarButton = this.page.getByRole('button', { name: 'Salvar' });
-    this.locatorCancelarButton = this.page.getByRole('button', { name: 'Cancelar' });
-    this.locatorCampo1Input = this.page.getByLabel('{Label1}');
-    this.locatorCampo2Input = this.page.getByLabel('{Label2}');
-    this.locatorRegistrosTable = this.page.getByRole('table');
-    this.locatorSucessoAlert = this.page.getByRole('alert');
+    this.locatorTitleHeading = this.page.getByRole('heading', { name: '{Title}' });
+    this.locatorSaveButton = this.page.getByRole('button', { name: 'Save' });
+    this.locatorCancelButton = this.page.getByRole('button', { name: 'Cancel' });
+    this.locatorField1Input = this.page.getByLabel('{Label1}');
+    this.locatorField2Input = this.page.getByLabel('{Label2}');
+    this.locatorRecordsTable = this.page.getByRole('table');
+    this.locatorSuccessAlert = this.page.getByRole('alert');
   }
 
   /**
-   * Acessa a tela da funcionalidade
-   * ⚠️ NUNCA adicionar parâmetros neste método
+   * Accesses the feature screen
+   * ⚠️ NEVER add parameters in this method
    */
-  async acessarTela() {
-    await this.page.goto(NOME_FUNCIONALIDADE.URL);
-    await expect(this.locatorTituloHeading).toBeVisible();
+  async accessScreen() {
+    await this.page.goto(FEATURE_NAME.URL);
+    await expect(this.locatorTitleHeading).toBeVisible();
   }
 
   /**
-   * Cadastra novo registro com dados completos
-   * @param {object} dados - Dados do registro para cadastro
-   * Exemplo: JSON_{CONSTANTE}
+   * Creates new record with complete data
+   * @param {object} data - Record data for registration
+  * Example: JSON_{CONSTANT}
    */
-  async cadastrarRegistro(dados) {
-    await this.locatorCampo1Input.fill(dados.campo1);
-    await this.locatorCampo2Input.fill(dados.campo2);
+  async registerRecord(data) {
+    await this.locatorField1Input.fill(data.field1);
+    await this.locatorField2Input.fill(data.field2);
 
-    if (dados.campoLookup) {
-      await this.formUtils.fillFieldSLookup(this.ID_CAMPO_LOOKUP, dados.campoLookup);
+    if (data.lookupField) {
+      await this.formUtils.fillFieldSLookup(this.ID_LOOKUP_FIELD, data.lookupField);
     }
-    if (dados.campoDropdown) {
-      await this.formUtils.fillFieldPDropdown(this.ID_CAMPO_DROPDOWN, dados.campoDropdown);
+    if (data.dropdownField) {
+      await this.formUtils.fillFieldPDropdown(this.ID_DROPDOWN_FIELD, data.dropdownField);
     }
 
-    await this.locatorSalvarButton.click();
-    await expect(this.locatorSucessoAlert).toBeVisible();
+    await this.locatorSaveButton.click();
+    await expect(this.locatorSuccessAlert).toBeVisible();
   }
 
   /**
-   * Aplica filtros na listagem
-   * @param {string} valorFiltro - Valor para filtrar
+   * Applies filters to the listing
+   * @param {string} filterValue - Value used to filter
    */
-  async aplicarFiltros(valorFiltro) {
-    await this.locatorAbrirFiltrosButton.click();
-    await this.locatorCampoFiltroInput.fill(valorFiltro);
-    await this.locatorFiltrarButton.click();
-    await expect(this.locatorResultados).toBeVisible();
+  async applyFilters(filterValue) {
+    await this.locatorOpenFiltersButton.click();
+    await this.locatorFilterFieldInput.fill(filterValue);
+    await this.locatorFilterButton.click();
+    await expect(this.locatorResults).toBeVisible();
   }
 
   /**
-   * Valida se registro foi cadastrado corretamente
-   * @param {string} textoEsperado - Texto esperado no registro
-   * @returns {Promise<string>} Texto do registro encontrado
+   * Validates whether record was correctly registered
+   * @param {string} expectedText - Expected text in record
+   * @returns {Promise<string>} Found record text
    */
-  async validarRegistroCadastrado(textoEsperado) {
-    const locatorRegistro = this.locatorRegistrosTable
+  async validateRegisteredRecord(expectedText) {
+    const locatorRecord = this.locatorRecordsTable
       .locator('tbody tr')
-      .filter({ hasText: textoEsperado });
+      .filter({ hasText: expectedText });
 
-    await expect(locatorRegistro).toBeVisible();
-    return await locatorRegistro.textContent();
+    await expect(locatorRecord).toBeVisible();
+    return await locatorRecord.textContent();
   }
 
   /**
-   * Exclui registro selecionado
-   * @param {string} textoRegistro - Texto identificador do registro
+   * Deletes selected record
+   * @param {string} recordText - Record identifying text
    */
-  async excluirRegistro(textoRegistro) {
-    const locatorLinha = this.locatorRegistrosTable
+  async deleteRecord(recordText) {
+    const locatorRow = this.locatorRecordsTable
       .locator('tbody tr')
-      .filter({ hasText: textoRegistro });
+      .filter({ hasText: recordText });
 
-    await locatorLinha.locator('input[type="checkbox"]').check();
-    await this.locatorExcluirButton.click();
-    await this.locatorConfirmarButton.click();
-    await expect(this.locatorSucessoAlert).toBeVisible();
+    await locatorRow.locator('input[type="checkbox"]').check();
+    await this.locatorDeleteButton.click();
+    await this.locatorConfirmButton.click();
+    await expect(this.locatorSuccessAlert).toBeVisible();
   }
 }
 ```
 
 ---
 
-## ✅ **Regras para Atualização de Page Objects**
+## ✅ **Rules for Page Objects Update**
 
-**Ao atualizar arquivo existente:**
+**Updating existing file:**
 
-1. **Posicionamento de Novos Locators:** Adicionar SEMPRE ao final da seção de locators no constructor
-2. **Posicionamento de Novos Métodos:** Adicionar SEMPRE ao final da classe, após métodos existentes
-3. **Preservação Total:** NUNCA alterar, mover ou remover locators ou métodos existentes
-4. **Imports Novos:** Adicionar somente ao final da seção de imports, se necessário
-
----
-
-## 🔍 **Auditoria de Page Objects**
-
-**ANTES de finalizar Page Object:**
-
-| Item | Validação | Comando/Ação |
-|------|-----------|--------------|
-| **Locators** | Apenas usados em métodos | `grep "this.locator.*=" {arquivo}.js` vs `grep "this.locator.*\." {arquivo}.js` |
-| **Métodos** | Todos chamados em testes | Verificar referências nos arquivos `.spec.js` |
-| **HTML** | Componentes identificados | `grep_search(query="<p-\|<s-\|ui-", isRegexp=true)` |
-| **IDs** | Sem IDs dinâmicos | Evitar `ui-panel-{n}`, `s-button-{n}` |
-| **Órfãos** | Remover não utilizados | Deletar locators/métodos sem referência |
-
-**Sinais para remover:**
-
-- ❌ Comentários "para uso futuro" ou "caso precise"
-- ❌ Métodos com 1 comando trivial
-- ❌ Locators duplicados com nomes diferentes
+1. **New Locator Positioning:**Always add to the end of the locator section in the constructor
+2. **New Methods Positioning:** Add ALWAYS at the end of class, after existing methods
+3. **Total Preservation:** NEVER change, move or remove existing locators or methods
+4. **New Imports:** Add only to the end of the import section if needed
 
 ---
 
-## 📋 **Checklist Final de Page Objects**
+## 🔍 **Page Objects Auditorium**
+
+**BEFORE YOU FINISH Page Object:**
+
+| Item | Validation | Command/Action |
+| ------ | ----------- | -------------- |
+| **Locators** | Only used in methods | `grep "this.locator.*=" {file}. js` vs `grep "this.locator. *\." {file}. js` |
+| **Methods** | All called in tests | Check references in `.spec.js' files |
+| **HTML** | Components identified | `grep search(query="<p-\|<s-\|ui-", isRegexp=true)` |
+| **IDs** | No dynamic IDs | Avoid `ui-panel-{n}`, `s-button-{n}` |
+| **Orphans** | Remove unused | Delete locators/methods without reference |
+
+**Signals to remove:**
+
+- ❌ Comments "for future use" or "if needed"
+- ❌ Methods with 1 trivial command
+- ❌ Duplicate locators with different names
+
+---
+
+## 📋 **Page Objects Final Checklist**
 
 ### **Locators:**
 
-- [ ] Todos no constructor são usados em métodos
-- [ ] **Nomenclatura OBRIGATÓRIA:** `locator{Descrição}{Tipo}` (ex: `locatorSalvarButton`, `locatorNomeInput`)
-- [ ] Tipo no FINAL do nome (Button, Input, Link, Heading, etc.)
-- [ ] Seletores semânticos priorizados
-- [ ] Baseados em HTML (não PNG)
-- [ ] Únicos (encontram 1 elemento)
+- [ ] All in the constructor are used in methods
+- [ ] **Nomenclature OBLIGATOR:** `locator{Description}{Type}` (ex: `locatorSaveButton`, `locatorNameInput`)
+- [ ] Type in the final name (Button, Input, Link, Heading, etc.)
+- [ ] Priority semantic selectors
+- [ ] HTML based (not PNG)
+- [ ] Single (find 1 element)
 
-### **Métodos:**
+### **Methods:**
 
-- [ ] JSDoc completo
-- [ ] TODOS chamados em testes
-- [ ] Assinaturas corretas
-- [ ] Validações apropriadas
+- [ ] JSDoc complete
+- [ ] ALL CALLED IN TESTS
+- [ ] Correct signatures
+- [ ] Appropriate validations
 
-### **Qualidade:**
+### **Quality:**
 
-- [ ] Sem IDs dinâmicos
-- [ ] Componentes especiais tratados
-- [ ] Sem strict mode violations
+- [ ] No dynamic IDs
+- [ ] Special components treated
+- [ ] No strict mode violations
 
-### **Conformidade:**
+### **Compliance:**
 
-- [ ] Validado contra `checklistMergeRequest.md` completo
-- [ ] ESLint sem erros
+- [ ] Validated against `checklistMergeRequest. md` complete
+- [ ] ESLint without errors
 
 ---
 
-## 🔧 **Validação de `iframe`**
+## 🔧 **Iframe validation**
 
-### **Regras:**
+### **Rules:**
 
-- **Verificar** se HTML contém `<iframe>`
-- **SOMENTE** usar `this.frame` se iframe presente
-- **NUNCA** usar `this.frame` sem iframe
+- **Check** if HTML contains `<iframe>`
+- **ONLY** use `this. frame` if present frame
+- **NEVER** use `this. frame` without iframe
 
-### **Como Verificar:**
+### **How to Check:**
 
 ```bash
-grep_search(query="<iframe", includePattern="{arquivo}.html", isRegexp=false)
+grep_search(query="<iframe", includePattern="{file}.html", isRegexp=false)
 ```
 
 ---
 
-## 🔍 **REGRA ESPECÍFICA: Componente S-Lookup**
+## 🔍 **SPECIFIC RULE: S-Lookup Component**
 
-> **⚠️ REGRA CRÍTICA: S-Lookup SEMPRE usa ID do `<input>` interno, NUNCA do componente externo**
+> **⚠CRITICAL RULES: S-Lookup ALWAYS uses internal `input` ID, NEVER external component**
 
-### **🎯 Como Identificar o ID Correto**
+### **🎯 How to Identify the Right ID**
 
-**PROCESSO OBRIGATÓRIO:**
+**MANDATORY PROCEDURE:**
 
-1. **Encontrar o componente `<s-lookup>` no HTML:**
+1. **Find the `<s-lookup>` component in HTML:**
 
    ```html
-   <s-lookup id="e070filCrmx" label="Filial" ...>
-     <!-- conteúdo interno -->
+
+  <s-lookup id="e070filCrmx" label="Branch" ...>
+     <!-- inner content -->
      <input id="e070filCrmx-autocomplete" type="text" ...>
    </s-lookup>
+
    ```
 
-2. **Buscar o `<input>` DENTRO do componente**
-3. **O input terá ID com sufixo `-autocomplete`**
-4. **Usar ESTE ID no locator**
+2. **Search for `<input>` INSIDE the component**
+3. **The input will have ID with suffix `-autocomplete`**
+4. **Use THIS ID in the locator**
 
-### **⚠️ Motivo da Regra**
+### **⚠️ Reason for the Rule**
 
-- O componente `<s-lookup>` é um wrapper customizado
-- O elemento INTERATIVO é o `<input>` interno
-- O ID do `<input>` sempre tem sufixo `-autocomplete`
-- Usar ID do componente externo resulta em locator não clicavel/preenchível
-
----
-
-## 🚫 **Anti-Padrões Críticos**
-
-### **❌ NUNCA:**
-
-- **Criar locators estáticos fora do constructor**
-- **Usar locators inline sem parâmetro**
-- **Criar métodos triviais** (`clicarBotao()`, `clickButton()`, `click()`)
-- **Misturar inglês com português** na nomenclatura de métodos e variáveis
-- **Esquecer de executar `grep_search(query="<iframe")` no HTML antes de criar Page Object**
-- **Usar `this.page` quando HTML contém `<iframe>`** (usar `this.frame`)
-- **Criar `this.frame` quando HTML NÃO contém `<iframe>`** (usar apenas `this.page`)
-- Instanciar Page Objects diretamente nos testes
-- Criar localizadores não utilizados
-- Ignorar `frameLocator` para iframes
-- Hardcode de URLs
-- Métodos triviais (um comando só)
-
-### **✅ SEMPRE:**
-
-- **Criar TODOS os locators estáticos no constructor**
-- **Validar se locators criados nos métodos são dinâmicos**
-- **Usar APENAS português** para métodos, variáveis e comentários
-- **Criar métodos de negócio completos** (nunca métodos triviais)
-- Usar objetos via contexto (`page.{funcionalidade}Page`)
-- Criar localizadores dinâmicos APENAS quando dependem de parâmetros
-- Usar padrão de captura: `return await this.locator.textContent()`
-- Seguir convenções de nomenclatura em português
+- The component `<s-lookup>` is a custom wrapper
+- The INTERACTIVE element is the internal input.
+- The ID of `<input>` always has '-autocomplete' suffix
+- Using external component ID results in unclickable/fillable locator
 
 ---
 
-## 📊 **Instanciação em helpers/index.js**
+## 🚫 **Critical Anti-Patterns**
 
-### **Processo em 5 Passos:**
+### **❌ NEVER:**
 
-#### **1️⃣ IMPORTAR:**
+- **Create static locator outside the constructor**
+- **Use inline locators without parameter**
+- **Create trivial methods** (`clickButton()`, `clickSave()`, `click()`)
+- **Mix English with Portuguese** in the nomenclature of methods and variables
+- **Forget running `grep search(query="<iframe")' in HTML before creating Page Object**
+- **Use `this. page` when HTML contains `<iframe>`** (use `this.frame`)
+- **Create `this. frame` when HTML DOES NOT contain `<iframe>`** (use only `this.page`)
+- Install Page Objects directly in the tests
+- Create unused locators
+- Ignore 'frameLocator' for iframes
+- Hardcode URLs
+- Trivial methods (one command only)
 
-```javascript
-// AO FINAL da seção de imports
-import { {NomeFuncionalidade}Page } from '../pages/{caminho}/{nomeFuncionalidade}Page';
-```
+### **✅ Always:**
 
-#### **2️⃣ INSTANCIAR PAGES:**
-
-```javascript
-// AO FINAL do bloco page
-context['{nomeFuncionalidade}Page'] = new {NomeFuncionalidade}Page(page);
-```
-
-#### **3️⃣ USAR NOS TESTES:**
-
-```javascript
-await page.{nomeFuncionalidade}Page.meuMetodo();
-```
-
-#### **4️⃣ VALIDAR:**
-
-```javascript
-// SEMPRE execute get_errors após modificar helpers/index.js
-```
-
-### **⚠️ REGRA DE OURO:**
-
-> **NUNCA REMOVA OU MODIFIQUE LINHAS EXISTENTES - APENAS ADICIONE**
+- **Create all static locations in the constructor**
+- **Validate if locators created in the methods are dynamic**
+- **Use ONLY English** for methods, variables and comments
+- **Create complete business methods** (never trivial methods)
+- Use objects via context ('page.{functionality}Page`)
+- Create dynamic locators ONLY when they depend on parameters
+- Use capture pattern: `return await this.locator.textContent()`
+- Follow naming conventions in English
 
 ---
 
-## ✅ **Resumo das Regras Críticas**
+## 📊 **Instantiation in helpers/index. Js**
 
-1. **Idioma obrigatório: Português** - Todos métodos, variáveis e comentários em português
-2. **TODOS IDs no constructor** com sufixo de tipo (ex: `this.ID_CAMPO_LOOKUP = '#campo-autocomplete'`)
-3. **TODOS locators estáticos no constructor** (OBRIGATÓRIO)
-4. **Não repetir valor em fillFieldSLookup** se valor e valorClique são iguais
-5. **Locators dinâmicos nos métodos** (somente se dependem de parâmetros)
-6. **JSDoc sem detalhar campos** - usar "Exemplo: JSON_CONSTANTE"
-7. **Métodos de negócio completos** (NUNCA métodos triviais)
-8. **NUNCA misturar inglês com português** na nomenclatura
-9. **Validar iframe** antes de usar `this.frame`
-10. **Instanciar em helpers/index.js** (nunca diretamente nos testes)
-11. **Auditoria antes de finalizar** (remover órfãos)
-12. **ESLint sem erros** (sempre validar)
-13. **Nomenclatura OBRIGATÓRIA de locators** (`locator{Descrição}{Tipo}` - ex: `locatorSalvarButton`, `locatorNomeInput`)
-14. **Nomenclatura OBRIGATÓRIA de constantes** (`TIPO_{DESCRICAO}_{TipoElemento}` - ex: `ID_CONTA_LOOKUP`, `CSS_ENVIAR_BUTTON`)
-15. **Imports corretos** (validar com `get_errors`)
+### **5-Step Process:**
+
+#### **1 IMPORT:**
+
+```javascript
+// FINAL OF THE IMPORTS SECTION
+import { {FeatureName}Page } from '../pages/{path}/{featureName}Page';
+```
+
+#### **2 INSTANTIATE PAGES:**
+
+```javascript
+// AT THE END of the page block
+context['{featureName}Page'] = new {FeatureName}Page(page);
+```
+
+#### **3 USE IN TESTS:**
+
+```javascript
+await page.{featureName}Page.myMethod();
+```
+
+#### **4 VALIDATE:**
+
+```javascript
+// Always run get errors after modifying helpers/index. js
+```
+
+### **⚠GOLD RULE:**
+
+> **NEVER REMOVE OR MODIFY EXISTING LINES - ONLY ADD**
+
+---
+
+## ✅ **Summary of Critical Rules**
+
+1. **Required language: English** - All methods, variables and comments in English
+2. **ALL IDs in the constructor** with type suffix (e.g. `this.ID_LOOKUP_FIELD = '#autocompletefield'`)
+3. **ALL static locators in the constructor** (MANDATORY)
+4. **Do not repeat value in fillFieldSLookup** if value and valueClick are equal
+5. **Dynamic locators in methods** (only if dependent on parameters)
+6. **JSDoc without detailing fields** - use "Example: JSON CONSTANT"
+7. **Complete business methods** ( NEVER trivial methods)
+8. **NEVER mix English with Portuguese** in the nomenclature
+9. **Validate iframe** before using `this. frame`
+10. **Install in helpers/index.js** (never directly in tests)
+11. **Audit before completion** (remove orphans)
+12. **ESLint without errors** (always validate)
+13. **MANDATORY locator nomenclature** (`locator{Description}{Type}` - ex: `locatorSaveButton`, `locatorNameInput`)
+14. **MANDATORY nomenclature of constants** (`TYPE {DESCRIPTION} {ElementType}` - ex: `ID_ACCOUNT_LOOKUP`, `CSS_SUBMIT_BUTTON`)
+15. **Correct Imports** (validate with `get errors`)

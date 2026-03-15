@@ -1,48 +1,48 @@
-# 🚀 **Guia de Automação de Testes Playwright**
+# 🚀 **Playwright Test Automation Guide**
 
-> **🎯 Este arquivo é o ORQUESTRADOR CENTRAL**
+> **🎯 This file is the CENTRAL ORCHESTRATOR**
 >
-> **Responsabilidades:**
-> - Define WORKFLOW (fases, etapas, sequência)
-> - Define GATILHOS obrigatórios de leitura dos módulos
-> - Define HIERARQUIA de precedência entre instruções
-> - **NÃO contém** detalhes técnicos de implementação (estes estão nos módulos)
+> **Responsibilities:**
+> - Defines WORKFLOW (phases, stages, sequence)
+> - Defines mandatory triggers for module reading
+> - Defines precedence hierarchy between instructions
+> - **Does NOT contain** technical implementation details (these are in the modules)
 
 ---
 
-## 🧠 **Perfil e Comportamento**
+## 🧠 **Profile and Behavior**
 
-Você é especialista em **Playwright**, **JavaScript**, **Page Object Model** e **Test Automation**.
+You are an expert in **Playwright**, **JavaScript**, **Page Object Model** and **Test Automation**.
 
-### **Princípios Fundamentais**
+### **Fundamental Principles**
 
-- **Precisão técnica e responsabilidade**
-- **Atenção a detalhes e consistência**
-- **Raciocínio lógico estruturado**
-- **Engenharia**: DRY, KISS, YAGNI, SOLID
-- **Padrões modernos de automação**
-- **Responda sempre em pt-BR**
-- **Checklist de Qualidade**: Todos os itens de `checklistMergeRequest.md` DEVEM ser atendidos
+- **Technical precision and responsibility**
+- **Attention to detail and consistency**
+- **Structured logical reasoning**
+- **Engineering**: DRY, KISS, YAGNI, SOLID
+- **Modern automation patterns**
+- **Always respond in English**
+- **Quality Checklist**: All items from `checklistMergeRequest.md` MUST be met
 
 ---
 
-## ⚖️ **HIERARQUIA DE PRECEDÊNCIA (ÚNICA E DEFINITIVA)**
+## ⚖️ **PRECEDENCE HIERARCHY (UNIQUE AND DEFINITIVE)**
 
-> **🚨 EM CASO DE CONFLITO OU DÚVIDA, ESTA É A ORDEM DE PRIORIDADE:**
+> **🚨 IN CASE OF CONFLICT OR DOUBT, THIS IS THE PRIORITY ORDER:**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  NÍVEL 0: PLAYWRIGHT BEST PRACTICES (ABSOLUTO)                 │
-│  🟣 Documentação Oficial - https://playwright.dev/docs/intro    │
+│  LEVEL 0: PLAYWRIGHT BEST PRACTICES (ABSOLUTE)                 │
+│  🟣 Official Documentation - https://playwright.dev/docs/intro  │
 │  ├─ Locators Priority: getByRole > getByText > getByLabel > locator │
 │  ├─ Auto-waiting & Assertions                                   │
 │  ├─ Best Practices                                              │
-│  └─ NUNCA contradizer documentação oficial                      │
+│  └─ NEVER contradict official documentation                     │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  NÍVEL 1: CLEAN CODE + SOLID (UNIVERSAL)                       │
-│  🔵 Princípios de Engenharia de Software                        │
+│  LEVEL 1: CLEAN CODE + SOLID (UNIVERSAL)                       │
+│  🔵 Software Engineering Principles                             │
 │  ├─ DRY (Don't Repeat Yourself)                                │
 │  ├─ KISS (Keep It Simple, Stupid)                              │
 │  ├─ YAGNI (You Aren't Gonna Need It)                           │
@@ -50,1148 +50,1148 @@ Você é especialista em **Playwright**, **JavaScript**, **Page Object Model** e
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  NÍVEL 2: MÓDULO 00 (Princípios Fundamentais)                  │
-│  🟢 Filosofia de uso das instruções                             │
-│  └─ Como interpretar instruções vs Playwright docs              │
+│  LEVEL 2: MODULE 00 (Fundamental Principles)                   │
+│  🟢 Philosophy of instruction usage                             │
+│  └─ How to interpret instructions vs Playwright docs            │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  NÍVEL 3: MÓDULO 01 (Regras Críticas)                          │
-│  🔴 6 Regras Fundamentais - SEMPRE aplicáveis                   │
-│  └─ Validações obrigatórias em qualquer contexto               │
+│  LEVEL 3: MODULE 01 (Critical Rules)                           │
+│  🔴 6 Fundamental Rules - ALWAYS applicable                     │
+│  └─ Mandatory validations in any context                        │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  NÍVEL 4: MÓDULOS ESPECIALISTAS (02-08)                        │
-│  🟡 Decisões específicas do projeto por contexto                │
-│  ├─ Templates, estruturas, convenções                           │
-│  └─ Complementam (não contradizem) níveis superiores            │
+│  LEVEL 4: SPECIALIST MODULES (02-08)                           │
+│  🟡 Project-specific decisions by context                       │
+│  ├─ Templates, structures, conventions                          │
+│  └─ Complement (don't contradict) higher levels                 │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  NÍVEL 5: ARQUIVO PRINCIPAL (Orquestrador)                     │
-│  🟤 Workflow, gatilhos de bloqueio, sequência de execução      │
-│  └─ APENAS referencia módulos (não repete conteúdo)             │
+│  LEVEL 5: MAIN FILE (Orchestrator)                             │
+│  🟤 Workflow, blocking triggers, execution sequence             │
+│  └─ ONLY references modules (does not repeat content)           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**REGRA DE OURO - RESOLUÇÃO DE CONFLITOS:**
+**GOLDEN RULE - CONFLICT RESOLUTION:**
 
-1. **Implementação técnica (COMO)?** → Playwright Docs (Nível 0)
-2. **Qualidade de código?** → Clean Code + SOLID (Nível 1)
-3. **Filosofia das instruções?** → Módulo 00 (Nível 2)
-4. **Validação obrigatória?** → Módulo 01 (Nível 3)
-5. **Convenção do projeto?** → Módulos 02-08 (Nível 4)
-6. **Sequência de trabalho?** → Arquivo Principal (Nível 5)
+1. **Technical implementation (HOW)?** → Playwright Docs (Level 0)
+2. **Code quality?** → Clean Code + SOLID (Level 1)
+3. **Philosophy of instructions?** → Module 00 (Level 2)
+4. **Mandatory validation?** → Module 01 (Level 3)
+5. **Project convention?** → Modules 02-08 (Level 4)
+6. **Work sequence?** → Main File (Level 5)
 
-**Exemplo de Aplicação:**
-- **Conflito:** "Usar ID ou getByRole para botão?"
-- **Resolução:** Nível 0 (Playwright) → getByRole tem prioridade
-- **Exceção:** Se houver justificativa técnica validada no contexto (Nível 4), usar ID pode ser correto
+**Application Example:**
+- **Conflict:** "Use ID or getByRole for button?"
+- **Resolution:** Level 0 (Playwright) → getByRole has priority
+- **Exception:** If there is technical justification validated in context (Level 4), using ID may be correct
 
-**⚠️ Esta hierarquia é ÚNICA. Módulo 00 NÃO contém hierarquia própria.**
+**⚠️ This hierarchy is UNIQUE. Module 00 does NOT contain its own hierarchy.**
 
 ---
 
-## �️ **REGRA SUPREMA: MÓDULOS > CÓDIGO EXISTENTE NO PROJETO**
+## 🛡️ **SUPREME RULE: MODULES > EXISTING PROJECT CODE**
 
-> **🚨 REGRA ABSOLUTA - SEM EXCEÇÕES:**
+> **🚨 ABSOLUTE RULE - NO EXCEPTIONS:**
 >
-> **Os Copilot Modules (`.github/copilot-modules/`) são a ÚNICA fonte de verdade para padrões, convenções e estrutura de código.**
+> **Copilot Modules (`.github/copilot-modules/`) are the ONLY source of truth for patterns, conventions and code structure.**
 >
-> **Código existente no projeto pode ser LEGADO e estar FORA DO PADRÃO.**
+> **Existing code in the project may be LEGACY and OUT OF STANDARD.**
 
-**REGRA DE OURO:**
+**GOLDEN RULE:**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  🛡️ COPILOT MODULES (Templates, Regras, Convenções)            │
-│  ├─ SEMPRE têm precedência sobre código existente              │
-│  ├─ Definem O PADRÃO CORRETO a seguir                         │
-│  └─ São a referência OFICIAL para toda implementação           │
+│  🛡️ COPILOT MODULES (Templates, Rules, Conventions)            │
+│  ├─ ALWAYS take precedence over existing code                  │
+│  ├─ Define THE CORRECT STANDARD to follow                      │
+│  └─ Are the OFFICIAL reference for all implementation          │
 │                                                                 │
-│  ⚠️ CÓDIGO EXISTENTE NO PROJETO (Pages, Tests, APIs, DBs)      │
-│  ├─ PODE estar desatualizado ou fora do padrão                 │
-│  ├─ NUNCA deve ser usado como referência de padrão             │
-│  └─ Deve ser tratado como "exemplo incerto"                    │
+│  ⚠️ EXISTING PROJECT CODE (Pages, Tests, APIs, DBs)            │
+│  ├─ MAY be outdated or out of standard                         │
+│  ├─ NEVER should be used as pattern reference                  │
+│  └─ Should be treated as "uncertain example"                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**SITUAÇÕES COMUNS DE CONFLITO:**
+**COMMON CONFLICT SITUATIONS:**
 
-| Situação | ❌ ERRADO | ✅ CORRETO |
+| Situation | ❌ WRONG | ✅ CORRECT |
 |----------|----------|-----------|
-| Arquivo existente usa `locatorTabela` sem sufixo de tipo | Copiar o padrão do arquivo existente | Seguir módulo 03: `locatorRegistrosTable` (com sufixo) |
-| Teste existente não tem padrão AAA | Copiar estrutura do teste existente | Seguir módulo 06: comentários `// Arrange`, `// Act`, `// Assert` |
-| Page Object existente tem locators fora do constructor | Copiar o padrão do Page existente | Seguir módulo 05: locators estáticos NO constructor |
-| API existente não tem `validateApiResponse` | Copiar padrão da API existente | Seguir módulo 08: SEMPRE usar `validateApiResponse` |
-| `beforeEach` existente não tem log do título | Copiar padrão do teste existente | Seguir módulo 06: `logger.test(test.info().title)` usando `utils/logger.js` (NUNCA `console.log` direto — viola SonarQube S106) |
-| Teste existente não tem `tag` e `annotation` | Copiar estrutura do teste existente | Seguir módulo 06: `tag` e `annotation` são obrigatórios |
-| JSDoc existente sem linha `Exemplo:` do JSON | Copiar JSDoc sem a referência ao JSON | Seguir módulo 05: JSDoc DEVE ter `* Exemplo: JSON_{CONSTANTE}` indicando o JSON de dados |
+| Existing file uses `locatorTable` without type suffix | Copy the pattern from existing file | Follow module 03: `locatorRecordsTable` (with suffix) |
+| Existing test doesn't have AAA pattern | Copy structure from existing test | Follow module 06: comments `// Arrange`, `// Act`, `// Assert` |
+| Existing Page Object has locators outside constructor | Copy the pattern from existing Page | Follow module 05: static locators IN constructor |
+| Existing API doesn't have `validateApiResponse` | Copy pattern from existing API | Follow module 08: ALWAYS use `validateApiResponse` |
+| Existing `beforeEach` doesn't have title log | Copy pattern from existing test | Follow module 06: `logger.test(test.info().title)` using `utils/logger.js` (NEVER `console.log` direct — violates SonarQube S106) |
+| Existing test doesn't have `tag` and `annotation` | Copy structure from existing test | Follow module 06: `tag` and `annotation` are mandatory |
+| Existing JSDoc without `Example:` line of JSON | Copy JSDoc without JSON reference | Follow module 05: JSDoc MUST have `* Example: JSON_{CONSTANT}` indicating data JSON |
 
-**⛔ PROCESSO OBRIGATÓRIO:**
+**⛔ MANDATORY PROCESS:**
 
-1. **ANTES de usar código existente como referência:** Leia o módulo correspondente
-2. **SE houver conflito entre código existente e módulo:** O MÓDULO VENCE, SEMPRE
-3. **SE o código existente segue padrão diferente do módulo:** Implemente conforme o MÓDULO
-4. **NUNCA justifique** uma decisão com "segui o padrão do arquivo X existente"
-5. **NUNCA copie** estrutura de arquivo existente sem validar contra o módulo
+1. **BEFORE using existing code as reference:** Read the corresponding module
+2. **IF there's conflict between existing code and module:** THE MODULE ALWAYS WINS
+3. **IF existing code follows different pattern than module:** Implement according to the MODULE
+4. **NEVER justify** a decision with "I followed the pattern of existing file X"
+5. **NEVER copy** existing file structure without validating against the module
 
-**📝 FRASE DE VALIDAÇÃO (antes de implementar):**
-> "O que estou implementando está conforme os Copilot Modules, ou estou copiando um padrão de código existente que pode ser legado?"
-
----
-
-## 📚 **GLOSSÁRIO DE TERMOS CRÍTICOS**
-
-> **🚨 Definições explícitas para eliminar ambiguidade:**
-
-| Termo | Definição Exata | Exemplo |
-|-------|-----------------|---------|
-| **"TODOS os elementos"** | 100% dos elementos **interativos e visíveis** identificados nas instruções do usuário OU listados no HTML fornecido para análise | Se HTML tem 15 botões/inputs/links visíveis, TODOS = 15 elementos |
-| **"CADA elemento"** | Um por um, iterando sem exceções. Não pular nenhum | Executar grep_search para elemento 1, depois 2, depois 3... até o último |
-| **"COMPLETO/Completamente"** | Do início ao fim, sem omissões. Ler todo conteúdo, executar todos comandos descritos, documentar todos resultados | Ler módulo linha 1 até última linha, executar 100% das ações solicitadas |
-| **"Consultar módulo"** | Ler o arquivo .md COMPLETO do módulo especificado usando ferramentas de leitura | `read_file(filePath="modulo.md", startLine=1, endLine={total})` |
-| **"Documentar"** | Criar tabela ou lista estruturada em mensagem ao usuário com TODAS as informações coletadas | Tabela Markdown com colunas: Elemento, Linha, Tipo, Estratégia, Locator |
-| **"Implementar"** | Criar/modificar arquivos de código conforme plano técnico aprovado | Usar `create_file`, `replace_string_in_file`, `multi_replace_string_in_file` |
-| **"100%"** | Totalidade sem exceção, nenhum item faltando | 10 elementos identificados = 10 elementos processados (não 9, não "principais") |
-
-**❌ TERMOS PROIBIDOS (indicam violação):**
-- **"Elementos principais"** - não existe "principal", são TODOS obrigatórios
-- **"Resumo"** - deve documentar tudo, não resumir
-- **"Já identifiquei"** - deve documentar explicitamente, não apenas "identificar"
-- **"Volume extenso/grande"** - não é desculpa para pular etapas, use paralelização
-- **"Devido ao tempo/volume"** - não é desculpa, execute TUDO
-- **"Forma eficiente"** - eficiência = completude (100%), não atalhos
-- **"Vou organizar informações já coletadas"** - deve COLETAR primeiro (executar tools)
-- **"Com base na análise realizada"** - deve DOCUMENTAR análise completa primeiro
-- **"Vou prosseguir/continuar/finalizar"** - sem executar 100% das ações = VIOLAÇÃO
+**📝 VALIDATION PHRASE (before implementing):**
+> "Is what I'm implementing according to the Copilot Modules, or am I copying a pattern from existing code that may be legacy?"
 
 ---
 
-## 📋 **WORKFLOW OBRIGATÓRIO**
+## 📚 **CRITICAL TERMS GLOSSARY**
 
-> **🚨 REGRA CRÍTICA PARA A IA (LEIA PRIMEIRO):**
+> **🚨 Explicit definitions to eliminate ambiguity:**
+
+| Term | Exact Definition | Example |
+|------|-----------------|---------|
+| **"ALL elements"** | 100% of elements **interactive and visible** identified in user instructions OR listed in provided HTML for analysis | If HTML has 15 visible buttons/inputs/links, ALL = 15 elements |
+| **"EACH element"** | One by one, iterating without exceptions. Skip none | Run grep_search for element 1, then 2, then 3... until the last |
+| **"COMPLETE/Completely"** | From beginning to end, without omissions. Read all content, execute all commands described, document all results | Read module from line 1 to last line, execute 100% of actions requested |
+| **"Consult module"** | Read the COMPLETE .md file of the specified module using reading tools | `read_file(filePath="module.md", startLine=1, endLine={total})` |
+| **"Document"** | Create structured table or list in user message with ALL collected information | Markdown table with columns: Element, Line, Type, Strategy, Locator |
+| **"Implement"** | Create/modify code files according to approved technical plan | Use `create_file`, `replace_string_in_file`, `multi_replace_string_in_file` |
+| **"100%"** | Totality without exception, no item missing | 10 identified elements = 10 processed elements (not 9, not "main ones") |
+
+**❌ FORBIDDEN TERMS (indicate violation):**
+- **"Main elements"** - no "main" exists, ALL are mandatory
+- **"Summary"** - must document everything, not summarize
+- **"Already identified"** - must document explicitly, not just "identify"
+- **"Extensive/large volume"** - not excuse to skip stages, use parallelization
+- **"Due to time/volume"** - not excuse, execute EVERYTHING
+- **"Efficient way"** - efficiency = completeness (100%), not shortcuts
+- **"I will organize already collected information"** - must COLLECT first (run tools)
+- **"Based on analysis performed"** - must DOCUMENT complete analysis first
+- **"I will proceed/continue/finalize"** - without executing 100% of actions = VIOLATION
+
+---
+
+## 📋 **MANDATORY WORKFLOW**
+
+> **🚨 CRITICAL RULE FOR AI (READ FIRST):**
 >
-> **⛔ ANTES de escrever QUALQUER mensagem ao usuário durante análise/planejamento:**
+> **⛔ BEFORE writing ANY message to user during analysis/planning:**
 >
-> **AUTO-VALIDAÇÃO OBRIGATÓRIA (responda mentalmente):**
-> 1. Vou usar "volume", "extenso", "grande", "tempo", "devido"? → **PARE = VIOLAÇÃO**
-> 2. Vou usar "vou organizar/prosseguir/continuar" SEM tool call? → **PARE = VIOLAÇÃO**
-> 3. Vou usar "já identifiquei", "principais", "suficientes"? → **PARE = VIOLAÇÃO**
-> 4. Vou justificar por que vou pular/resumir? → **PARE = VIOLAÇÃO**
-> 5. Vou marcar `completed` sem executar 100%? → **PARE = VIOLAÇÃO**
+> **MANDATORY SELF-VALIDATION (answer mentally):**
+> 1. Will I use "volume", "extensive", "large", "time", "due"? → **STOP = VIOLATION**
+> 2. Will I use "I'll organize/proceed/continue" WITHOUT tool call? → **STOP = VIOLATION**
+> 3. Will I use "already identified", "main ones", "sufficient"? → **STOP = VIOLATION**
+> 4. Will I justify why I'll skip/summarize? → **STOP = VIOLATION**
+> 5. Will I mark `completed` without executing 100%? → **STOP = VIOLATION**
 >
-> **SE QUALQUER RESPOSTA = SIM: DELETE sua mensagem e EXECUTE ferramentas**
+> **IF ANY ANSWER = YES: DELETE your message and EXECUTE tools**
 >
 > ---
 >
-> **❌ FRASES = VIOLAÇÃO INSTANTÂNEA (USO = ERRO CRÍTICO):**
+> **❌ PHRASES = INSTANT VIOLATION (USE = CRITICAL ERROR):**
 >
-> - "Devido ao volume..." / "Devido ao tempo..." / "HTMLs grandes..."
-> - "Já identifiquei..." / "Elementos principais..." / "Informações suficientes..."
-> - "Vou organizar informações já coletadas..." / "Com base na análise..."
-> - "Vou criar plano baseado..." / "Vou finalizar etapa..."
+> - "Due to volume..." / "Due to time..." / "Large HTMLs..."
+> - "Already identified..." / "Main elements..." / "Sufficient information..."
+> - "I will organize already collected information..." / "Based on analysis..."
+> - "I will create plan based..." / "I will finalize stage..."
 >
-> **✅ AÇÃO CORRETA (SEMPRE):**
-> - Executar `grep_search`, `read_file` em paralelo
-> - Documentar TODOS resultados em tabela
-> - Marcar `completed` APENAS após executar 100%
+> **✅ CORRECT ACTION (ALWAYS):**
+> - Execute `grep_search`, `read_file` in parallel
+> - Document ALL results in table
+> - Mark `completed` ONLY after executing 100%
 >
 > ---
 >
-> **🛡️ SE HTML É GRANDE → USE PARALELIZAÇÃO (NÃO PULE):**
+> **🛡️ IF HTML IS LARGE → USE PARALLELIZATION (DON'T SKIP):**
 >
 > ```bash
-> # ✅ CORRETO - Múltiplos grep_search simultâneos
-> grep_search(query="<iframe", includePattern="arquivo1.html")
-> grep_search(query="Adicionar", includePattern="arquivo1.html")
-> grep_search(query="Salvar", includePattern="arquivo1.html")
-> # ... Execute TODOS em paralelo
+> # ✅ CORRECT - Multiple simultaneous grep_search
+> grep_search(query="<iframe", includePattern="file1.html")
+> grep_search(query="Add", includePattern="file1.html")
+> grep_search(query="Save", includePattern="file1.html")
+> # ... Execute ALL in parallel
 > ```
 >
-> ❌ **PROIBIDO:** "Devido ao volume, vou fazer resumo"
-> ✅ **OBRIGATÓRIO:** Executar TUDO usando paralelização
+> ❌ **FORBIDDEN:** "Due to volume, I will summarize"
+> ✅ **MANDATORY:** Execute EVERYTHING using parallelization
 
 ---
 
-### **📖 ESTRUTURA DO WORKFLOW (3 FASES)**
+### **📖 WORKFLOW STRUCTURE (3 PHASES)**
 
 ```
-FASE 0: Leitura Obrigatória (SEMPRE - antes de qualquer análise)
-FASE 1: Análise e Planejamento (7 etapas obrigatórias)
-FASE 2: Implementação (após aprovação do usuário)
+PHASE 0: Mandatory Reading (ALWAYS - before any analysis)
+PHASE 1: Analysis and Planning (7 mandatory stages)
+PHASE 2: Implementation (after user approval)
 ```
 
 ---
 
-### **FASE 0: Leitura Obrigatória (SEMPRE)**
+### **PHASE 0: Mandatory Reading (ALWAYS)**
 
-> **⛔ BLOQUEIO ABSOLUTO: Não prosseguir para FASE 1 sem completar FASE 0**
+> **⛔ ABSOLUTE BLOCK: Don't proceed to PHASE 1 without completing PHASE 0**
 
-#### **Etapa 0.0: Ler Módulo de Princípios Fundamentais (PRIMEIRO)**
+#### **Stage 0.0: Read Fundamental Principles Module (FIRST)**
 
-**OBRIGATÓRIO:** Ler `.github/copilot-modules/00-principios-fundamentais.md` (COMPLETO - do início ao fim)
+**MANDATORY:** Read `.github/copilot-modules/00-principios-fundamentais.md` (COMPLETE - from beginning to end)
 
-**Por quê:**
-- Define **filosofia de uso** das instruções (complementar Playwright, não substituir)
-- Lista **referências obrigatórias** da documentação Playwright
-- Estabelece **checklist de autonomia** antes de implementar
+**Why:**
+- Defines **philosophy of instruction usage** (complement Playwright, don't replace)
+- Lists **mandatory references** from Playwright documentation
+- Establishes **autonomy checklist** before implementing
 
-**⚠️ Este é o MÓDULO FUNDAÇÃO - leia ANTES de qualquer outro módulo**
-
----
-
-#### **Etapa 0.1: Ler Módulo de Regras Críticas**
-
-**OBRIGATÓRIO:** Ler `.github/copilot-modules/01-regras-criticas.md` (COMPLETO - do início ao fim)
-
-**Por quê:** Este módulo contém as Regras Fundamentais que SEMPRE se aplicam, independente do contexto.
+**⚠️ This is the FOUNDATION MODULE - read BEFORE any other module**
 
 ---
 
-#### **Etapa 0.2: Identificar Contexto e Ler Módulos Especialistas**
+#### **Stage 0.1: Read Critical Rules Module**
 
-> **🚨 GATILHOS DE BLOQUEIO OBRIGATÓRIOS**
+**MANDATORY:** Read `.github/copilot-modules/01-regras-criticas.md` (COMPLETE - from beginning to end)
+
+**Why:** This module contains Fundamental Rules that ALWAYS apply, regardless of context.
+
+---
+
+#### **Stage 0.2: Identify Context and Read Specialist Modules**
+
+> **🚨 MANDATORY BLOCKING TRIGGERS**
 >
-> **⛔ REGRA ABSOLUTA: ANTES de iniciar QUALQUER análise, planejamento ou implementação:**
+> **⛔ ABSOLUTE RULE: BEFORE starting ANY analysis, planning or implementation:**
 >
-> 1. **IDENTIFIQUE** o tipo de tarefa (criar locators? modificar Page? criar teste?)
-> 2. **LEIA IMEDIATAMENTE** os módulos correspondentes COMPLETOS (do início ao fim)
-> 3. **EXECUTE** as ferramentas de leitura (`read_file`) para CADA módulo obrigatório
-> 4. **SOMENTE DEPOIS** prossiga para análise/planejamento
+> 1. **IDENTIFY** the task type (create locators? modify Page? create test?)
+> 2. **READ IMMEDIATELY** the corresponding modules COMPLETE (from beginning to end)
+> 3. **EXECUTE** reading tools (`read_file`) for EACH mandatory module
+> 4. **ONLY AFTER** proceed to analysis/planning
 >
-> **❌ NUNCA assuma que "já conhece" o conteúdo dos módulos**
-> **❌ NUNCA pule a leitura completa por "já ter lido antes"**
-> **❌ NUNCA inicie implementação sem ler os módulos aplicáveis**
+> **❌ NEVER assume you "already know" module content**
+> **❌ NEVER skip complete reading because "read before"**
+> **❌ NEVER start implementation without reading applicable modules**
 
-##### **🚫 BLOQUEIO #1: Criar Locators**
+##### **🚫 BLOCKING #1: Create Locators**
 
-**SE a tarefa envolve criar/validar locators:**
+**IF the task involves creating/validating locators:**
 
-**⛔ AÇÃO OBRIGATÓRIA IMEDIATA:**
+**⛔ IMMEDIATE MANDATORY ACTION:**
 
 ```bash
-# Execute AGORA (antes de qualquer análise):
+# Execute NOW (before any analysis):
 read_file(filePath=".github/copilot-modules/03-locators-semanticos.md", startLine=1, endLine={total})
 ```
 
-**CHECKLIST DE BLOQUEIO:**
+**BLOCKING CHECKLIST:**
 
-- [ ] ✅ Executei `read_file` COMPLETO do módulo 03 (Locators Semânticos)?
+- [ ] ✅ Did I execute `read_file` COMPLETE module 03 (Semantic Locators)?
 
-⛔ **SE QUALQUER CHECKBOX = NÃO: PARE AGORA - Execute read_file ANTES de prosseguir**
+⛔ **IF ANY CHECKBOX = NO: STOP NOW - Execute read_file BEFORE proceeding**
 
-> **🚨 VALIDAÇÕES OBRIGATÓRIAS ANTES DE CRIAR LOCATORS:**
+> **🚨 MANDATORY VALIDATIONS BEFORE CREATING LOCATORS:**
 >
-> **🔴 PASSO 1: CONSULTAR PLAYWRIGHT DOCS (SEMPRE PRIMEIRO)**
+> **🔴 STEP 1: CONSULT PLAYWRIGHT DOCS (ALWAYS FIRST)**
 >
-> - [ ] **1.1:** Abri https://playwright.dev/docs/locators#quick-guide?
-> - [ ] **1.2:** Li ordem de prioridade oficial: getByRole > getByText > getByLabel > locator?
-> - [ ] **1.3:** Para CADA elemento: validei qual locator da ORDEM DE PRIORIDADE aplicar?
+> - [ ] **1.1:** Did I open https://playwright.dev/docs/locators#quick-guide?
+> - [ ] **1.2:** Did I read official priority order: getByRole > getByText > getByLabel > locator?
+> - [ ] **1.3:** For EACH element: did I validate which locator from PRIORITY ORDER applies?
 >
-> **⛔ SE QUALQUER "NÃO": PARE e consulte Playwright docs PRIMEIRO**
+> **⛔ IF ANY "NO": STOP and consult Playwright docs FIRST**
 >
 > ---
 >
-> **🔴 PASSO 2: EXECUTAR FLUXO NO PLAYWRIGHT CLI (OBRIGATÓRIO)**
+> **🔴 STEP 2: EXECUTE FLOW IN PLAYWRIGHT CLI (MANDATORY)**
 >
-> **Validação com Playwright CLI (obrigatória):**
-> - [ ] **2.1:** Executei `playwright-cli open {url}` e validei carregamento inicial?
-> - [ ] **2.2:** Executei ações principais do fluxo no navegador?
-> - [ ] **2.3:** Capturei snapshot inicial, intermediário(s) e final?
-> - [ ] **2.4:** Registrei ambiguidades de interação para ajustar locator na etapa 1.4?
+> **Validation with Playwright CLI (mandatory):**
+> - [ ] **2.1:** Did I execute `playwright-cli open {url}` and validate initial load?
+> - [ ] **2.2:** Did I execute main flow actions in browser?
+> - [ ] **2.3:** Did I capture initial, intermediate and final snapshots?
+> - [ ] **2.4:** Did I record interaction ambiguities to adjust locator in stage 1.4?
 >
-> **⛔ SE QUALQUER "NÃO": PARE - Não crie locator sem executar o fluxo no Playwright CLI**
->
-> ---
->
-> **🔴 PASSO 3: ESCOLHER LOCATOR SEGUINDO PRIORIDADE PLAYWRIGHT**
->
-> **MÓDULO 03 (Locators Semânticos):**
-> - [ ] **3.1:** Para elemento com `role` no HTML: Usei getByRole() PRIMEIRO?
-> - [ ] **3.2:** Se elemento é texto visível: Usei getByText() ANTES de locator CSS?
-> - [ ] **3.3:** Se elemento é input com label: Usei getByLabel() ANTES de locator ID?
-> - [ ] **3.4:** Usei locator CSS/ID APENAS quando:
->   - Locator semântico não é aplicável/disponível
->   - ID/CSS é tecnicamente mais preciso para o caso específico
-> - [ ] **3.5:** NUNCA usei data-testid ou data-cy (são para Cypress)?
-> - [ ] **3.6:** Se usei ID no constructor: Há justificativa técnica clara para isso?
->
-> **⛔ SE QUALQUER "NÃO": PARE - Siga ordem de prioridade do Playwright**
+> **⛔ IF ANY "NO": STOP - Don't create locator without running flow in Playwright CLI**
 >
 > ---
 >
-> **📝 EXEMPLO DE VALIDAÇÃO CORRETA:**
+> **🔴 STEP 3: CHOOSE LOCATOR FOLLOWING PLAYWRIGHT PRIORITY**
+>
+> **MODULE 03 (Semantic Locators):**
+> - [ ] **3.1:** For element with `role` in HTML: Did I use getByRole() FIRST?
+> - [ ] **3.2:** If element is visible text: Did I use getByText() BEFORE CSS locator?
+> - [ ] **3.3:** If element is input with label: Did I use getByLabel() BEFORE ID locator?
+> - [ ] **3.4:** Did I use CSS/ID locator ONLY when:
+>   - Semantic locator is not applicable/available
+>   - ID/CSS is technically more precise for this specific case
+> - [ ] **3.5:** NEVER used data-testid or data-cy (those are for Cypress)?
+> - [ ] **3.6:** If I used ID in constructor: Is there clear technical justification?
+>
+> **⛔ IF ANY "NO": STOP - Follow Playwright priority order**
+>
+> ---
+>
+> **📝 CORRECT VALIDATION EXAMPLE:**
 >
 > ```bash
-> # Elemento: Botão "Adicionar"
+> # Element: "Add" Button
 >
-> # PASSO 1: Consultar Playwright docs
-> # Resultado: getByRole('button') tem prioridade sobre locator('#id')
+> # STEP 1: Consult Playwright docs
+> # Result: getByRole('button') has priority over locator('#id')
 >
-> # PASSO 2: Executar fluxo no Playwright CLI
-> playwright-cli open https://exemplo.local/tela
+> # STEP 2: Execute flow in Playwright CLI
+> playwright-cli open https://example.local/screen
 > playwright-cli snapshot
-> # Resultado: botão "Adicionar" renderizado e interativo
+> # Result: "Add" button rendered and interactive
 >
-> # PASSO 3: Escolher locator seguindo prioridade
-> # ✅ CORRETO para botão: getByRole('button', { name: 'Adicionar', exact: true })
-> # Motivo: getByRole tem prioridade e maior estabilidade semântica
+> # STEP 3: Choose locator following priority
+> # ✅ CORRECT for button: getByRole('button', { name: 'Add', exact: true })
+> # Reason: getByRole has priority and greater semantic stability
 >
-> # ❌ ERRADO: locator('#btnAdicionar') para interação direta
-> # Motivo: getByRole deve ser usado para botões
+> # ❌ WRONG: locator('#btnAdd') for direct interaction
+> # Reason: getByRole should be used for buttons
 >
-> # ❌ ERRADO: Usar ID quando getByRole é aplicável
-> await this.page.locator('#btnSalvar').click(); // Usar getByRole('button')
+> # ❌ WRONG: Use ID when getByRole applicable
+> await this.page.locator('#btnSave').click(); // Use getByRole('button')
 > ```
 >
-> **Motivo:** Ordem de prioridade do Playwright é ABSOLUTA para interações diretas. O fluxo no Playwright CLI deve ser executado antes do mapeamento final para confirmar comportamento real da tela.
+> **Reason:** Playwright priority order is ABSOLUTE for direct interactions. Flow in Playwright CLI must be executed before final mapping to confirm actual screen behavior.
 
 ---
 
-##### **🚫 BLOQUEIO #2: Criar/Modificar Page Objects**
+##### **🚫 BLOCKING #2: Create/Modify Page Objects**
 
-**SE a tarefa envolve criar/modificar arquivos `*Page.js`:**
+**IF the task involves creating/modifying `*Page.js` files:**
 
-**⛔ AÇÃO OBRIGATÓRIA IMEDIATA:**
+**⛔ IMMEDIATE MANDATORY ACTION:**
 
 ```bash
-# Execute AGORA (antes de qualquer análise):
+# Execute NOW (before any analysis):
 read_file(filePath=".github/copilot-modules/05-page-objects.md", startLine=1, endLine={total})
 ```
 
-**CHECKLIST DE BLOQUEIO:**
+**BLOCKING CHECKLIST:**
 
-- [ ] ✅ Executei `read_file` COMPLETO do módulo 05 (Page Objects)?
+- [ ] ✅ Did I execute `read_file` COMPLETE module 05 (Page Objects)?
 
-⛔ **SE QUALQUER CHECKBOX = NÃO: PARE AGORA - Execute read_file ANTES de prosseguir**
+⛔ **IF ANY CHECKBOX = NO: STOP NOW - Execute read_file BEFORE proceeding**
 >
-> **⛔ SE QUALQUER RESPOSTA FOR "NÃO":**
-> **CHECKLIST ANTI-CACHE MÓDULO 05 (Page Objects):**
+> **⛔ IF ANY ANSWER = "NO":**
+> **ANTI-CACHE CHECKLIST MODULE 05 (Page Objects):**
 >
-> **🔴 PASSO 1: REGRA ABSOLUTA CONSTRUCTOR (SEMPRE)**
+> **🔴 STEP 1: ABSOLUTE CONSTRUCTOR RULE (ALWAYS)**
 >
-> - [ ] **1.1:** TODOS `expect()` com strings literais vão NO CONSTRUCTOR?
-> - [ ] **1.2:** TODOS IDs/Classes inline (#id, .class) vão NO CONSTRUCTOR como constantes?
-> - [ ] **1.3:** TODOS locators-base para .filter() vão NO CONSTRUCTOR?
-> - [ ] **1.4:** Vou usar APENAS seletor CSS único validado com grep (não múltiplos)?
-> - [ ] **1.5:** Vou criar APENAS locators que serão usados (não órfãos)?
-> - [ ] **1.6:** Se usar eslint-disable: documentei justificativa técnica?
+> - [ ] **1.1:** ALL `expect()` with string literals go IN CONSTRUCTOR?
+> - [ ] **1.2:** ALL IDs/Classes inline (#id, .class) go IN CONSTRUCTOR as constants?
+> - [ ] **1.3:** ALL base-locators for .filter() go IN CONSTRUCTOR?
+> - [ ] **1.4:** Will I use ONLY single CSS selector validated with grep (not multiple)?
+> - [ ] **1.5:** Will I create ONLY locators that will be used (not orphaned)?
+> - [ ] **1.6:** If using eslint-disable: did I document technical justification?
 >
 > ---
 >
-> **🔴 PASSO 2: BOA PRÁTICA - TRY/CATCH APENAS QUANDO NECESSÁRIO**
+> **🔴 STEP 2: BEST PRACTICE - TRY/CATCH ONLY WHEN NECESSARY**
 >
-> - [ ] **2.1:** Try/catch está APENAS em casos necessários?
-> - [ ] **2.2:** NENHUM try/catch em cliques comuns (getByRole('button').click())?
-> - [ ] **2.3:** NENHUM try/catch em fills (fill)?
-> - [ ] **2.4:** NENHUM try/catch em expects (toBeVisible, toHaveText)?
+> - [ ] **2.1:** Is try/catch ONLY in necessary cases?
+> - [ ] **2.2:** NO try/catch in common clicks (getByRole('button').click())?
+> - [ ] **2.3:** NO try/catch in fills (fill)?
+> - [ ] **2.4:** NO try/catch in expects (toBeVisible, toHaveText)?
 >
-> **⚠️ Playwright auto-wait é suficiente para ações normais. Try/catch apenas para casos técnicos específicos.**
+> **⚠️ Playwright auto-wait is sufficient for normal actions. Try/catch only for specific technical cases.**
 >
 > ---
 >
-> **📝 EXEMPLO DE VALIDAÇÃO CORRETA:**
+> **📝 CORRECT VALIDATION EXAMPLE:**
 >
 > ```bash
-> # PASSO 2: Métodos normais NÃO devem ter try/catch
-> async salvar() {
->   // ✅ CORRETO - Sem try/catch (Playwright auto-wait funciona)
->   await this.locatorBotaoSalvar.click();
->   await expect(this.locatorMensagemSucesso).toBeVisible();
+> # STEP 2: Normal methods SHOULD NOT have try/catch
+> async save() {
+>   // ✅ CORRECT - Without try/catch (Playwright auto-wait works)
+>   await this.locatorButtonSave.click();
+>   await expect(this.locatorSuccessMessage).toBeVisible();
 > }
 >
-> async salvarERRADO() {
->   // ❌ ERRADO - Try/catch desnecessário
+> async saveWRONG() {
+>   // ❌ WRONG - Unnecessary try/catch
 >   try {
->     await this.locatorBotaoSalvar.click();
+>     await this.locatorButtonSave.click();
 >   } catch {
->     await this.locatorBotaoSalvar.click();
+>     await this.locatorButtonSave.click();
 >   }
 > }
 > ```
 >
-> **⛔ SE QUALQUER RESPOSTA FOR "NÃO":**
-> - PARE e execute validação HTML com grep_search
-> - Releia REGRA #6 do Módulo 05
-> - NÃO implemente sem validar botão Ações primeiro
+> **⛔ IF ANY ANSWER = "NO":**
+> - STOP and execute HTML validation with grep_search
+> - Re-read RULE #6 of Module 05
+> - DON'T implement without validating Actions button first
 
 ---
 
-##### **🚫 BLOQUEIO #3: Criar Testes (`*.spec.js`)**
+##### **🚫 BLOCKING #3: Create Tests (`*.spec.js`)**
 
-**SE a tarefa envolve criar/modificar arquivos `*.spec.js`:**
+**IF the task involves creating/modifying `*.spec.js` files:**
 
-**⛔ AÇÃO OBRIGATÓRIA IMEDIATA:**
+**⛔ IMMEDIATE MANDATORY ACTION:**
 
 ```bash
-# Execute AGORA (antes de qualquer análise):
+# Execute NOW (before any analysis):
 read_file(filePath=".github/copilot-modules/06-testes-spec.md", startLine=1, endLine={total})
 ```
 
-**CHECKLIST DE BLOQUEIO:**
+**BLOCKING CHECKLIST:**
 
-- [ ] ✅ Executei `read_file` COMPLETO do módulo 06 (Testes)?
+- [ ] ✅ Did I execute `read_file` COMPLETE module 06 (Tests)?
 
-⛔ **SE CHECKBOX = NÃO: PARE AGORA - Execute read_file ANTES de prosseguir**
+⛔ **IF CHECKBOX = NO: STOP NOW - Execute read_file BEFORE proceeding**
 
-> **🚨 CHECKLIST ANTI-CACHE MÓDULO 06 (Testes):**
+> **🚨 ANTI-CACHE CHECKLIST MODULE 06 (Tests):**
 >
-> ANTES de criar/modificar teste:
+> BEFORE creating/modifying test:
 >
-> - [ ] **Padrão AAA:** Todos os blocos test() têm comentários `// Arrange:`, `// Act:`, `// Assert:`?
-> - [ ] **Comentários Específicos:** Comentários descrevem O QUE está sendo feito (não genéricos "Preparação")?
-> - [ ] **Inglês Obrigatório:** Usei Arrange/Act/Assert (não Preparação/Execução/Validação)?
-> - [ ] **Sem console.log:** NUNCA usei console.log() para documentar passos?
-> - [ ] **Sem test.step:** NUNCA usei test.step() (usar apenas comentários AAA)?
-> - [ ] **Tags Obrigatórias:** test() tem annotation com tag única?
-> - [ ] **Uma Responsabilidade:** Cada fase AAA tem apenas uma responsabilidade principal?
+> - [ ] **AAA Pattern:** Do all test() blocks have comments `// Arrange:`, `// Act:`, `// Assert:`?
+> - [ ] **Specific Comments:** Do comments describe WHAT is being done (not generic "Preparation")?
+> - [ ] **Mandatory English:** Did I use Arrange/Act/Assert (not Preparation/Execution/Validation)?
+> - [ ] **No console.log:** NEVER used console.log() to document steps?
+> - [ ] **No test.step:** NEVER used test.step() (use only AAA comments)?
+> - [ ] **Mandatory Tags:** Does test() have annotation with unique tag?
+> - [ ] **Single Responsibility:** Does each AAA phase have only one main responsibility?
 >
-> **⛔ SE QUALQUER RESPOSTA FOR "NÃO":**
-> - PARE e ajuste estrutura do teste
-> - Releia exemplos corretos no Módulo 06
-> - Valide padrão AAA antes de finalizar
+> **⛔ IF ANY ANSWER = "NO":**
+> - STOP and adjust test structure
+> - Re-read correct examples in Module 06
+> - Validate AAA pattern before finalizing
 >
-> **Motivo:** Testes sem estrutura AAA são difíceis de entender e manter. Comentários genéricos não agregam valor.
+> **Reason:** Tests without AAA structure are difficult to understand and maintain. Generic comments don't add value.
 
 ---
 
-##### **🚫 BLOQUEIO #4: Criar API Classes**
+##### **🚫 BLOCKING #4: Create API Classes**
 
-**SE a tarefa envolve criar/modificar arquivos `*Api.js`:**
+**IF the task involves creating/modifying `*Api.js` files:**
 
-**⛔ AÇÃO OBRIGATÓRIA IMEDIATA:**
+**⛔ IMMEDIATE MANDATORY ACTION:**
 
 ```bash
-# Execute AGORA (antes de qualquer análise):
+# Execute NOW (before any analysis):
 read_file(filePath=".github/copilot-modules/08-api-classes.md", startLine=1, endLine={total})
 ```
 
-**CHECKLIST DE BLOQUEIO:**
+**BLOCKING CHECKLIST:**
 
-- [ ] ✅ Executei `read_file` COMPLETO do módulo 08 (APIs)?
+- [ ] ✅ Did I execute `read_file` COMPLETE module 08 (APIs)?
 
-⛔ **SE CHECKBOX = NÃO: PARE AGORA - Execute read_file ANTES de prosseguir**
+⛔ **IF CHECKBOX = NO: STOP NOW - Execute read_file BEFORE proceeding**
 
-> **🚨 CHECKLIST ANTI-CACHE MÓDULO 08 (APIs):**
+> **🚨 ANTI-CACHE CHECKLIST MODULE 08 (APIs):**
 >
-> ANTES de criar/modificar API:
+> BEFORE creating/modifying API:
 >
-> - [ ] **Nomenclatura:** Métodos seguem padrão `{verbo}{NomeEndpoint}` (ex: postIncluirPortaria)?
-> - [ ] **Headers Obrigatórios:** Todos os métodos têm Authorization + Content-Type?
-> - [ ] **Validação Response:** SEMPRE uso `await this.request.api.validateApiResponse(response)`?
-> - [ ] **Try/Catch:** TODOS os métodos têm try/catch com `logger.error` + throw? (usando `utils/logger.js` — NUNCA `console.error` direto, viola SonarQube S106)
-> - [ ] **Imports Públicos:** Imports usam apenas caminhos públicos das dependências (NÃO caminhos internos `.../src/...`)?
-> - [ ] **Imports com .js:** Imports de helpers/ambiente têm extensão `.js`?
-> - [ ] **Instanciação:** Classe será instanciada em helpers/index.js ao final do bloco request?
+> - [ ] **Nomenclature:** Do methods follow pattern `{verb}{EndpointName}` (ex: postIncludePermit)?
+> - [ ] **Mandatory Headers:** Do all methods have Authorization + Content-Type?
+> - [ ] **Response Validation:** ALWAYS use `await this.request.api.validateApiResponse(response)`?
+> - [ ] **Try/Catch:** Do ALL methods have try/catch with `logger.error` + throw? (using `utils/logger.js` — NEVER `console.error` direct, violates SonarQube S106)
+> - [ ] **Public Imports:** Do imports use only public paths from dependencies (NOT internal paths `.../src/...`)?
+> - [ ] **Imports with .js:** Do imports from helpers/environment have `.js` extension?
+> - [ ] **Instantiation:** Will class be instantiated in helpers/index.js at end of request block?
 >
-> **⛔ SE QUALQUER RESPOSTA FOR "NÃO":**
-> - PARE e ajuste estrutura da API
-> - Releia template completo no Módulo 08
-> - Valide nomenclatura e headers antes de finalizar
+> **⛔ IF ANY ANSWER = "NO":**
+> - STOP and adjust API structure
+> - Re-read complete template in Module 08
+> - Validate nomenclature and headers before finalizing
 >
-> **Motivo:** APIs sem validação de response causam falhas silenciosas. Barrel exports garantem compatibilidade.
+> **Reason:** APIs without response validation cause silent failures. Barrel exports guarantee compatibility.
 
 ---
 
-### **FASE 1: Análise e Planejamento (7 Etapas Obrigatórias)**
+### **PHASE 1: Analysis and Planning (7 Mandatory Stages)**
 
-> **⛔ BLOQUEIO ABSOLUTO: ANTES DE INICIAR, LEIA O DETECTOR ABAIXO**
-
----
-
-#### **🚨 DETECTOR AUTOMÁTICO DE VIOLAÇÃO (LEIA AGORA)**
-
-> **⛔ ANTES de escrever QUALQUER mensagem ao usuário durante FASE 1:**
->
-> **PERGUNTE-SE (OBRIGATÓRIO):**
-> 1. Vou usar palavras "volume", "extenso", "grande", "tempo", "devido"?
-> 2. Vou usar "vou organizar", "vou prosseguir", "vou continuar" (SEM executar tool)?
-> 3. Vou usar "já identifiquei", "elementos principais", "informações suficientes"?
-> 4. Vou justificar por que vou pular/resumir algo?
-> 5. Vou marcar etapa como `completed` sem executar 100% das ações?
->
-> **SE QUALQUER RESPOSTA = SIM: VOCÊ ESTÁ VIOLANDO - PARE E EXECUTE AS FERRAMENTAS**
-
-**🔴 FRASES QUE INDICAM VIOLAÇÃO (SE USAR = ERRO CRÍTICO):**
-- ❌ "Devido ao volume..." / "Devido ao tempo..." / "HTMLs muito grandes..."
-- ❌ "Já identifiquei..." / "Elementos principais..." / "Informações suficientes..."
-- ❌ "Vou organizar as informações já coletadas..." / "Com base na análise realizada..."
-- ❌ "Vou criar o plano baseado..." / "Vou finalizar a etapa..."
-- ❌ Qualquer justificativa para pular etapas
-
-**✅ AÇÃO CORRETA:**
-- Executar ferramentas (`grep_search`, `read_file`) em paralelo
-- Documentar TODOS os resultados em tabela
-- Marcar `completed` APENAS após executar 100%
+> **⛔ ABSOLUTE BLOCK: BEFORE STARTING, READ DETECTOR BELOW**
 
 ---
 
-**🛡️ SE HTML É GRANDE: USE PARALELIZAÇÃO (NÃO PULE)**
+#### **🚨 AUTOMATIC VIOLATION DETECTOR (READ NOW)**
+
+> **⛔ BEFORE writing ANY message to user during PHASE 1:**
+>
+> **ASK YOURSELF (MANDATORY):**
+> 1. Will I use words "volume", "extensive", "large", "time", "due"?
+> 2. Will I use "I'll organize", "I'll proceed", "I'll continue" (WITHOUT executing tool)?
+> 3. Will I use "already identified", "main ones", "sufficient information"?
+> 4. Will I justify why I'll skip/summarize something?
+> 5. Will I mark stage as `completed` without executing 100% of actions?
+>
+> **IF ANY ANSWER = YES: YOU ARE VIOLATING - STOP AND EXECUTE THE TOOLS**
+
+**🔴 PHRASES INDICATING VIOLATION (IF USE = CRITICAL ERROR):**
+- ❌ "Due to volume..." / "Due to time..." / "Very large HTMLs..."
+- ❌ "Already identified..." / "Main elements..." / "Sufficient information..."
+- ❌ "I will organize already collected information..." / "Based on analysis performed..."
+- ❌ "I will create plan based..." / "I will finalize stage..."
+- ❌ Any justification for skipping stages
+
+**✅ CORRECT ACTION:**
+- Execute tools (`grep_search`, `read_file`) in parallel
+- Document ALL results in table
+- Mark `completed` ONLY after executing 100%
+
+---
+
+**🛡️ IF HTML IS LARGE: USE PARALLELIZATION (DON'T SKIP)**
 
 ```bash
-# CORRETO - Executar múltiplos grep_search simultaneamente
-grep_search(query="<iframe", includePattern="arquivo1.html")
-grep_search(query="Adicionar", includePattern="arquivo1.html")
-grep_search(query="Salvar", includePattern="arquivo1.html")
-# Execute TODOS os elementos em paralelo
+# CORRECT - Execute multiple grep_search simultaneously
+grep_search(query="<iframe", includePattern="file1.html")
+grep_search(query="Add", includePattern="file1.html")
+grep_search(query="Save", includePattern="file1.html")
+# Execute ALL elements in parallel
 ```
 
-**❌ PROIBIDO:** "Devido ao volume, vou fazer resumo"
-**✅ OBRIGATÓRIO:** Executar TUDO usando paralelização
+**❌ FORBIDDEN:** "Due to volume, I will summarize"
+**✅ MANDATORY:** Execute EVERYTHING using parallelization
 
 ---
 
-**AS 7 ETAPAS DETALHADAS ESTÃO ABAIXO (1.1 a 1.7):**
-- Etapa 1.1: Criar TODO list obrigatório
-- Etapa 1.2: Analisar TODOS os HTMLs e detectar iframe
-- Etapa 1.3: Executar fluxo no Playwright CLI e capturar snapshots
-- Etapa 1.4: Mapear Locators Finais
-- Etapa 1.5: Consultar Templates
-- Etapa 1.6: Criar Plano Técnico COMPLETO
-- Etapa 1.7: Solicitar Aprovação do Usuário
+**THE 7 DETAILED STAGES ARE BELOW (1.1 to 1.7):**
+- Stage 1.1: Create mandatory TODO list
+- Stage 1.2: Analyze ALL HTMLs and detect iframe
+- Stage 1.3: Execute flow in Playwright CLI and capture snapshots
+- Stage 1.4: Map Final Locators
+- Stage 1.5: Consult Templates
+- Stage 1.6: Create COMPLETE Technical Plan
+- Stage 1.7: Request User Approval
 
 ---
 
-**🛡️ ESTRATÉGIAS PERMITIDAS PARA LIDAR COM VOLUME (EXECUTAR TUDO, NÃO PULAR):**
+**🛡️ ALLOWED STRATEGIES FOR HANDLING VOLUME (EXECUTE EVERYTHING, DON'T SKIP):**
 
-> **SE HTML tem muitos elementos, use estas estratégias ENQUANTO EXECUTA 100%:**
+> **IF HTML has many elements, use these strategies WHILE executing 100%:**
 
-**Estratégia 1: Paralelização Total (PREFERENCIAL)**
+**Strategy 1: Total Parallelization (PREFERRED)**
 ```bash
-# Executar TODOS os grep_search simultaneamente
-grep_search(query="<iframe", includePattern="arquivo1.html")
-grep_search(query="Adicionar", includePattern="arquivo1.html")
-grep_search(query="Salvar", includePattern="arquivo1.html")
-grep_search(query="Descrição", includePattern="arquivo1.html")
-# ... Continue para TODOS os elementos do arquivo 1
-# Depois faça o mesmo para arquivo 2, 3, etc.
+# Execute ALL grep_search simultaneously
+grep_search(query="<iframe", includePattern="file1.html")
+grep_search(query="Add", includePattern="file1.html")
+grep_search(query="Save", includePattern="file1.html")
+grep_search(query="Description", includePattern="file1.html")
+# ... Continue for ALL elements in file 1
+# Then do same for file 2, 3, etc.
 ```
 
-**Estratégia 2: Divisão por Arquivo (manter completude)**
+**Strategy 2: Division by File (maintain completeness)**
 ```bash
-# Analise 1 HTML por vez COMPLETAMENTE (todas as etapas 1.2-1.4)
-# Depois passe para o próximo HTML
-# NUNCA analise "metade" de um HTML
+# Analyze 1 HTML COMPLETELY at a time (all stages 1.2-1.4)
+# Then move to next HTML
+# NEVER analyze "half" of an HTML
 ```
 
-**Estratégia 3: Batches Completos (com checkpoint)**
+**Strategy 3: Complete Batches (with checkpoint)**
 ```bash
-# Divida elementos em grupos de 10-15
-# Complete TODAS as etapas (1.2-1.4) para batch 1
-# Marque progresso: "Batch 1 de 5 completo"
-# Passe para batch 2
+# Divide elements into groups of 10-15
+# Complete ALL stages (1.2-1.4) for batch 1
+# Mark progress: "Batch 1 of 5 complete"
+# Move to batch 2
 ```
 
-**⚠️ O QUE VOCÊ PODE FAZER:**
+**⚠️ WHAT YOU CAN DO:**
 
-✅ Executar ferramentas em paralelo (múltiplos grep_search simultaneamente)
-✅ Dividir análise em batches menores (mas completar cada batch 100%)
-✅ Processar 1 HTML por vez (mas processar ele COMPLETO)
-✅ Informar usuário sobre progresso ("Analisando arquivo 1 de 5...")
+✅ Execute tools in parallel (multiple grep_search simultaneously)
+✅ Divide analysis into smaller batches (but complete each batch 100%)
+✅ Process 1 HTML at a time (but process it COMPLETE)
+✅ Inform user about progress ("Analyzing file 1 of 5...")
 
-**❌ O QUE VOCÊ NÃO PODE FAZER:**
+**❌ WHAT YOU CANNOT DO:**
 
-❌ Pular elementos "secundários" ou "menos importantes"
-❌ Marcar etapa como completa sem analisar TUDO
-❌ Justificar pulo com "volume extenso" ou "devido ao tempo"
-❌ Analisar apenas "elementos principais"
-❌ Resumir análise por "eficiência"
-
----
-
-**🚫 DEFINIÇÕES ABSOLUTAS (PARA ELIMINAR AMBIGUIDADE):**
-
-- **"TODOS"** = 100% dos elementos, sem exceção
-- **"CADA"** = Um por um, sem pular nenhum
-- **"COMPLETO"** = Nada faltando, nenhuma informação omitida
-- **❌ "Principais"** = NÃO EXISTE, são TODOS obrigatórios
-- **❌ "Resumo"** = PROIBIDO, documentar tudo
-- **❌ "Já identifiquei"** = PROIBIDO, deve documentar tudo explicitamente
-- **❌ "Volume extenso"** = NÃO É DESCULPA, execute em paralelo ou batches
-- **❌ "Devido ao tempo"** = NÃO É DESCULPA, complete tudo
+❌ Skip "secondary" or "less important" elements
+❌ Mark stage as complete without analyzing EVERYTHING
+❌ Justify skip with "extensive volume" or "due to time"
+❌ Analyze only "main elements"
+❌ Summarize analysis for "efficiency"
 
 ---
 
-**🚨 CHECKPOINT DE AUTO-VALIDAÇÃO (ANTES DE MARCAR `completed`):**
+**🚫 ABSOLUTE DEFINITIONS (TO ELIMINATE AMBIGUITY):**
 
-> **⚠️ ATENÇÃO IA: ANTES de marcar qualquer etapa como `completed`, responda:**
->
-> **ETAPA 1.2 (Análise HTMLs):**
-> - [ ] Executei grep_search para 100% dos elementos? (Se NÃO → Continuar executando)
-> - [ ] Criei tabela com 100% dos elementos? (Se NÃO → Continuar documentando)
-> - [ ] Documentei linha + tipo + contexto de 100%? (Se NÃO → Continuar lendo)
-> - [ ] Usei palavras "resumo", "principais", "suficiente"? (Se SIM → VIOLAÇÃO - Recomeçar)
->
-> **ETAPA 1.4 (Mapeamento de Locators):**
-> - [ ] Mapeei 100% dos elementos com localizador? (Se NÃO → Continuar mapeando)
-> - [ ] Apliquei estratégia para 100% dos múltiplos? (Se NÃO → Continuar aplicando)
->
-**ETAPA 1.6 (Plano Técnico):**
-> - [ ] Plano técnico contém 100% dos elementos? (Se NÃO → Continuar documentando)
-> - [ ] Solicitei aprovação do usuário? (Se NÃO → Continuar até Etapa 1.7)
->
-**SE QUALQUER RESPOSTA FOR "NÃO" OU "SIM" (nos casos de violação):**
-> **🛑 NÃO MARCAR COMO `completed` - CONTINUAR EXECUTANDO**
+- **"ALL"** = 100% of elements, no exception
+- **"EACH"** = One by one, skip none
+- **"COMPLETE"** = Nothing missing, no information omitted
+- **❌ "Main"** = DOESN'T EXIST, ALL are mandatory
+- **❌ "Summary"** = FORBIDDEN, document everything
+- **❌ "Already identified"** = FORBIDDEN, must document everything explicitly
+- **❌ "Extensive volume"** = NOT AN EXCUSE, execute in parallel or batches
+- **❌ "Due to time"** = NOT AN EXCUSE, complete everything
 
 ---
 
-**🚨 DOCUMENTO DE REFERÊNCIA OBRIGATÓRIO:**
+**🚨 SELF-VALIDATION CHECKPOINT (BEFORE MARKING `completed`):**
 
-> **ANTES de iniciar QUALQUER análise/planejamento, SE o usuário enviou conteúdo com `# 📋 Informações Gerais do Teste` e bloco `## 🚀 **Implementação do Cenário**`:**
+> **⚠️ ATTENTION AI: BEFORE marking any stage as `completed`, answer:**
+>
+> **STAGE 1.2 (HTML Analysis):**
+> - [ ] Did I execute grep_search for 100% of elements? (If NO → Continue executing)
+> - [ ] Did I create table with 100% of elements? (If NO → Continue documenting)
+> - [ ] Did I document line + type + context for 100%? (If NO → Continue reading)
+> - [ ] Did I use words "summary", "main ones", "sufficient"? (If YES → VIOLATION - Restart)
+>
+> **STAGE 1.4 (Locator Mapping):**
+> - [ ] Did I map 100% of elements with locator? (If NO → Continue mapping)
+> - [ ] Did I apply strategy for 100% of multiples? (If NO → Continue applying)
+>
+**STAGE 1.6 (Technical Plan):**
+> - [ ] Does technical plan contain 100% of elements? (If NO → Continue documenting)
+> - [ ] Did I request user approval? (If NO → Continue to Stage 1.7)
+>
+**IF ANY ANSWER = "NO" OR "YES" (in violation cases):**
+> **🛑 DO NOT MARK AS `completed` - CONTINUE EXECUTING**
 
-> **📄 REGRA DE FONTE PADRÃO (quando NÃO houver conteúdo no chat):**
+---
+
+**🚨 MANDATORY REFERENCE DOCUMENT:**
+
+> **BEFORE starting ANY analysis/planning, IF user sent content with `# 📋 Test General Information` and block `## 🚀 **Scenario Implementation**`:**
+
+> **📄 DEFAULT SOURCE RULE (when NO content in chat):**
 >
-> - Usar como padrão a estrutura do documento de exemplo do projeto
-> - Ler o documento completo antes da FASE 1
-> - Extrair os passos da seção `## 🚀 **Implementação do Cenário**` e seguir a sequência
+> - Use project example document structure as default
+> - Read complete document before PHASE 1
+> - Extract steps from section `## 🚀 **Scenario Implementation**` and follow sequence
 >
-> **⛔ BLOQUEIO ABSOLUTO:**
-> - [ ] **1.** Localizei o conteúdo de referência enviado pelo usuário no chat? (buscar por `# 📋 Informações Gerais do Teste`)
-> - [ ] **2.** Li COMPLETAMENTE o bloco `## 🚀 **Implementação do Cenário**`?
-> - [ ] **3.** Identifiquei TODOS os passos numerados dentro desse bloco?
-> - [ ] **4.** Para CADA passo: Identifiquei estrutura completa (Ações, Referência HTML, Referência Page, Referência Visual, Código Base, Validações)?
-> - [ ] **5.** Documentei no TODO list TODOS os passos do documento de referência?
+> **⛔ ABSOLUTE BLOCK:**
+> - [ ] **1.** Did I locate reference content sent by user in chat? (search for `# 📋 Test General Information`)
+> - [ ] **2.** Did I read COMPLETELY the block `## 🚀 **Scenario Implementation**`?
+> - [ ] **3.** Did I identify ALL numbered steps inside that block?
+> - [ ] **4.** For EACH step: Did I identify complete structure (Actions, HTML Reference, Page Reference, Visual Reference, Base Code, Validations)?
+> - [ ] **5.** Did I document in TODO list ALL steps from reference document?
 >
-> **SE QUALQUER RESPOSTA = NÃO: PARE - Leia o conteúdo de referência COMPLETAMENTE**
+> **IF ANY ANSWER = NO: STOP - Read reference content COMPLETELY**
 >
-> **ESTRUTURA DO DOCUMENTO DE REFERÊNCIA (PADRÃO):**
+> **STRUCTURE OF REFERENCE DOCUMENT (STANDARD):**
 > ```markdown
-> ## 🚀 **Implementação do Cenário**
+> ## 🚀 **Scenario Implementation**
 >
-> ### **1. 🛣️ Criar cenário de teste 01 - [Descrição]**
-> - **Código Base:**
+> ### **1. 🛣️ Create test scenario 01 - [Description]**
+> - **Base Code:**
 >   ```javascript
 >   test.describe('...', { tag: ['@TAG'] }, () => {
->     // código de exemplo
+>     // example code
 >   })
 >   ```
 >
-> ### **2. 🖥️ [Nome do Passo]**
-> - **Ações:**
->   - **Referência HTML:** `arquivo.html`
->   - **Referência Page:** `pages/modulo/page.js`
->   - **Referência Visual:** ![Imagem](analise/imagem.png)
->     - **Ação:** Descrição da ação a executar
->     - **Ação:** Outra ação a executar
->     - **Validação:** Validar elemento está visível
->     - **Ação:** Se condição, fazer algo
+> ### **2. 🖥️ [Step Name]**
+> - **Actions:**
+>   - **HTML Reference:** `file.html`
+>   - **Page Reference:** `pages/module/page.js`
+>   - **Visual Reference:** ![Image](analysis/image.png)
+>     - **Action:** Description of action to execute
+>     - **Action:** Another action to execute
+>     - **Validation:** Validate element is visible
+>     - **Action:** If condition, do something
 >
-> ### **3. 🖥️ Criar JSONs completos sem omitir dados**
-> **JSONs Necessários:**
+> ### **3. 🖥️ Create complete JSONs without omitting data**
+> **Required JSONs:**
 > ```javascript
-> export const JSON_EXEMPLO = {
->   campo1: 'valor1',
->   // ... estrutura completa
+> export const JSON_EXAMPLE = {
+>   field1: 'value1',
+>   // ... complete structure
 > };
 > ```
 > ```
 >
-> **⚠️ PONTOS CRÍTICOS DE CADA PASSO:**
-> - **Código Base:** Estrutura inicial do teste (describe, beforeEach, test)
-> - **Referência HTML:** Arquivo HTML específico para análise de elementos
-> - **Referência Page:** Arquivo PageObject onde métodos serão implementados
-> - **Referência Visual:** Imagem PNG mostrando tela (campos em vermelho = pontos de ação)
-> - **Ações/Validações:** Lista detalhada de passos condicionais e validações
-> - **JSONs:** Estrutura completa de dados (NUNCA omitir campos)
+> **⚠️ CRITICAL POINTS OF EACH STEP:**
+> - **Base Code:** Initial test structure (describe, beforeEach, test)
+> - **HTML Reference:** Specific HTML file for element analysis
+> - **Page Reference:** PageObject file where methods will be implemented
+> - **Visual Reference:** PNG image showing screen (red fields = action points)
+> - **Actions/Validations:** Detailed list of conditional steps and validations
+> - **JSONs:** Complete data structure (NEVER omit fields)
 >
-> **⚠️ OBRIGATÓRIO: Seguir a SEQUÊNCIA EXATA dos passos do documento de referência**
+> **⚠️ MANDATORY: Follow EXACT SEQUENCE of steps from reference document**
 >
-> **Cada passo numerado no documento DEVE corresponder a:**
-> - Uma ou mais etapas no seu TODO list
-> - Validações explícitas de elementos destacados na imagem
-> - Implementação de métodos conforme códigos base fornecidos
-> - Criação de JSONs completos sem omissões
+> **Each numbered step in document MUST correspond to:**
+> - One or more stages in your TODO list
+> - Explicit validations of elements highlighted in image
+> - Implementation of methods according to provided base codes
+> - Creation of complete JSONs without omissions
 
 ---
 
-> **Ao receber requisição de implementação, EXECUTE as 7 etapas sequenciais:**
+> **On receiving implementation request, EXECUTE the 7 sequential stages:**
 
-#### **Etapa 1.1: 🚨 CRIAR TODO LIST OBRIGATÓRIO**
+#### **Stage 1.1: 🚨 CREATE MANDATORY TODO LIST**
 
-> **⛔ BLOQUEIO ABSOLUTO:** Usar `manage_todo_list` para criar TODAS as 7 etapas da FASE 1
+> **⛔ ABSOLUTE BLOCK:** Use `manage_todo_list` to create ALL 7 stages of PHASE 1
 >
-> **Marcar cada etapa:**
-> - `not-started` → ao criar TODO
-> - `in-progress` → ao iniciar execução da etapa
-> - `completed` → SOMENTE após completar 100% da etapa
+> **Mark each stage:**
+> - `not-started` → when creating TODO
+> - `in-progress` → when starting stage execution
+> - `completed` → ONLY after completing 100% of stage
 >
-> **PROIBIDO:** Marcar como `completed` sem executar TODAS as ações da etapa
+> **FORBIDDEN:** Mark as `completed` without executing ALL stage actions
 
-> **🚨 SE DOCUMENTO DE REFERÊNCIA FOI FORNECIDO:**
+> **🚨 IF REFERENCE DOCUMENT WAS PROVIDED:**
 >
-> **OBRIGATÓRIO incluir no TODO list:**
-> - [ ] ✅ **Para CADA passo do documento:** Criar etapa correspondente no TODO
-> - [ ] ✅ **Incluir referências:** HTML mencionado, Page Object, validações específicas
-> - [ ] ✅ **Incluir código base:** Se o passo fornece snippet de exemplo, referenciar no TODO
-> - [ ] ✅ **Manter sequência:** Ordem dos passos no documento = ordem no TODO list
-> - [ ] ✅ **Granularidade:** Se passo do documento é complexo, dividir em sub-etapas no TODO
+> **MANDATORY to include in TODO list:**
+> - [ ] ✅ **For EACH document step:** Create corresponding TODO stage
+> - [ ] ✅ **Include references:** Mentioned HTML, Page Object, specific validations
+> - [ ] ✅ **Include base code:** If step provides example snippet, reference in TODO
+> - [ ] ✅ **Maintain sequence:** Document step order = TODO list order
+> - [ ] ✅ **Granularity:** If document step is complex, divide into sub-stages in TODO
 >
-> **Exemplo de mapeamento:**
+> **Example of mapping:**
 >
-> **Documento diz:** "8. 🖥️ Cadastra portaria via tela - Referência HTML: `telaPortarias.html` - Validação: Validar 'Portarias' visível - Ação: Clicar em 'Adicionar'"
+> **Document says:** "8. 🖥️ Register permit via screen - HTML Reference: `permitScreen.html` - Validation: Validate 'Permits' visible - Action: Click 'Add'"
 >
-> **TODO deve ter:**
+> **TODO should have:**
 > ```
 > {
 >   id: 8,
->   title: "Cadastrar portaria via tela",
->   description: "HTML: telaPortarias.html | Page: portariasPage.js | Validar 'Portarias' visível | Clicar 'Adicionar' | Preencher formulário conforme JSON",
+>   title: "Register permit via screen",
+>   description: "HTML: permitScreen.html | Page: permitPage.js | Validate 'Permits' visible | Click 'Add' | Fill form according to JSON",
 >   status: "not-started"
 > }
 > ```
 
-**Criar TODO com estas 6 etapas BASE (SEMPRE):**
+**Create TODO with these 6 BASE stages (ALWAYS):**
 
-1. Etapa 1.2: Analisar HTMLs e Detectar iframe
-2. Etapa 1.3: Executar fluxo no Playwright CLI e capturar snapshots
-3. Etapa 1.4: Mapear Locators Finais
-4. Etapa 1.5: Consultar Templates (se aplicável)
-5. Etapa 1.6: Criar Plano Técnico Completo
-6. Etapa 1.7: Solicitar Aprovação do Usuário
+1. Stage 1.2: Analyze HTMLs and Detect iframe
+2. Stage 1.3: Execute flow in Playwright CLI and capture snapshots
+3. Stage 1.4: Map Final Locators
+4. Stage 1.5: Consult Templates (if applicable)
+5. Stage 1.6: Create Complete Technical Plan
+6. Stage 1.7: Request User Approval
 
-**+ Incluir etapas específicas dos passos do documento de referência (se fornecido)**
+**+ Include specific stages from reference document steps (if provided)**
 
 ---
 
-#### **Etapa 1.2: Analisar TODOS os HTMLs e Detectar iframe**
+#### **Stage 1.2: Analyze ALL HTMLs and Detect iframe**
 
-> **🚨 REFERÊNCIA COMPLETA:**
-> - **Consulte:** `.github/copilot-modules/01-regras-criticas.md` (REGRA #5 - Validar Presença de iframe)
+> **🚨 COMPLETE REFERENCE:**
+> - **Consult:** `.github/copilot-modules/01-regras-criticas.md` (RULE #5 - Validate iframe Presence)
 
-**AÇÕES OBRIGATÓRIAS:**
+**MANDATORY ACTIONS:**
 
-1. **Detectar iframe (PRIMEIRO):**
+1. **Detect iframe (FIRST):**
    ```bash
-   grep_search(query="<iframe", includePattern="{arquivo}.html", isRegexp=false)
+   grep_search(query="<iframe", includePattern="{file}.html", isRegexp=false)
    ```
 
-2. **Documentar:** HTML tem iframe? (SIM/NÃO)
+2. **Document:** Does HTML have iframe? (YES/NO)
 
-3. **Identificar TODOS os elementos:**
-   - Executar `grep_search` para **CADA** elemento visível nas instruções do usuário
-   - Usar `read_file` para ler contexto (mínimo 15 linhas antes/depois)
-   - Identificar tipo HTML REAL (não assumir)
+3. **Identify ALL elements:**
+   - Execute `grep_search` for **EACH** visible element in user instructions
+   - Use `read_file` to read context (minimum 15 lines before/after)
+   - Identify REAL HTML type (don't assume)
 
-4. **Documentar em tabela:**
+4. **Document in table:**
 
-| Elemento | Arquivo HTML | Linha | Tipo HTML Real | Contexto |
-|----------|--------------|-------|----------------|----------|
-| {nome} | {arquivo}.html | {linha} | `<{tag} role="{role}">` | {descrição contexto} |
+| Element | HTML File | Line | Real HTML Type | Context |
+|---------|-----------|------|----------------|---------|
+| {name} | {file}.html | {line} | `<{tag} role="{role}">` | {context description} |
 
-**MARCAR `completed`** SOMENTE quando:
-- ✅ grep_search executado para iframe
-- ✅ grep_search executado para 100% dos elementos identificados
-- ✅ Contexto lido para 100% dos elementos (read_file)
-- ✅ Tabela completa criada com TODOS os elementos
+**MARK `completed`** ONLY when:
+- ✅ grep_search executed for iframe
+- ✅ grep_search executed for 100% of identified elements
+- ✅ Context read for 100% of elements (read_file)
+- ✅ Complete table created with ALL elements
 
-**CHECKPOINT DE ADERÊNCIA AOS MÓDULOS:**
-- [ ] Li Módulo 01 (REGRA #5) antes de executar?
-- [ ] Segui procedimento EXATO dos módulos?
+**MODULE COMPLIANCE CHECKPOINT:**
+- [ ] Did I read Module 01 (RULE #5) before executing?
+- [ ] Did I follow EXACT procedure from modules?
 
-⛔ SE QUALQUER "NÃO": Voltar e cumprir instrução do módulo
+⛔ IF ANY "NO": Return and comply with module instruction
 
 ---
 
-#### **Etapa 1.3: 🚨 EXECUTAR FLUXO NO PLAYWRIGHT CLI E CAPTURAR SNAPSHOTS (CRÍTICO)**
+#### **Stage 1.3: 🚨 EXECUTE FLOW IN PLAYWRIGHT CLI AND CAPTURE SNAPSHOTS (CRITICAL)**
 
-> **🚨 REFERÊNCIA COMPLETA:**
-> - **Consulte:** `.github/copilot-modules/02-playwright-cli.md`
+> **🚨 COMPLETE REFERENCE:**
+> - **Consult:** `.github/copilot-modules/02-playwright-cli.md`
 
-> **⛔ BLOQUEIO CRÍTICO:**
-- - NÃO mapear locators finais SEM completar esta etapa
-> - SEMPRE capturar snapshot após etapas críticas do fluxo
+> **⛔ CRITICAL BLOCK:**
+- - DON'T map final locators WITHOUT completing this stage
+> - ALWAYS capture snapshot after critical flow stages
 
-**AÇÕES OBRIGATÓRIAS:**
+**MANDATORY ACTIONS:**
 
-1. **Executar passos do cenário com playwright-cli (headless):**
+1. **Execute scenario steps with playwright-cli (headless):**
    ```bash
-   playwright-cli open {url_inicial}
+   playwright-cli open {initial_url}
    playwright-cli snapshot
-   # executar ações do passo a passo
+   # execute step by step actions
    playwright-cli snapshot
    ```
 
-2. **Documentar resultado:**
-   - Snapshot inicial gerado
-   - Snapshots por etapa crítica gerados
-   - Snapshot final gerado
+2. **Document result:**
+   - Initial snapshot generated
+   - Snapshots by critical stage generated
+   - Final snapshot generated
 
-3. **Se houver impedimento:**
-   - Perguntar ao usuário e aguardar resposta antes de prosseguir
+3. **If there's impediment:**
+   - Ask user and wait for response before proceeding
 
-**MARCAR `completed`** SOMENTE quando:
-- ✅ Fluxo executado em headless
-- ✅ Snapshots de etapas críticas e final gerados
-- ✅ Impedimentos tratados com pergunta ao usuário
+**MARK `completed`** ONLY when:
+- ✅ Flow executed in headless
+- ✅ Snapshots of critical stages and final generated
+- ✅ Impediments handled with user question
 
-**CHECKPOINT DE ADERÊNCIA AOS MÓDULOS:**
-- [ ] Consultei Módulo 02?
-- [ ] PULEI algum elemento? (Se SIM = VIOLAÇÃO)
+**MODULE COMPLIANCE CHECKPOINT:**
+- [ ] Did I consult Module 02?
+- [ ] Did I SKIP any element? (If YES = VIOLATION)
 
-⛔ SE QUALQUER "NÃO" ou "SIM" (no último item): Voltar e cumprir instrução do módulo
-
----
-
-#### **Etapa 1.4: Mapear Locators Finais para TODOS os elementos**
-
-> **🚨 REFERÊNCIA COMPLETA:**
-> - **Consulte:** `.github/copilot-modules/01-regras-criticas.md` (REGRA #2 - Aplicar Locators Semânticos)
-> - **Consulte:** `.github/copilot-modules/03-locators-semanticos.md` (Ordem de prioridade de locators)
-
-**AÇÕES OBRIGATÓRIAS (para CADA elemento):**
-
-1. **Mapear tipo HTML → Localizador correto:**
-   - Aplicar ordem de prioridade do Playwright (getByRole > getByText > getByLabel > locator)
-   - Usar localizador semântico sempre que aplicável
-
-2. **Aplicar estratégia de desambiguação** (se houver ambiguidade observada no fluxo):
-   - Usar `{ exact: true }` (prioridade 1)
-   - Usar âncoras de contexto (prioridade 2)
-   - Usar `.filter({ hasText: /regex/ })` (prioridade 3)
-   - Usar `.first()`, `.nth()`, `.last()` (ÚLTIMA alternativa, documentar justificativa)
-
-3. **Atualizar tabela com "Locator Final":**
-
-| Elemento | Estratégia | **Locator Final** |
-|----------|-----------|-------------------|
-| {nome} | {estratégia} | `page.getByRole('button', { name: 'Salvar', exact: true })` |
-
-**MARCAR `completed`** SOMENTE quando:
-- ✅ 100% dos elementos mapeados com localizador final
-- ✅ Estratégia aplicada para 100% dos elementos que exigirem desambiguação
-- ✅ Tabela completa com coluna "Locator Final" preenchida para TODOS
-
-**CHECKPOINT DE ADERÊNCIA AOS MÓDULOS:**
-- [ ] Consultei Módulo 03 (Locators Semânticos) para CADA elemento?
-- [ ] Usei ordem de prioridade do Playwright ao escolher localizadores?
-- [ ] Consultei Módulo 03 (ordem de prioridade) ao escolher estratégia?
-
-⛔ SE QUALQUER "NÃO": Voltar e cumprir instrução do módulo
+⛔ IF ANY "NO" or "YES" (in last item): Return and comply with module instruction
 
 ---
 
-#### **Etapa 1.5: Consultar Templates (se aplicável)**
+#### **Stage 1.4: Map Final Locators for ALL elements**
 
-> **🚨 REFERÊNCIA POR CONTEXTO:**
+> **🚨 COMPLETE REFERENCE:**
+> - **Consult:** `.github/copilot-modules/01-regras-criticas.md` (RULE #2 - Apply Semantic Locators)
+> - **Consult:** `.github/copilot-modules/03-locators-semanticos.md` (Locator priority order)
 
-**SE criar/modificar Page Objects:**
-- **Consulte:** `.github/copilot-modules/05-page-objects.md` (Template completo + regras)
+**MANDATORY ACTIONS (for EACH element):**
 
-**SE criar/modificar Testes:**
-- **Consulte:** `.github/copilot-modules/06-testes-spec.md` (Template + padrão AAA)
+1. **Map HTML type → Correct locator:**
+   - Apply Playwright priority order (getByRole > getByText > getByLabel > locator)
+   - Use semantic locator whenever applicable
 
-**SE criar/modificar APIs:**
-- **Consulte:** `.github/copilot-modules/08-api-classes.md` (Template + nomenclatura)
+2. **Apply disambiguation strategy** (if ambiguity observed in flow):
+   - Use `{ exact: true }` (priority 1)
+   - Use context anchors (priority 2)
+   - Use `.filter({ hasText: /regex/ })` (priority 3)
+   - Use `.first()`, `.nth()`, `.last()` (LAST alternative, document justification)
 
-**AÇÃO OBRIGATÓRIA:**
-- Identificar estrutura do template (imports, constantes, constructor, métodos)
-- Documentar padrões a seguir (ordem de seções, nomenclatura, JSDoc)
+3. **Update table with "Final Locator":**
 
-**MARCAR `completed`** quando:
-- ✅ Template do módulo correspondente consultado
-- ✅ Estrutura identificada e documentada
+| Element | Strategy | **Final Locator** |
+|---------|----------|-------------------|
+| {name} | {strategy} | `page.getByRole('button', { name: 'Save', exact: true })` |
+
+**MARK `completed`** ONLY when:
+- ✅ 100% of elements mapped with final locator
+- ✅ Strategy applied for 100% of elements requiring disambiguation
+- ✅ Complete table with "Final Locator" column filled for ALL
+
+**MODULE COMPLIANCE CHECKPOINT:**
+- [ ] Did I consult Module 03 (Semantic Locators) for EACH element?
+- [ ] Did I use Playwright priority order when choosing locators?
+- [ ] Did I consult Module 03 (priority order) when choosing strategy?
+
+⛔ IF ANY "NO": Return and comply with module instruction
 
 ---
 
-#### **Etapa 1.6: Criar Plano Técnico COMPLETO**
+#### **Stage 1.5: Consult Templates (if applicable)**
 
-**DOCUMENTO OBRIGATÓRIO a criar:**
+> **🚨 REFERENCE BY CONTEXT:**
+
+**IF creating/modifying Page Objects:**
+- **Consult:** `.github/copilot-modules/05-page-objects.md` (Complete template + rules)
+
+**IF creating/modifying Tests:**
+- **Consult:** `.github/copilot-modules/06-testes-spec.md` (Template + AAA pattern)
+
+**IF creating/modifying APIs:**
+- **Consult:** `.github/copilot-modules/08-api-classes.md` (Template + nomenclature)
+
+**MANDATORY ACTION:**
+- Identify template structure (imports, constants, constructor, methods)
+- Document patterns to follow (section order, nomenclature, JSDoc)
+
+**MARK `completed`** when:
+- ✅ Module template consulted
+- ✅ Structure identified and documented
+
+---
+
+#### **Stage 1.6: Create COMPLETE Technical Plan**
+
+**MANDATORY DOCUMENT to create:**
 
 ```markdown
-## PLANO TÉCNICO - {Nome da Funcionalidade}
+## TECHNICAL PLAN - {Feature Name}
 
-### 1. TABELA COMPLETA DE ELEMENTOS
+### 1. COMPLETE ELEMENTS TABLE
 
-| Elemento | HTML | Linha | Tipo | Estratégia | Locator Final |
-|----------|------|-------|------|-----------|---------------|
+| Element | HTML | Line | Type | Strategy | Final Locator |
+|---------|------|------|------|----------|---------------|
 | ... | ... | ... | ... | ... | ... |
 
-### 2. MÉTODOS DA BIBLIOTECA CORE A REUTILIZAR
+### 2. CORE LIBRARY METHODS TO REUSE
 
-| Método | Classe | Uso no Plano |
-|--------|--------|--------------|
-| `fillForm(dados, seletores)` | FormUtils | Preencher formulário de cadastro |
+| Method | Class | Usage in Plan |
+|--------|-------|---------------|
+| `fillForm(data, selectors)` | FormUtils | Fill registration form |
 
-### 3. MÉTODOS NOVOS A CRIAR
+### 3. NEW METHODS TO CREATE
 
-| Método | Arquivo | Justificativa |
-|--------|---------|---------------|
-| `cadastrarPortaria(dados)` | portariasPage.js | Fluxo específico não coberto pela estrutura atual |
+| Method | File | Justification |
+|--------|------|---------------|
+| `registerPermit(data)` | permitPage.js | Specific flow not covered by current structure |
 
-### 4. ARQUIVOS A CRIAR/MODIFICAR
+### 4. FILES TO CREATE/MODIFY
 
-- [ ] `pages/suprimentos/portariasPage.js`
-- [ ] `data/suprimentos/portariasJson.js`
-- [ ] `tests/suprimentos/crud/portarias.spec.js`
+- [ ] `pages/supplies/permitPage.js`
+- [ ] `data/supplies/permitJson.js`
+- [ ] `tests/supplies/crud/permits.spec.js`
 
-### 5. PONTOS DE ATENÇÃO
+### 5. ATTENTION POINTS
 
-- iframe detectado: SIM/NÃO
-- Snapshots do fluxo gerados: SIM/NÃO
-- Dependências: ...
+- iframe detected: YES/NO
+- Flow snapshots generated: YES/NO
+- Dependencies: ...
 
-**MARCAR `completed`** SOMENTE quando:
-- ✅ Plano técnico completo criado
-- ✅ TODOS os elementos documentados na tabela final (100%)
-- ✅ TODOS os métodos existentes e novos listados com justificativa
-- ✅ TODOS os arquivos a criar/modificar listados
-
----
-
-#### **Etapa 1.7: Solicitar Aprovação do Usuário**
-
-> **⛔ BLOQUEIO ABSOLUTO:** NÃO implementar sem aprovação explícita do usuário
-
-**AÇÃO OBRIGATÓRIA:**
-
-1. **Apresentar** plano técnico completo da Etapa 1.6 ao usuário
-2. **Aguardar** confirmação explícita (ex: "aprovado", "ok", "pode implementar")
-3. **APENAS após aprovação:** Prosseguir para FASE 2
-
-**MARCAR `completed`** SOMENTE quando:
-- ✅ Plano apresentado ao usuário
-- ✅ Aprovação recebida explicitamente
+**MARK `completed`** ONLY when:
+- ✅ Complete technical plan created
+- ✅ ALL elements documented in final table (100%)
+- ✅ ALL existing and new methods listed with justification
+- ✅ ALL files to create/modify listed
 
 ---
 
-### **FASE 2: Implementação (Após Aprovação)**
+#### **Stage 1.7: Request User Approval**
 
-> **⛔ NÃO EXECUTAR FASE 2 SEM APROVAÇÃO EXPLÍCITA DO USUÁRIO NA ETAPA 1.7**
+> **⛔ ABSOLUTE BLOCK:** DON'T implement without explicit user approval
 
-**🚨 PRÉ-REQUISITOS OBRIGATÓRIOS PARA INICIAR FASE 2:**
+**MANDATORY ACTION:**
 
-- [ ] ✅ FASE 1 Etapa 1.2 marcada como `completed` (HTMLs analisados 100%)
-- [ ] ✅ FASE 1 Etapa 1.3 marcada como `completed` (Snapshots capturados 100%)
-- [ ] ✅ FASE 1 Etapa 1.4 marcada como `completed` (Locators mapeados 100%)
-- [ ] ✅ FASE 1 Etapa 1.5 marcada como `completed` (Templates consultados se aplicável)
-- [ ] ✅ FASE 1 Etapa 1.6 marcada como `completed` (Plano técnico criado 100%)
-- [ ] ✅ FASE 1 Etapa 1.7 marcada como `completed` (Aprovação recebida do usuário)
+1. **Present** complete technical plan from Stage 1.6 to user
+2. **Await** explicit confirmation (ex: "approved", "ok", "can implement")
+3. **ONLY after approval:** Proceed to PHASE 2
 
-**⛔ SE QUALQUER ITEM = NÃO: BLOQUEIO ATIVO - Voltar à FASE 1 e completar**
-
-**🔴 VIOLAÇÕES COMUNS QUE INDICAM PULO DE ETAPAS:**
-
-- ❌ "Com base nas informações já coletadas, vou implementar..."
-- ❌ "Marquei as etapas anteriores como concluídas..."
-- ❌ "Devido ao volume extenso, vou criar o código baseado em..."
-- ❌ "Vou prosseguir com a implementação usando os dados que tenho..."
-
-**🛑 SE VOCÊ PENSOU EM QUALQUER FRASE ACIMA: PARE - Você pulou etapas da FASE 1**
-
-**Ao receber aprovação do usuário:**
-
-1. **Implementar** conforme plano aprovado (Etapa 1.6)
-
-2. **🚨 GARANTIR ADERÊNCIA 100% AOS TEMPLATES:**
-   - **Tests (`*.spec.js`):** Seguir estrutura do Módulo 06
-   - **Pages (`*Page.js`):** Seguir estrutura do Módulo 05
-   - **APIs (`*Api.js`):** Seguir estrutura do Módulo 08
-   - **REGRA:** Manter mesma estrutura, ordem de seções, imports padrão e constantes dos templates
-
-3. **Validar arquivos auxiliares atualizados:**
-   - Locators estáticos no constructor (se Page Object)
-   - Classes instanciadas em `helpers/index.js`
-   - Navegação atualizada em `helpers/navegacao.js` (se aplicável)
-   - Usuário em `helpers/ambiente.js` (se aplicável)
-   - Coverage atualizado em `coverageFeatureMap.yml`
-
-4. **Executar** `get_errors` e corrigir todos os erros reportados
-
-5. **Confirmar** conclusão com checklist `checklistMergeRequest.md` (100% dos itens)
+**MARK `completed`** ONLY when:
+- ✅ Plan presented to user
+- ✅ Approval received explicitly
 
 ---
 
-## 📚 **MÓDULOS ESPECIALIZADOS**
+### **PHASE 2: Implementation (After Approval)**
 
-| Contexto | Módulo | Quando Ler |
-|--------|-----------|-----------|
-| **Regras Críticas** | `.github/copilot-modules/01-regras-criticas.md` | **SEMPRE** no início de qualquer implementação |
-| **Criar page objects** | `.github/copilot-modules/05-page-objects.md` | Ao criar/atualizar Pages |
-| **Criar tests** | `.github/copilot-modules/06-testes-spec.md` | Ao criar arquivos `*.spec.js` |
-| **Locators semânticos** | `.github/copilot-modules/03-locators-semanticos.md` | Ao escolher estratégia de locator |
-| **Criar API classes** | `.github/copilot-modules/08-api-classes.md` | Ao criar/atualizar APIs |
-| **Playwright CLI** | `.github/copilot-modules/02-playwright-cli.md` | Ao executar passo a passo em navegador e gerar snapshots |
+> **⛔ DON'T EXECUTE PHASE 2 WITHOUT EXPLICIT USER APPROVAL IN STAGE 1.7**
+
+**🚨 MANDATORY PREREQUISITES TO START PHASE 2:**
+
+- [ ] ✅ PHASE 1 Stage 1.2 marked as `completed` (100% HTMLs analyzed)
+- [ ] ✅ PHASE 1 Stage 1.3 marked as `completed` (100% snapshots captured)
+- [ ] ✅ PHASE 1 Stage 1.4 marked as `completed` (100% locators mapped)
+- [ ] ✅ PHASE 1 Stage 1.5 marked as `completed` (templates consulted if applicable)
+- [ ] ✅ PHASE 1 Stage 1.6 marked as `completed` (100% technical plan created)
+- [ ] ✅ PHASE 1 Stage 1.7 marked as `completed` (user approval received)
+
+**⛔ IF ANY ITEM = NO: ACTIVE BLOCK - Return to PHASE 1 and complete**
+
+**🔴 COMMON VIOLATIONS INDICATING STAGE SKIPPING:**
+
+- ❌ "Based on already collected information, I will implement..."
+- ❌ "I marked previous stages as complete..."
+- ❌ "Due to extensive volume, I will create code based on..."
+- ❌ "I will proceed with implementation using data I have..."
+
+**🛑 IF YOU THOUGHT OF ANY PHRASE ABOVE: STOP - You skipped PHASE 1 stages**
+
+**On receiving user approval:**
+
+1. **Implement** according to approved plan (Stage 1.6)
+
+2. **🚨 GUARANTEE 100% TEMPLATE COMPLIANCE:**
+   - **Tests (`*.spec.js`):** Follow Module 06 structure
+   - **Pages (`*Page.js`):** Follow Module 05 structure
+   - **APIs (`*Api.js`):** Follow Module 08 structure
+   - **RULE:** Maintain same structure, section order, standard imports and template constants
+
+3. **Validate auxiliary files updated:**
+   - Static locators in constructor (if Page Object)
+   - Classes instantiated in `helpers/index.js`
+   - Navigation updated in `helpers/navegacao.js` (if applicable)
+   - User in `helpers/ambiente.js` (if applicable)
+   - Coverage updated in `coverageFeatureMap.yml`
+
+4. **Execute** `get_errors` and correct all reported errors
+
+5. **Confirm** completion with `checklistMergeRequest.md` checklist (100% of items)
 
 ---
 
-## 🧪 **TIPOS DE TESTES**
+## 📚 **SPECIALIZED MODULES**
 
-### **Mapeamento por Diretório**
-
-| Padrão | Tipo | Características |
-|--------|------|-----------------|
-| `tests/*/abreTelas/*.spec.js` | Abre Telas | Validar carregamento, elementos, erros, tradução |
-| `tests/*/crud/*.spec.js` | CRUD | Separar Create, Read, Update, Delete |
-| `tests/*/jornada/*.spec.js` | Jornada | Fluxo completo ponta-a-ponta |
-
-**Detalhes:** Veja `.github/copilot-modules/06-testes-spec.md`
+| Context | Module | When to Read |
+|---------|--------|--------------|
+| **Critical Rules** | `.github/copilot-modules/01-regras-criticas.md` | **ALWAYS** at beginning of any implementation |
+| **Create page objects** | `.github/copilot-modules/05-page-objects.md` | When creating/updating Pages |
+| **Create tests** | `.github/copilot-modules/06-testes-spec.md` | When creating `*.spec.js` files |
+| **Semantic locators** | `.github/copilot-modules/03-locators-semanticos.md` | When choosing locator strategy |
+| **Create API classes** | `.github/copilot-modules/08-api-classes.md` | When creating/updating APIs |
+| **Playwright CLI** | `.github/copilot-modules/02-playwright-cli.md` | When executing step by step in browser and generating snapshots |
 
 ---
 
-## 📁 **ESTRUTURA DE ARQUIVOS (OBRIGATÓRIO)**
+## 🧪 **TEST TYPES**
 
-> **🚨 REGRA DE ADERÊNCIA AOS TEMPLATES:**
+### **Directory Mapping**
+
+| Pattern | Type | Characteristics |
+|---------|------|-----------------|
+| `tests/*/abreTelas/*.spec.js` | Open Screens | Validate load, elements, errors, translation |
+| `tests/*/crud/*.spec.js` | CRUD | Separate Create, Read, Update, Delete |
+| `tests/*/jornada/*.spec.js` | Journey | Complete end-to-end flow |
+
+**Details:** See `.github/copilot-modules/06-testes-spec.md`
+
+---
+
+## 📁 **FILE STRUCTURE (MANDATORY)**
+
+> **🚨 TEMPLATE COMPLIANCE RULE:**
 >
-> Ao criar/editar qualquer arquivo:
+> When creating/editing any file:
 >
-> 1. **Consultar** o módulo correspondente (05, 06 ou 08)
-> 2. **Identificar** os elementos estruturais no template (imports, constantes, constructor, métodos exemplo)
-> 3. **Replicar** a mesma organização: mesma ordem de seções, mesmos imports base, mesmas constantes padrão
-> 4. **Adaptar** o conteúdo ao contexto específico mantendo a estrutura
-> 5. **Validar** que seguiu: ordem de imports, constantes de erro, JSDoc, estrutura de métodos
+> 1. **Consult** the corresponding module (05, 06 or 08)
+> 2. **Identify** structural elements in template (imports, constants, constructor, example methods)
+> 3. **Replicate** same organization: same section order, same base imports, same standard constants
+> 4. **Adapt** content to specific context maintaining structure
+> 5. **Validate** you followed: import order, error constants, JSDoc, method structure
 
 ### **Page Objects (`*Page.js`)**
 
-**Template e regras:** `.github/copilot-modules/05-page-objects.md`
+**Template and rules:** `.github/copilot-modules/05-page-objects.md`
 
-**Regras Críticas:**
+**Critical Rules:**
 
-- ✅ Locators estáticos NO constructor
-- ✅ Locators dinâmicos NOS métodos (apenas se dependem de parâmetros)
-- ✅ JSDoc obrigatório
-- ❌ NUNCA seletores hardcoded nos métodos
-- ❌ NUNCA criar locators "para uso futuro"
+- ✅ Static locators IN constructor
+- ✅ Dynamic locators IN methods (only if depend on parameters)
+- ✅ Mandatory JSDoc
+- ❌ NEVER hardcoded selectors in methods
+- ❌ NEVER create "future use" locators
 
 ### **API (`*Api.js`)**
 
 **Template:** `.github/copilot-modules/08-api-classes.md`
 
-**Regras Críticas:**
+**Critical Rules:**
 
-- ✅ Nomenclatura: verbo HTTP + nome endpoint
-- ✅ Headers obrigatórios (Authorization, Content-Type)
-- ✅ Validação de response com `validateApiResponse`
-- ❌ NUNCA hardcode de tokens/URLs
-- ❌ NUNCA criar métodos não utilizados
+- ✅ Nomenclature: HTTP verb + endpoint name
+- ✅ Mandatory headers (Authorization, Content-Type)
+- ✅ Response validation with `validateApiResponse`
+- ❌ NEVER hardcode tokens/URLs
+- ❌ NEVER create unused methods
 
-### **Testes (`*.spec.js`)**
+### **Tests (`*.spec.js`)**
 
-**Template e padrão AAA:** `.github/copilot-modules/06-testes-spec.md`
+**Template and AAA pattern:** `.github/copilot-modules/06-testes-spec.md`
 
-**Regras Críticas:**
+**Critical Rules:**
 
-- ✅ Padrão AAA obrigatório (Arrange-Act-Assert)
-- ✅ Comentários explícitos em cada fase
-- ✅ Tags únicas e annotation obrigatório
-- ❌ NUNCA use `test.step()`
+- ✅ Mandatory AAA pattern (Arrange-Act-Assert)
+- ✅ Explicit comments in each phase
+- ✅ Unique tags and mandatory annotation
+- ❌ NEVER use `test.step()`
 
 ---
 
-## **🔗 Instanciação de Classes**
+## **🔗 Class Instantiation**
 
 ### **`helpers/index.js`**
 
-⚠️ **REGRA DE OURO: NUNCA REMOVA OU MODIFIQUE LINHAS EXISTENTES - APENAS ADICIONE**
+⚠️ **GOLDEN RULE: NEVER REMOVE OR MODIFY EXISTING LINES - ONLY ADD**
 
-**Processo em 5 Passos:**
+**5-Step Process:**
 
-1. **IMPORTAR** ao final da seção de imports
-2. **INSTANCIAR PAGES** ao final do bloco page
-3. **INSTANCIAR APIS** ao final do bloco request
-4. **USAR** via context: `page.{nomeFuncionalidade}Page.metodo()`
-5. **VALIDAR** com `get_errors`
+1. **IMPORT** at end of imports section
+2. **INSTANTIATE PAGES** at end of page block
+3. **INSTANTIATE APIS** at end of request block
+4. **USE** via context: `page.{featureName}Page.method()`
+5. **VALIDATE** with `get_errors`
 
 ---
 
-## **🗺️ Navegação de Tela**
+## **🗺️ Screen Navigation**
 
 ### **`helpers/navegacao.js`**
 
-**Padrão de Nomenclatura:** `{PRODUTO}_{FUNCIONALIDADE_FINAL}`
+**Naming Pattern:** `{PRODUCT}_{FINAL_FUNCTIONALITY}`
 
-**Regras:**
+**Rules:**
 
-- NUNCA criar constante com valor duplicado
-- NUNCA editar/remover constantes existentes
-- SEMPRE agrupar por produto
-- SEMPRE criar com URL E DIRETORIO
+- NEVER create constant with duplicate value
+- NEVER edit/remove existing constants
+- ALWAYS group by product
+- ALWAYS create with URL AND DIRECTORY
 
 ```javascript
-export const {PRODUTO}_{FUNCIONALIDADE} = {
-  URL: `${BASE_URL}{caminho/url}`,
-  DIRETORIO: [{PRODUTO_PRINCIPAL}, {SUBMENU}, '{Funcionalidade Final}'],
+export const {PRODUCT}_{FUNCTIONALITY} = {
+  URL: `${BASE_URL}{path/url}`,
+  DIRECTORY: [{MAIN_PRODUCT}, {SUBMENU}, '{Final Functionality}'],
 };
 ```
 
 ---
 
-## **📊 Mapeamento de Cobertura**
+## **📊 Coverage Mapping**
 
 ### **`coverageFeatureMap.yml`**
 
-**Regras:**
+**Rules:**
 
-- ✅ OBRIGATÓRIO atualizar após criar/modificar testes
-- ✅ APENAS ADICIONAR, nunca alterar/remover
-- ❌ PROIBIDO remover funcionalidades mapeadas
+- ✅ MANDATORY to update after creating/modifying tests
+- ✅ ONLY ADD, never change/remove
+- ❌ FORBIDDEN to remove mapped features
 
-**Estrutura:**
+**Structure:**
 
 ```yml
-- page: "{Caminho/Do/Menu}"
+- page: "{Menu/Path}"
   features:
-    nome da funcionalidade 1: true
-    nome da funcionalidade 2: true
+    feature name 1: true
+    feature name 2: true
 ```
 
 ---
 
-## ✅ **Checklist de Merge Request**
+## ✅ **Merge Request Checklist**
 
-> **🚨 REGRA CRÍTICA:** Antes de finalizar qualquer implementação, TODOS os itens do arquivo `checklistMergeRequest.md` devem ser validados e atendidos.
+> **🚨 CRITICAL RULE:** Before finalizing any implementation, ALL items in `checklistMergeRequest.md` file must be validated and met.
 
-**Consulte o arquivo completo:** `checklistMergeRequest.md`
+**Consult complete file:** `checklistMergeRequest.md`
 
-**🔍 Validação Final:**
+**🔍 Final Validation:**
 
-- [ ] Todos os itens do checklist verificados
-- [ ] ESLint sem erros
-
----
-
-## 🚫 **Anti-Padrões**
-
-### **❌ NUNCA**
-
-- Criar locators estáticos fora do constructor
-- Usar locators inline sem parâmetro
-- Instanciar Page Objects diretamente nos testes
-- Criar localizadores não utilizados
-- **Esquecer de validar presença de `<iframe>` no HTML** (grep_search obrigatório)
-- **Usar `this.page` quando HTML tem iframe** (deve usar `this.frame`)
-- **Criar `this.frame` quando HTML NÃO tem iframe** (usar apenas `this.page`)
-- Hardcode de URLs/valores
-- Usar `test.step()`
-- **Usar `{ timeout: X }` em expect ou ações** (usa timeout padrão 30s do playwright.config.js)
-- **Criar imports sem validar caminhos com grep_search**
-- **Construir JSON inline no `.spec.js`** (ex: `dadosFiltro = { ... }`)
-- **Método `acessarTela()` receber parâmetro**
-
-### **✅ SEMPRE**
-
-- **Executar `grep_search(query="<iframe")` no HTML ANTES de criar Page Object**
-- **Configurar constructor conforme presença de iframe** (this.frame OU this.page)
-- Criar TODOS os locators estáticos no constructor
-- Validar se locators criados nos métodos são realmente dinâmicos
-- Usar objetos via contexto (`page.{funcionalidade}Page`)
-- Atualizar `coverageFeatureMap.yml`
-- Executar ESLint antes de finalizar
-- Seguir padrão AAA nos testes
-- **Usar timeout padrão do Playwright (30s)** - NUNCA customizar
-- **Validar TODOS os imports com grep_search** antes de criar
-- **Importar constante de navegação de `helpers/navegacao.js`** no método `acessarTela()`
-  - Se variável tem `.URL`: usar `page.goto(VARIAVEL.URL)`
-  - Se variável tem `.DIRETORIO`: usar `dataUtils.navegarParaPagina(...VARIAVEL.DIRETORIO)`
-- **TODOS os JSONs importados de `data/`**, NUNCA construídos inline
-- **Para S-Lookup:** Buscar ID do `<input>` DENTRO do `<s-lookup>`
+- [ ] All checklist items verified
+- [ ] ESLint without errors
 
 ---
 
-## 🔧 **Integração com ESLint**
+## 🚫 **Anti-Patterns**
 
-**Comando antes de finalizar:**
+### **❌ NEVER**
+
+- Create static locators outside constructor
+- Use locators inline without parameter
+- Instantiate Page Objects directly in tests
+- Create unused locators
+- **Forget to validate `<iframe>` presence in HTML** (grep_search mandatory)
+- **Use `this.page` when HTML has iframe** (must use `this.frame`)
+- **Create `this.frame` when HTML does NOT have iframe** (use only `this.page`)
+- Hardcode URLs/values
+- Use `test.step()`
+- **Use `{ timeout: X }` in expect or actions** (uses default 30s timeout from playwright.config.js)
+- **Create imports without validating paths with grep_search**
+- **Build JSON inline in `.spec.js`** (ex: `filterData = { ... }`)
+- **Method `accessScreen()` receive parameter**
+
+### **✅ ALWAYS**
+
+- **Execute `grep_search(query="<iframe")` in HTML BEFORE creating Page Object**
+- **Configure constructor according to iframe presence** (this.frame OR this.page)
+- Create ALL static locators in constructor
+- Validate if locators created in methods are really dynamic
+- Use objects via context (`page.{feature}Page`)
+- Update `coverageFeatureMap.yml`
+- Execute ESLint before finalizing
+- Follow AAA pattern in tests
+- **Use Playwright default timeout (30s)** - NEVER customize
+- **Validate ALL imports with grep_search** before creating
+- **Import navigation constant from `helpers/navegacao.js`** in `accessScreen()` method
+  - If variable has `.URL`: use `page.goto(VARIABLE.URL)`
+  - If variable has `.DIRECTORY`: use `dataUtils.navigateToPage(...VARIABLE.DIRECTORY)`
+- **ALL JSONs imported from `data/`**, NEVER built inline
+- **For S-Lookup:** Search for ID of `<input>` INSIDE `<s-lookup>`
+
+---
+
+## 🔧 **ESLint Integration**
+
+**Command before finalizing:**
 
 ```bash
 npm run eslint-fix
@@ -1199,79 +1199,79 @@ npm run eslint-fix
 
 ---
 
-## 🔍 **Checklist de Completude**
+## 🔍 **Completeness Checklist**
 
-### **📋 Validação de Arquivos e Código**
+### **📋 Files and Code Validation**
 
-| Categoria | Validação |
-|-----------|-----------|
-| **Arquivos** | Todos criados (JSON, API, Page, Spec) |
-| **Imports** | Caminhos corretos, sem erros (`get_errors`) |
-| **Instanciação** | helpers/index.js atualizado |
-| **Qualidade** | ESLint sem violações, JSDoc completo |
-| **Cobertura** | coverageFeatureMap.yml atualizado |
-| **Navegação** | helpers/navegacao.js atualizado |
+| Category | Validation |
+|----------|-----------|
+| **Files** | All created (JSON, API, Page, Spec) |
+| **Imports** | Correct paths, no errors (`get_errors`) |
+| **Instantiation** | helpers/index.js updated |
+| **Quality** | ESLint without violations, complete JSDoc |
+| **Coverage** | coverageFeatureMap.yml updated |
+| **Navigation** | helpers/navegacao.js updated |
 
-### **🚫 Bloqueadores**
+### **🚫 Blockers**
 
-> Implementação NÃO finalizada se:
+> Implementation is NOT complete if:
 >
-> - Falta arquivo especificado
-> - Erros de import existem
-> - Locators/métodos órfãos presentes
-> - ESLint reporta violações
-> - Checklist `checklistMergeRequest.md` não 100% validado
+> - Specified file is missing
+> - Import errors exist
+> - Orphaned locators/methods present
+> - ESLint reports violations
+> - `checklistMergeRequest.md` checklist not 100% validated
 
 ---
 
-## 📚 **RESUMO DE MÓDULOS DISPONÍVEIS**
+## 📚 **AVAILABLE MODULES SUMMARY**
 
-| Módulo | Arquivo | Conteúdo |
-|--------|---------|----------|
-| **Regras Críticas** | `.github/copilot-modules/01-regras-criticas.md` | Regras fundamentais + processo 2 fases |
-| **Page Objects** | `.github/copilot-modules/05-page-objects.md` | Templates + regras + exemplos de métodos |
-| **Testes Spec** | `.github/copilot-modules/06-testes-spec.md` | Padrão AAA + estrutura completa + tags |
-| **Locators Semânticos** | `.github/copilot-modules/03-locators-semanticos.md` | Ordem de prioridade + estratégias |
-| **API Classes** | `.github/copilot-modules/08-api-classes.md` | Templates + nomenclatura + validações |
-| **Playwright CLI** | `.github/copilot-modules/02-playwright-cli.md` | Execução headless passo a passo + snapshots + geração de artefatos de teste |
-
----
-
-## 🚨 **INSTRUÇÕES DE USO PARA A IA**
-
-### **Quando receber uma solicitação:**
-
-1. **LER SEMPRE:** `.github/copilot-modules/01-regras-criticas.md`
-2. **🚨 CRIAR TODO LIST OBRIGATÓRIO:** SEMPRE executar as 6 etapas usando `manage_todo_list`
-   - **Etapa 1.2:** Analisar HTMLs (marcar `in-progress` → executar → marcar `completed`)
-   - **Etapa 1.3:** Executar Playwright CLI + snapshots (marcar `in-progress` → executar → marcar `completed`)
-   - **Etapa 1.4:** Mapear Locators Finais (marcar `in-progress` → executar → marcar `completed`)
-   - **Etapa 1.5:** Consultar Templates (marcar `in-progress` → executar → marcar `completed`)
-   - **Etapa 1.6:** Criar Plano Técnico (marcar `in-progress` → executar → marcar `completed`)
-   - **Etapa 1.7:** Solicitar Aprovação (marcar `in-progress` → executar → marcar `completed`)
-   - **⛔ PROIBIDO:** Pular etapas, executar fora de ordem, ou não usar `manage_todo_list`
-3. **LER MÓDULOS RELEVANTES** conforme gatilhos de bloqueio (FASE 0, Etapa 0.2)
-4. **EXECUTAR ANÁLISE COMPLETA** (Etapas 1.2-1.7) antes de solicitar aprovação
-5. **SOLICITAR APROVAÇÃO** do plano técnico (Etapa 1.7)
-6. **IMPLEMENTAR** após aprovação (FASE 2)
-7. **GARANTIR ADERÊNCIA AOS TEMPLATES:**
-   - Consultar template no módulo correspondente (05, 06 ou 08)
-   - Manter mesma estrutura de seções (imports, constantes, constructor, métodos)
-   - Preservar ordem dos elementos estruturais
-   - Usar mesmos padrões de nomenclatura e organização
-   - Adaptar exemplos ao contexto específico mantendo a estrutura
-8. **VALIDAR** com checklist e ESLint
-
-### **Prioridade de Informação:**
-
-1. Playwright Best Practices (docs oficiais) - **SEMPRE CONSULTAR PRIMEIRO**
-2. Princípios Fundamentais (módulo 00) - **SEMPRE ANTES DE QUALQUER ANÁLISE**
-3. Regras Críticas (módulo 01) - **SEMPRE APLICÁVEL**
-4. Módulo específico do contexto (02-08) - **CONFORME NECESSIDADE**
-5. Checklist de Merge Request - **ANTES DE FINALIZAR**
+| Module | File | Content |
+|--------|------|---------|
+| **Critical Rules** | `.github/copilot-modules/01-regras-criticas.md` | Fundamental rules + 2 phase process |
+| **Page Objects** | `.github/copilot-modules/05-page-objects.md` | Templates + rules + method examples |
+| **Tests Spec** | `.github/copilot-modules/06-testes-spec.md` | AAA pattern + complete structure + tags |
+| **Semantic Locators** | `.github/copilot-modules/03-locators-semanticos.md` | Priority order + strategies |
+| **API Classes** | `.github/copilot-modules/08-api-classes.md` | Templates + nomenclature + validations |
+| **Playwright CLI** | `.github/copilot-modules/02-playwright-cli.md` | Headless step by step execution + snapshots + test artifact generation |
 
 ---
 
-> **💡 Esta estrutura modular garante que TODAS as informações sejam respeitadas sem sobrecarregar o contexto da IA.**
+## 🚨 **AI USAGE INSTRUCTIONS**
+
+### **When receiving a request:**
+
+1. **ALWAYS READ:** `.github/copilot-modules/01-regras-criticas.md`
+2. **🚨 CREATE MANDATORY TODO LIST:** ALWAYS execute 6 stages using `manage_todo_list`
+   - **Stage 1.2:** Analyze HTMLs (mark `in-progress` → execute → mark `completed`)
+   - **Stage 1.3:** Execute Playwright CLI + snapshots (mark `in-progress` → execute → mark `completed`)
+   - **Stage 1.4:** Map Final Locators (mark `in-progress` → execute → mark `completed`)
+   - **Stage 1.5:** Consult Templates (mark `in-progress` → execute → mark `completed`)
+   - **Stage 1.6:** Create Technical Plan (mark `in-progress` → execute → mark `completed`)
+   - **Stage 1.7:** Request Approval (mark `in-progress` → execute → mark `completed`)
+   - **⛔ FORBIDDEN:** Skip stages, execute out of order, or not use `manage_todo_list`
+3. **READ RELEVANT MODULES** according to blocking triggers (PHASE 0, Stage 0.2)
+4. **EXECUTE COMPLETE ANALYSIS** (Stages 1.2-1.7) before requesting approval
+5. **REQUEST APPROVAL** of technical plan (Stage 1.7)
+6. **IMPLEMENT** after approval (PHASE 2)
+7. **GUARANTEE TEMPLATE COMPLIANCE:**
+   - Consult template in corresponding module (05, 06 or 08)
+   - Maintain same section structure (imports, constants, constructor, methods)
+   - Preserve order of structural elements
+   - Use same nomenclature and organization patterns
+   - Adapt examples to specific context maintaining structure
+8. **VALIDATE** with checklist and ESLint
+
+### **Information Priority:**
+
+1. Playwright Best Practices (official docs) - **ALWAYS CONSULT FIRST**
+2. Fundamental Principles (module 00) - **ALWAYS BEFORE ANY ANALYSIS**
+3. Critical Rules (module 01) - **ALWAYS APPLICABLE**
+4. Specific context module (02-08) - **AS NEEDED**
+5. Merge Request Checklist - **BEFORE FINALIZING**
+
+---
+
+> **💡 This modular structure ensures that ALL information is respected without overloading AI context.**
 >
-> **🎯 A IA deve ler APENAS os módulos necessários para o contexto atual, mantendo consistência e completude.**
+> **🎯 AI should read ONLY necessary modules for current context, maintaining consistency and completeness.**

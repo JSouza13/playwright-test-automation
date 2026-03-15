@@ -1,759 +1,759 @@
-# 📄 Estrutura de Arquivos de Teste (*.spec.js)
+# 📄 Test File Structure (*.spec.js)
 
-> **Módulo 06:** Templates e padrões específicos do projeto para testes
+> **Module 06:** Project-specific templates and patterns for testing
 
 ---
 
-## 🚨 **REGRA CRÍTICA: NUNCA ALTERAR TESTES PRÉ-EXISTENTES**
+## 🚨 **CRITICAL RULE: NEVER CHANGE PRE-EXISTING TESTS**
 
-> **⚠️ ATENÇÃO MÁXIMA: Ao implementar em arquivo de teste já existente**
+> **⚠️ MAXIMUM ATTENTION: When implementing in an existing test file**
 
-**REGRA ABSOLUTA - SEM EXCEÇÕES:**
+**ABSOLUTE RULE - NO EXCEPTIONS:**
 
-- ❌ **NUNCA modificar** blocos `test()` já existentes
-- ❌ **NUNCA alterar** `test.beforeEach()` ou `test.afterAll()` existentes
-- ❌ **NUNCA remover** imports, variáveis ou constantes já existentes
-- ❌ **NUNCA mudar** tags ou annotations de testes existentes
-- ❌ **NUNCA alterar** ordem de testes existentes
-- ✅ **APENAS ADICIONAR** novos blocos `test()` ao final do `describe()`
-- ✅ **APENAS ADICIONAR** novos imports se necessário
-- ✅ **APENAS ADICIONAR** novas variáveis ao topo (sem remover existentes)
+- ❌ **NEVER modify** existing `test()` blocks
+- ❌ **NEVER change** existing `test.beforeEach()` or `test.afterAll()`
+- ❌ **NEVER remove** existing imports, variables or constants
+- ❌ **NEVER change** existing test tags or annotations
+- ❌ **NEVER change** order of existing tests
+- ✅ **JUST ADD** new `test()` blocks to the end of `describe()`
+- ✅ **JUST ADD** new imports if necessary
+- ✅ **JUST ADD** new variables to the top (without removing existing ones)
 
-**Motivo:** Alterar testes existentes pode causar regressão ou quebrar validações já funcionando. Toda implementação deve ser ADITIVA.
+**Reason:** Changing existing tests can cause regression or break already working validations. Every implementation must be ADDITIVE.
 
-**Exemplo Correto:**
+**Correct Example:**
 
 ```javascript
-test.describe('CRUD - Funcionalidade', { tag: ['@MODULO'] }, () => {
+test.describe('CRUD - Feature', { tag: ['@MODULE'] }, () => {
   test.beforeEach(async ({ page }) => {
-    // ✅ beforeEach existente preservado
-    await page.funcionalidadePage.login(USUARIO);
+    // ✅ existing beforeEach preserved
+    await page.featurePage.login(USER);
   });
 
-  test('001 - Teste existente', { tag: '@TESTE_001' }, async ({ page }) => {
-    // ✅ Teste existente preservado
+  test('001 - Existing test', { tag: '@TEST_001' }, async ({ page }) => {
+    // ✅ existing test preserved
   });
 
-  test('002 - Teste existente', { tag: '@TESTE_002' }, async ({ page }) => {
-    // ✅ Teste existente preservado
+  test('002 - Existing test', { tag: '@TEST_002' }, async ({ page }) => {
+    // ✅ existing test preserved
   });
 
-  // ✅ CORRETO - Novo teste adicionado AO FINAL
-  test('003 - Novo teste', {
-    tag: '@TESTE_003',
+  // ✅ CORRECT - New test added AT THE END
+  test('003 - New test', {
+    tag: '@TEST_003',
     annotation: { type: 'Jira', description: 'https://jira.com/TASK-123' }
   }, async ({ page }) => {
-    // Arrange: Nova implementação
-    // Act: Nova ação
-    // Assert: Nova validação
+    // Arrange: New implementation
+    // Act: New action
+    // Assert: New validation
   });
 });
 ```
 
-**Exemplo Incorreto:**
+**Incorrect Example:**
 
 ```javascript
-// ❌ ERRADO - Modificar teste existente
-test('001 - Teste existente', { tag: '@TESTE_001' }, async ({ page }) => {
-  // ❌ Alterou lógica do teste - PROIBIDO
-  await page.novaPage.novoMetodo(); // QUEBRA VALIDAÇÃO EXISTENTE
+// ❌ WRONG - Modify existing test
+test('001 - Existing test', { tag: '@TEST_001' }, async ({ page }) => {
+  // ❌ Changed test logic - FORBIDDEN
+  await page.newPage.newMethod(); // BREAKS EXISTING VALIDATION
 });
 
-// ❌ ERRADO - Alterar beforeEach existente
+// ❌ WRONG - Change existing beforeEach
 test.beforeEach(async ({ page }) => {
-  // ❌ Adicionou lógica ao beforeEach existente - PROIBIDO
-  await page.funcionalidadePage.login(USUARIO);
-  await page.novoPage.novaPreparacao(); // AFETA TODOS OS TESTES
+  // ❌ Added logic to existing beforeEach - FORBIDDEN
+  await page.featurePage.login(USER);
+  await page.newPage.newSetup(); // AFFECTS ALL TESTS
 });
 ```
 
 ---
 
-## 🚨 **REGRA CRÍTICA: SEPARAÇÃO DE RESPONSABILIDADES**
+## 🚨 **CRITICAL RULE: SEPARATION OF RESPONSIBILITIES**
 
-> **⚠️ Testes NUNCA devem conter lógica de interação direta com elementos**
+> **⚠️ Tests should NEVER contain logic for direct interaction with elements**
 
-**REGRA ABSOLUTA:**
+**ABSOLUTE RULE:**
 
-- ❌ **PROIBIDO no .spec.js:** `page.locator()`, `page.getByRole()`, `page.click()`, `page.fill()`, `expect(page.locator())`
-- ❌ **PROIBIDO no .spec.js:** Qualquer interação direta com elementos do DOM
-- ✅ **OBRIGATÓRIO no .spec.js:** Chamar APENAS métodos dos Page Objects
-- ✅ **OBRIGATÓRIO no .spec.js:** Usar APENAS expects de métodos Page que retornam locators
+- ❌ **PROHIBITED in .spec.js:** `page.locator()`, `page.getByRole()`, `page.click()`, `page.fill()`, `expect(page.locator())`
+- ❌ **PROHIBITED in .spec.js:** Any direct interaction with DOM elements
+- ✅ **MANDATORY in .spec.js:** ONLY call Page Object methods
+- ✅ **MANDATORY in .spec.js:** ONLY use expects from Page methods that return locators
 
-**Motivo:** Testes devem orquestrar fluxos usando abstração de Page Objects. Lógica de localização e interação pertence aos Page Objects.
+**Reason:** Tests must orchestrate flows using Page Objects abstraction. Location and interaction logic belongs to Page Objects.
 
-**✅ CORRETO:**
+**✅ CORRECT:**
 
 ```javascript
-test('01 - Cadastrar usuário',
+test('01 - Create user',
   {
-    tag: '@USUARIOS_CREATE',
+    tag: '@USERS_CREATE',
     annotation: { type: 'Issue', description: 'https://jira.example.com/PROJ-001' }
   },
   async ({ page }) => {
-    // Arrange: Acessar tela de usuários
-    await page.usuariosPage.acessarTela();
+    // Arrange: Open users screen
+    await page.usersPage.accessScreen();
 
-    // Act: Chamar método da Page
-    await page.usuariosPage.cadastrar(dados);
+    // Act: Call the Page method
+    await page.usersPage.create(data);
 
-    // Assert: Validar usando método da Page
-    await page.usuariosPage.validarMensagemSucesso();
+    // Assert: Validate using the Page method
+    await page.usersPage.validateSuccessMessage();
   }
 );
 ```
 
-**❌ ERRADO:**
+**❌ WRONG:**
 
 ```javascript
-test('Cadastrar usuário', async ({ page }) => {
-  // ❌ PROIBIDO - Interação direta no teste
-  await page.locator('#nome').fill('João');
-  await page.getByRole('button', { name: 'Salvar' }).click();
+test('Create user', async ({ page }) => {
+  // ❌ PROHIBITED - Direct interaction in the test
+  await page.locator('#name').fill('John');
+  await page.getByRole('button', { name: 'Save' }).click();
 
-  // ❌ PROIBIDO - Expect de locator criado no teste
+  // ❌ PROHIBITED - Expect on locator created in test
   await expect(page.locator('.success-message')).toBeVisible();
 });
 ```
 
-**Onde implementar:**
+**Where to implement:**
 
-| Responsabilidade | Arquivo | Exemplo |
+| Responsibility | File | Example |
 |------------------|---------|---------|
-| Locators e interações | `*Page.js` | `async cadastrar(dados) { await this.locator.fill(); }` |
-| Orquestração de fluxo | `*.spec.js` | `await page.usuariosPage.cadastrar(dados);` |
-| Validações | `*.spec.js` | `expect(page.usuariosPage.locatorMensagem).toBeVisible()` |
+| Locators and interactions | `*Page.js` | `async create(data) { await this.locator.fill(); }` |
+| Flow orchestration | `*.spec.js` | `await page.usersPage.create(data);` |
+| Validations | `*.spec.js` | `expect(page.usersPage.messageLocator).toBeVisible()` |
 
 ---
 
-## 🎭 **CONSULTAR PLAYWRIGHT DOCS PRIMEIRO**
+## 🎭 **CONSULT PLAYWRIGHT DOCS FIRST**
 
-> **⚠️ Para estrutura de testes, assertions e hooks:**
+> **⚠️ For testing structure, assertions and hooks:**
 >
 > - **Writing Tests:** https://playwright.dev/docs/writing-tests
 > - **Test Assertions:** https://playwright.dev/docs/test-assertions
 > - **Test Hooks:** https://playwright.dev/docs/api/class-test#test-before-each
 
-**Princípio:** Siga as melhores práticas do Playwright para estrutura de testes. As regras abaixo são **específicas do projeto** (nomenclatura, padrão AAA com comentários, tags customizadas).
+**Principle:** Follow Playwright best practices for testing structure. The rules below are **project specific** (nomenclature, AAA standard with comments, custom tags).
 
 ---
 
-## 🎯 **REGRA CRÍTICA: INJEÇÃO CONDICIONAL DE FIXTURES**
+## 🎯 **CRITICAL RULE: CONDITIONAL FIXTURES INJECTION**
 
-> **⚠️ SEMPRE injete APENAS as fixtures necessárias em cada contexto**
+> **⚠️ ALWAYS inject ONLY the necessary fixtures in each context**
 
-### **Regras de Injeção:**
+### **Injection Rules:**
 
-- **Somente UI (Page):** `async ({ page }) => { ... }`
-- **Injete APENAS o que usar:** para este módulo, priorize `async ({ page }) => { ... }`
+- **UI only (Page):** `async ({ page }) => { ... }`
+- **ONLY inject what you use:** for this module, prioritize `async ({ page }) => { ... }`
 
-### **✅ PADRÃO CORRETO:**
+### **✅ CORRECT PATTERN:**
 
 ```javascript
-// ✅ CORRETO - beforeEach usa apenas page
+// ✅ CORRECT - beforeEach uses only page
 test.beforeEach(async ({ page }) => {
-  await page.funcionalidadePage.login(TOKEN);
+  await page.featurePage.login(TOKEN);
 });
 
-// ✅ CORRETO - Teste usa SOMENTE page
-test('01 - Cadastrar via UI',
+// ✅ CORRECT - Test uses ONLY page
+test('01 - Create via UI',
   {
-    tag: '@FUNCIONALIDADE_CREATE',
+    tag: '@FEATURE_CREATE',
     annotation: { type: 'Issue', description: 'https://jira.example.com/PROJ-001' }
   },
   async ({ page }) => {
-    // Arrange: Preparar dados para cadastro
+    // Arrange: Prepare creation data
 
-    // Act: Cadastrar registro via UI
-    await page.funcionalidadePage.cadastrar(JSON_DADOS);
+    // Act: Create record via UI
+    await page.featurePage.create(JSON_DATA);
 
-    // Assert: Validar cadastro realizado com sucesso
-    await expect(page.funcionalidadePage.locatorSucessoAlert).toBeVisible();
+    // Assert: Validate successful creation
+    await expect(page.featurePage.successAlertLocator).toBeVisible();
   }
 );
-test('02 - Editar e validar na UI',
+test('02 - Edit and validate in UI',
   {
-    tag: '@FUNCIONALIDADE_UPDATE',
+    tag: '@FEATURE_UPDATE',
     annotation: { type: 'Issue', description: 'https://jira.example.com/PROJ-002' }
   },
   async ({ page }) => {
-    // Arrange: Abrir registro existente para edição
-    await page.funcionalidadePage.acessarEdicaoPorDescricao(JSON_DADOS.nome);
+    // Arrange: Open existing record for editing
+    await page.featurePage.accessEditByDescription(JSON_DATA.name);
 
-    // Act: Navegar para edição do registro
-    await page.funcionalidadePage.editarRegistro(JSON_DADOS);
+    // Act: Navigate to record editing
+    await page.featurePage.editRecord(JSON_DATA);
 
-    // Assert: Validar dados carregados corretamente na UI
-    await expect(page.funcionalidadePage.locatorNomeInput).toHaveValue(JSON_DADOS.nome);
+    // Assert: Validate correctly loaded data in the UI
+    await expect(page.featurePage.nameInputLocator).toHaveValue(JSON_DATA.name);
   }
 );
 ```
 
-### **🔍 Checklist de Validação:**
+### **🔍 Validation Checklist:**
 
-- [ ] Cada `test()` injeta APENAS fixtures utilizadas?
-- [ ] `beforeEach` injeta apenas fixtures que USA?
-- [ ] `afterAll` injeta apenas fixtures que USA?
-- [ ] NENHUMA fixture está injetada "por precaução" sem uso?
+- [ ] Does each `test()` inject ONLY used fixtures?
+- [ ] `beforeEach` only injects fixtures that it USES?
+- [ ] `afterAll` only injects fixtures that it USES?
+- [ ] NO fixtures are injected "just in case" without use?
 
-**Motivo:** Injetar fixtures não utilizadas causa warnings do Playwright e polui o código desnecessariamente.
-
----
-
-## 🚨 **PADRÃO DO PROJETO: AAA com Comentários**
-
-Todos os blocos `test()` DEVEM ter comentários curtos e úteis que indiquem a intenção de cada bloco na estrutura AAA (Arrange, Act, Assert), evitando explicar o óbvio e mantendo o padrão de Clean Code.
-
-### **Estrutura AAA:**
-
-- **Arrange (Preparação):** Prepara o contexto (dados, navegação, pré-condições)
-- **Act (Execução):** Executa UMA ação principal (submeter, clicar, preencher fluxo)
-- **Assert (Validação):** Valida UM resultado principal (mensagem, estado, navegação)
-
-### **Regras AAA:**
-
-- ✅ Comentários obrigatórios: `// Arrange:`, `// Act:`, `// Assert:`
-- ✅ **Comentários DEVEM agregar valor** - descrever O QUE está sendo feito, não o óbvio
-- ✅ Adicione descrição ESPECÍFICA após os dois-pontos para documentar contexto e intenção
-- ✅ Uma responsabilidade por fase (evitar múltiplas ações ou validações misturadas)
-- ✅ Arrange pode ter múltiplas linhas de preparação
-- ✅ Act deve ter poucas linhas e focar em UMA ação de negócio principal
-- ✅ Assert deve validar O resultado esperado dessa ação
-- ✅ Use termos em inglês: **Arrange, Act, Assert** (padrão internacional)
-- ❌ **NUNCA** comentários genéricos como "Preparação", "Execução", "Validação"
-- ❌ **NUNCA** use `console.log()` diretamente — viola SonarQube S106. Use comentários AAA descritivos
-- ❌ Não misturar preparação com ação ou validação
-
-### **Formato dos Comentários:**
-
-```javascript
-// Arrange: {descrição ESPECÍFICA e OBJETIVA do contexto sendo preparado}
-// Act: {descrição ESPECÍFICA da ação de negócio executada}
-// Assert: {descrição ESPECÍFICA do resultado sendo validado}
-```
-
-### **❌ Comentários NÃO Aceitáveis:**
-
-```javascript
-// ❌ Genéricos (não agregam valor)
-// Arrange: Preparação
-// Arrange: Preparar dados
-// Act: Execução
-// Act: Executar ação
-// Assert: Validação
-// Assert: Validar resultado
-
-// ❌ Usar console.log para documentar (viola SonarQube S106)
-console.log('Passo 1: Criar registro');
-console.log('Passo 2: Validar grid');
-
-// ❌ Usar termos em português
-// Preparação: Criar registro de férias
-// Execução: Submeter formulário
-// Validação: Validar mensagem de sucesso
-```
-
-### **✅ Comentários Aceitáveis (Específicos):**
-
-```javascript
-// Arrange: Acessar tela de edição com registro existente
-// Arrange: Preparar dados de portaria com horários válidos e acessar formulário
-// Act: Submeter formulário de cadastro de portaria com dados completos
-// Act: Aplicar filtros de data e status na listagem de registros
-// Assert: Validar mensagem de sucesso e garantir que novo registro aparece na listagem
-// Assert: Validar que registro foi excluído da listagem
-```
+**Reason:** Injecting unused fixtures causes Playwright warnings and unnecessarily pollutes the code.
 
 ---
 
-## ✅ **Exemplos de Testes Corretos**
+## 🚨 **PROJECT STANDARD: AAA with Comments**
 
-### **Exemplo 1: Teste de Cadastro (CRUD)**
+All `test()` blocks MUST have short and useful comments that indicate the intention of each block in the AAA structure (Arrange, Act, Assert), avoiding explaining the obvious and maintaining the Clean Code standard.
+
+### **AAA Structure:**
+
+- **Arrange:** Prepares the context (data, navigation, preconditions)
+- **Act (Execution):** Executes ONE main action (submit, click, fill flow)
+- **Assert:** Validates ONE main result (message, status, navigation)
+
+### **AAA Rules:**
+
+- ✅ Mandatory comments: `// Arrange:`, `// Act:`, `// Assert:`
+- ✅ **Comments MUST add value** - describe WHAT is being done, not the obvious
+- ✅ Add SPECIFIC description after the colon to document context and intent
+- ✅ One responsibility per phase (avoid multiple actions or mixed validations)
+- ✅ Arrange can have multiple preparation lines
+- ✅ Act must have few lines and focus on ONE main business action
+- ✅ Assert must validate the expected result of this action
+- ✅ Use terms in English: **Arrange, Act, Assert** (international standard)
+- ❌ **NEVER** generic comments like "Preparation", "Execution", "Validation"
+- ❌ **NEVER** use `console.log()` directly — violates SonarQube S106. Use descriptive AAA reviews
+- ❌ Do not mix preparation with action or validation
+
+### **Comment Format:**
 
 ```javascript
-test('001 - Deve cadastrar registro com sucesso',
+// Arrange: {SPECIFIC and OBJECTIVE description of the prepared context}
+// Act: {SPECIFIC description of the executed business action}
+// Assert: {SPECIFIC description of the validated result}
+```
+
+### **❌ NOT Acceptable Comments:**
+
+```javascript
+// ❌ Generic (does not add value)
+// Arrange: Preparation
+// Arrange: Prepare data
+// Act: Execution
+// Act: Execute action
+// Assert: Validation
+// Assert: Validate result
+
+// ❌ Using console.log to document (violates SonarQube S106)
+console.log('Step 1: Create record');
+console.log('Step 2: Validate grid');
+
+// ❌ Using terms in Portuguese
+// Preparation: Create vacation record
+// Execution: Submit form
+// Validation: Validate success message
+```
+
+### **✅ Acceptable Comments (Specific):**
+
+```javascript
+// Arrange: Open edit screen with existing record
+// Arrange: Prepare gatehouse data with valid times and open the form
+// Act: Submit concierge registration form with complete data
+// Act: Apply date and status filters to the records list
+// Assert: Validate success message and ensure that new record appears in the list
+// Assert: Validate that record was deleted from list
+```
+
+---
+
+## ✅ **Examples of Correct Tests**
+
+### **Example 1: Registration Test (CRUD)**
+
+```javascript
+test('001 - must create record successfully',
   {
     tag: '@CRUD_CREATE',
     annotation: { type: 'Issue', description: 'https://jira.example.com/browse/PROJ-001' }
   },
   async ({ page }) => {
-    // Arrange: Preparar dados e navegar para tela de cadastro
-    await page.funcionalidadePage.prepararDados(JSON_DADOS);
-    await page.funcionalidadePage.acessarFormulario();
+    // Arrange: Prepare data and navigate to creation screen
+    await page.featurePage.prepareData(JSON_DATA);
+    await page.featurePage.accessForm();
 
-    // Act: Cadastrar novo registro no sistema
-    await page.funcionalidadePage.cadastrarRegistro(JSON_DADOS);
+    // Act: Create new record in system
+    await page.featurePage.createRecord(JSON_DATA);
 
-    // Assert: Validar que cadastro foi realizado com sucesso
-    await page.funcionalidadePage.validarMensagemSucesso();
-    await page.funcionalidadePage.validarRegistroNaListagem(JSON_DADOS.campo);
+    // Assert: Validate that creation was successful
+    await page.featurePage.validateSuccessMessage();
+    await page.featurePage.validateRecordInList(JSON_DATA.field);
   }
 );
 ```
 
-### **Exemplo 2: Teste de Edição (CRUD)**
+### **Example 2: Editing Test (CRUD)**
 
 ```javascript
-test('002 - Deve editar registro existente',
+test('002 - must edit existing record',
   {
     tag: '@CRUD_UPDATE',
     annotation: { type: 'Issue', description: 'https://jira.example.com/browse/PROJ-002' }
   },
   async ({ page }) => {
-    // Arrange: Acessar tela de edição para registro existente
-    await page.funcionalidadePage.acessarEdicaoPorDescricao(JSON_DADOS.descricao);
+    // Arrange: Open edit screen for existing record
+    await page.featurePage.accessEditByDescription(JSON_DATA.description);
 
-    // Act: Atualizar campos do formulário e salvar
-    await page.funcionalidadePage.editarRegistro(JSON_DADOS_ATUALIZADOS);
+    // Act: Update form fields and save
+    await page.featurePage.editRecord(UPDATED_JSON_DATA);
 
-    // Assert: Validar que alterações foram persistidas
-    await page.funcionalidadePage.validarMensagemSucesso();
-    await page.funcionalidadePage.validarDadosAtualizadosNaTela(JSON_DADOS_ATUALIZADOS);
+    // Assert: Validate that changes have been persisted
+    await page.featurePage.validateSuccessMessage();
+    await page.featurePage.validateUpdatedDataOnScreen(UPDATED_JSON_DATA);
   }
 );
 ```
 
-### **Exemplo 3: Teste de Validação**
+### **Example 3: Validation Test**
 
 ```javascript
-test('003 - Deve exibir erro ao tentar salvar com campos obrigatórios vazios',
+test('003 - It should display an error when trying to save with empty mandatory fields',
   {
-    tag: '@VALIDACAO',
+    tag: '@VALIDATION',
     annotation: { type: 'Issue', description: 'https://jira.example.com/browse/PROJ-003' }
   },
   async ({ page }) => {
-    // Arrange: Navegar para formulário sem preencher dados
-    await page.funcionalidadePage.acessarFormulario();
+    // Arrange: Navigate to form without filling in data
+    await page.featurePage.accessForm();
 
-    // Act: Submeter formulário vazio
-    await page.funcionalidadePage.clicarSalvar();
+    // Act: Submit empty form
+    await page.featurePage.clickSave();
 
-    // Assert: Validar mensagens de erro nos campos obrigatórios
-    await page.funcionalidadePage.validarMensagemErro('Campo obrigatório não preenchido');
-    await page.funcionalidadePage.validarCamposComErro(['campo1', 'campo2']);
+    // Assert: Validate error messages in required fields
+    await page.featurePage.validateErrorMessage('Required field was not filled in');
+    await page.featurePage.validateFieldsWithError(['field1', 'field2']);
   }
 );
 ```
 
 ---
 
-## ❌ **Exemplo Incorreto (Anti-Padrão)**
+## ❌ **Incorrect Example (Anti-Pattern)**
 
 ```javascript
-// ❌ ERRADO - Fases misturadas, sem comentários AAA
-test('001 - Teste sem estrutura', async ({ page }) => {
-  await page.funcionalidadePage.acessarTela();
-  await page.funcionalidadePage.preencherCampo1('valor');
-  await page.funcionalidadePage.validarCampo1();
-  await page.funcionalidadePage.preencherCampo2('valor');
-  await page.funcionalidadePage.clicarSalvar();
-  await page.funcionalidadePage.validarMensagem();
+// ❌ WRONG - Mixed phases, no comments AAA
+test('001 - Test without structure', async ({ page }) => {
+  await page.featurePage.accessScreen();
+  await page.featurePage.fillField1('value');
+  await page.featurePage.validateField1();
+  await page.featurePage.fillField2('value');
+  await page.featurePage.clickSave();
+  await page.featurePage.validateMessage();
 });
 
-// ❌ ERRADO - Comentários genéricos que NÃO agregam valor
-test('002 - Teste com comentários ruins', async ({ page }) => {
-  // Arrange: Preparação
-  await page.funcionalidadePage.prepararDados();
+// ❌ WRONG - Generic comments that do NOT add value
+test('002 - Test with bad comments', async ({ page }) => {
+  // Arrange: Preparation
+  await page.featurePage.prepareData();
 
-  // Act: Execução
-  await page.funcionalidadePage.executarAcao();
+  // Act: Execution
+  await page.featurePage.executeAction();
 
-  // Assert: Validação
-  await page.funcionalidadePage.validarResultado();
+  // Assert: Validation
+  await page.featurePage.validateResult();
 });
 
-// ❌ ERRADO - Usando console.log() para documentar passos (viola SonarQube S106)
-test('003 - Teste com console.log()', async ({ page }) => {
-  console.log('Passo 1: Criar registro');
-  await page.funcionalidadePage.criarRegistro();
+// ❌ WRONG - Using console.log() to document steps (violates SonarQube S106)
+test('003 - Test with console.log()', async ({ page }) => {
+  console.log('Step 1: Create record');
+  await page.featurePage.createRecord();
 
-  console.log('Passo 2: Validar grid');
-  await page.funcionalidadePage.validarGrid();
+  console.log('Step 2: Validate grid');
+  await page.featurePage.validateGrid();
 
-  console.log('Passo 3: Excluir registro');
-  await page.funcionalidadePage.excluir();
+  console.log('Step 3: Delete record');
+  await page.featurePage.deleteRecord();
 });
 
-// ❌ ERRADO - Usando test.step() ao invés de comentários AAA
-test('004 - Teste com test.step()', async ({ page }) => {
-  await test.step('Preparar dados', async () => {
-    await page.funcionalidadePage.prepararDados();
+// ❌ WRONG - Using test.step() instead of AAA comments
+test('004 - Test with test.step()', async ({ page }) => {
+  await test.step('Prepare data', async () => {
+    await page.featurePage.prepareData();
   });
 
-  await test.step('Executar ação', async () => {
-    await page.funcionalidadePage.executarAcao();
+  await test.step('Execute action', async () => {
+    await page.featurePage.executeAction();
   });
 
-  await test.step('Validar resultado', async () => {
-    await page.funcionalidadePage.validarResultado();
+  await test.step('Validate result', async () => {
+    await page.featurePage.validateResult();
   });
 });
 ```
 
-**Problemas:**
+**Problems:**
 
-- Sem comentários AAA (exemplo 1)
-- Preparação/Execução/Validação misturados (exemplo 1)
-- Não fica claro qual é a ação principal (exemplo 1)
-- Validações intermediárias poluem o fluxo (exemplo 1)
-- **Comentários genéricos que não agregam valor** (exemplo 2)
-- Comentários não explicam O QUE está sendo feito especificamente (exemplo 2)
-- **Uso de console.log() para documentar passos** (exemplo 3 - polui logs e viola SonarQube S106)
-- **Uso de test.step() ao invés de comentários simples** (exemplo 4)
-- test.step() adiciona complexidade desnecessária (exemplo 4)
+- No AAA comments (example 1)
+- Mixed Preparation/Execution/Validation (example 1)
+- It is not clear what the main action is (example 1)
+- Intermediate validations pollute the flow (example 1)
+- **Generic comments that do not add value** (example 2)
+- Comments do not explain WHAT is being done specifically (example 2)
+- **Use of console.log() to document steps** (example 3 - pollutes logs and violates SonarQube S106)
+- **Use of test.step() instead of simple comments** (example 4)
+- test.step() adds unnecessary complexity (example 4)
 
 ---
 
-## 🚨 **REGRAS CRÍTICAS ANTES DE IMPLEMENTAR**
+## 🚨 **CRITICAL RULES BEFORE IMPLEMENTING**
 
-### **REGRA #0: Validar Imports Obrigatórios**
+### **RULE #0: Validate Mandatory Imports**
 
-> **⚠️ TODOS os imports devem ser validados e corretos ANTES de criar o teste**
+> **⚠️ ALL imports must be validated and correct BEFORE creating the test**
 
-**✅ IMPORTS CORRETOS:**
+**✅ CORRECT IMPORTS:**
 
 ```javascript
-// ✅ JSONs de data/ (SEMPRE com .js ou validar se sem .js funciona)
-import { JSON_CONSTANTE } from '../../data/{caminho}/{arquivo}Json';
-// ou
-import { JSON_CONSTANTE } from '../../data/{caminho}/{arquivo}Json.js';
+// ✅ Data JSONs (ALWAYS with .js or validate if importing without .js works)
+import { JSON_CONSTANT } from '../../data/{path}/{file}Json';
+// or
+import { JSON_CONSTANT } from '../../data/{path}/{file}Json.js';
 
-// ✅ Helpers do projeto
+// ✅ Project helpers
 import { test } from '../helpers';
 
-// ✅ Usuários para login (SEMPRE de helpers/ambiente)
-import { USUARIO_TESTE } from '../helpers/ambiente';
+// ✅ Users for login (ALWAYS from helpers/environment)
+import { TEST_USER } from '../helpers/ambiente';
 ```
 
-**❌ IMPORTS INCORRETOS:**
+**❌ INCORRECT IMPORTS:**
 
 ```javascript
-// ❌ ERRADO - Caminho inexistente ou incorreto
-import { JSON_CONSTANTE } from '../../data/crmx/negocioJson'; // Erro: Cannot find module
+// ❌ WRONG - Non-existent or incorrect path
+import { JSON_CONSTANT } from '../../data/crmx/businessJson'; // Error: Cannot find module
 
-// ❌ ERRADO - Usuário de login importado de local incorreto
-import { CRMX_ERPXUI } from '../../../utils/config'; // NUNCA usar utils/config
-import { ADMIN_ERPXUI } from '../../../config'; // NUNCA usar config
+// ❌ WRONG - Login user imported from incorrect location
+import { CRMX_ERPXUI } from '../../../utils/config'; // NEVER use utils/config
+import { ADMIN_ERPXUI } from '../../../config'; // NEVER use config
 ```
 
-> **🚨 REGRA CRÍTICA: Usuários de Login**
+> **🚨 CRITICAL RULE: Login Users**
 >
-> **TODOS os usuários utilizados em `dataUtils.login()` devem ser importados de `helpers/ambiente.js`**
+> **ALL users used in `dataUtils.login()` must be imported from `helpers/ambiente.js`**
 >
-> **✅ CORRETO:** `import { CRMX_ERPXUI } from '../helpers/ambiente';`
+> **✅ CORRECT:** `import { CRMX_ERPXUI } from '../helpers/ambiente';`
 >
-> **❌ ERRADO:** `import { CRMX_ERPXUI } from '../utils/config';`
+> **❌ WRONG:** `import { CRMX_ERPXUI } from '../utils/config';`
 
-**🔍 VALIDAÇÃO OBRIGATÓRIA:**
+**🔍MANDATORY VALIDATION:**
 
-Antes de criar qualquer import:
+Before creating any import:
 
-1. **Executar `grep_search`** para encontrar o arquivo correto:
+1. **Run `grep_search`** to find the correct file:
    ```bash
-   grep_search(query="{nomeArquivo}", includePattern="**/*.js", isRegexp=false)
+  grep_search(query="{fileName}", includePattern="**/*.js", isRegexp=false)
    ```
 
-2. **Validar caminho relativo** do `.spec.js` até o arquivo encontrado
+2. **Validate relative path** from `.spec.js` to the found file
 
-3. **Testar import** com `get_errors` após criar
+3. **Test import** with `get_errors` after creating
 
-4. **NUNCA assumir** que o caminho está correto sem validar
-
----
-
-### **REGRA #1: Seguir "Informações Gerais do Teste" (OBRIGATÓRIO)**
-
-> **⚠️ SEMPRE que houver "Informações Gerais do Teste", seguir PASSO A PASSO obrigatoriamente**
-
-**📋 O que são "Informações Gerais do Teste":**
-
-- Instruções específicas do usuário sobre como implementar o teste
-- Passos detalhados de preparação, execução e validação
-- Requisitos específicos de dados, fluxos ou validações
-- Contexto adicional que NÃO está nos módulos
-
-**🚨 REGRA OBRIGATÓRIA:**
-
-```
-  SE usuário fornecer "Informações Gerais do Teste":
-  ENTÃO seguir CADA PASSO exatamente como descrito
-  E NÃO assumir ou pular etapas
-  E questionar SE houver dúvidas
-  E NUNCA usar apenas os templates padrão
-```
+4. **NEVER assume** that the path is correct without validating
 
 ---
 
-### **🚨 REGRA #1.1: Validar TODOS os HTMLs de TODAS as Etapas (OBRIGATÓRIO)**
+### **RULE #1: Follow "General Test Information" (MANDATORY)**
 
-> **⚠️ ERRO CRÍTICO COMUM:** Analisar apenas o primeiro HTML mencionado e ignorar HTMLs de etapas subsequentes
+> **⚠️ WHENEVER there is "General Test Information", follow STEP BY STEP obligatorily**
 
-**📋 Estrutura Padrão em "Informações Gerais do Teste":**
+**📋 What is "General Test Information":**
 
-Cada etapa contém **3 referências obrigatórias**:
+- User-specific instructions on how to implement the test
+- Detailed preparation, execution and validation steps
+- Specific data, flow or validation requirements
+- Additional context that is NOT in the modules
+
+**🚨 MANDATORY RULE:**
+
+```
+  IF the user provides "General Test Information":
+  THEN follow EACH STEP exactly as described
+  AND DO NOT assume or skip steps
+  AND ask questions IF there are doubts
+  AND NEVER rely only on the standard templates
+```
+
+---
+
+### **🚨 RULE #1.1: Validate ALL HTML from ALL Steps (MANDATORY)**
+
+> **⚠️ COMMON CRITICAL ERROR:** Analyze only the first mentioned HTML and ignore HTML from subsequent steps
+
+**📋 Standard Structure in "General Test Information":**
+
+Each step contains **3 mandatory references**:
 
 ```markdown
-- **Referência HTML:** `{arquivo}.html`
-- **Referência Page:** `pages\{caminho}\{arquivo}Page.js`
-- **Referência Visual:** ![Texto]({caminho}/{imagem}.png)
-  - **Ação:** {descrição da ação}
+- **HTML Reference:** `{file}.html`
+- **Page Reference:** `pages\{path}\{file}Page.js`
+- **Visual Reference:** ![Text]({path}/{image}.png)
+  - **Action:** {action description}
 ```
 
-**🚨 PROCESSO OBRIGATÓRIO:**
+**🚨 MANDATORY PROCESS:**
 
-1. **Listar TODAS as etapas** das "Informações Gerais do Teste"
-2. **Para CADA etapa:** Identificar os 3 campos de referência
-3. **Para CADA "Referência HTML":** Executar análise completa do arquivo
-4. **NUNCA assumir** que elementos são iguais entre HTMLs diferentes
+1. **List ALL steps** from "General Test Information"
+2. **For EACH step:** Identify the 3 reference fields
+3. **For EACH "HTML Reference":** Run full file analysis
+4. **NEVER assume** that elements are the same between different HTMLs
 
-**✅ CHECKLIST DE VALIDAÇÃO (executar para CADA etapa):**
+**✅ VALIDATION CHECKLIST (run for EACH step):**
 
 ```bash
-# ETAPA 1: Identificar TODAS as referências HTML
-grep "Referência HTML:" {arquivo_instrucoes.md}
-# Resultado esperado: Lista de TODOS os HTMLs mencionados
+# STEP 1: Identify ALL HTML references
+grep "HTML Reference:" {instructions_file.md}
+# Expected result: list of ALL referenced HTML files
 
-# ETAPA 2: Para CADA HTML identificado, executar análise completa
-# Exemplo: Se encontrou 5 HTMLs, executar 5 análises independentes
+# STEP 2: For EACH identified HTML, run the complete analysis
+# Example: If you found 5 HTML files, run 5 independent analyses
 
-# HTML 1: acessaTela.html
-grep_search(query="<iframe", includePattern="acessaTela.html")
-grep_search(query="{elemento1}", includePattern="acessaTela.html")
-# ... validar TODOS os elementos desta etapa
+# HTML 1: accessScreen.html
+grep_search(query="<iframe", includePattern="accessScreen.html")
+grep_search(query="{element1}", includePattern="accessScreen.html")
+# ... validate ALL elements in this step
 
-# HTML 2: crudPrincipalNegocio.html
-grep_search(query="<iframe", includePattern="crudPrincipalNegocio.html")
-grep_search(query="{elemento2}", includePattern="crudPrincipalNegocio.html")
-# ... validar TODOS os elementos desta etapa
+# HTML 2: mainBusinessCrud.html
+grep_search(query="<iframe", includePattern="mainBusinessCrud.html")
+grep_search(query="{element2}", includePattern="mainBusinessCrud.html")
+# ... validate ALL elements in this step
 
-# HTML 3: filtroNegocio.html (NÃO PULAR!)
-grep_search(query="<iframe", includePattern="filtroNegocio.html")
-grep_search(query="{elemento3}", includePattern="filtroNegocio.html")
-# ... validar TODOS os elementos desta etapa
+# HTML 3: businessFilter.html (DO NOT SKIP!)
+grep_search(query="<iframe", includePattern="businessFilter.html")
+grep_search(query="{element3}", includePattern="businessFilter.html")
+# ... validate ALL elements in this step
 
-# ETAPA 3: Documentar elementos únicos de CADA HTML
-# ETAPA 4: Criar locators específicos para CADA contexto
+# STEP 3: Document unique elements from EACH HTML
+# STEP 4: Create context-specific locators for EACH scenario
 ```
 
-**❌ ANTI-PADRÃO CRÍTICO (NÃO FAZER):**
+**❌ CRITICAL ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-// ❌ ERRADO - Assumir que campo "Descrição" é igual em todos os HTMLs
-// Analisou apenas crudPrincipalNegocio.html
-this.ID_DESCRICAO = '#description'; // Criado no constructor
+// ❌ WRONG - Assuming that the "Description" field is the same in all HTMLs
+// Only analyzed mainBusinessCrud.html
+this.ID_DESCRIPTION = '#description'; // Created in the constructor
 
-async cadastrarNegocio(dados) {
-  // Usa ID_DESCRICAO do cadastro ✅
-  await this.page.locator(this.ID_DESCRICAO).fill(dados.descricao);
+async createBusiness(data) {
+  // Uses the registration-specific ID ✅
+  await this.page.locator(this.ID_DESCRIPTION).fill(data.description);
 }
 
-async filtrarNegocio(dados) {
-  // ❌ ERRO: Reutiliza ID_DESCRICAO sem validar filtroNegocio.html
-  // O campo "Descrição" no filtro pode ter ID diferente!
-  await this.page.locator(this.ID_DESCRICAO).fill(dados.descricao);
+async filterBusiness(data) {
+  // ❌ ERROR: Reuses ID_DESCRIPTION without validating businessFilter.html
+  // The "Description" field in the filter may have a different ID!
+  await this.page.locator(this.ID_DESCRIPTION).fill(data.description);
 }
 ```
 
-**✅ PADRÃO CORRETO:**
+**✅ CORRECT PATTERN:**
 
 ```javascript
-// ✅ CORRETO - Validou AMBOS os HTMLs independentemente
+// ✅ CORRECT - Validated BOTH HTMLs independently
 constructor(page) {
   this.page = page;
 
-  // IDs do HTML crudPrincipalNegocio.html (validado com grep_search)
-  this.ID_DESCRICAO_CADASTRO = '#description'; // Linha 150 em crudPrincipalNegocio.html
+  // IDs from mainBusinessCrud.html (validated with grep_search)
+  this.ID_REGISTRATION_DESCRIPTION = '#description'; // Line 150 in mainBusinessCrud.html
 
-  // IDs do HTML filtroNegocio.html (validado com grep_search SEPARADAMENTE)
-  this.ID_DESCRICAO_FILTRO = '#filter-description'; // Linha 89 em filtroNegocio.html
+  // IDs from businessFilter.html (validated with grep_search SEPARATELY)
+  this.ID_FILTER_DESCRIPTION = '#filter-description'; // Line 89 in businessFilter.html
 }
 
-async cadastrarNegocio(dados) {
-  // Usa ID específico do cadastro ✅
-  await this.page.locator(this.ID_DESCRICAO_CADASTRO).fill(dados.descricao);
+async createBusiness(data) {
+  // Uses the specific registration ID ✅
+  await this.page.locator(this.ID_REGISTRATION_DESCRIPTION).fill(data.description);
 }
 
-async filtrarNegocio(dados) {
-  // Usa ID específico do filtro ✅
-  await this.page.locator(this.ID_DESCRICAO_FILTRO).fill(dados.descricao);
+async filterBusiness(data) {
+  // Uses the specific filter ID ✅
+  await this.page.locator(this.ID_FILTER_DESCRIPTION).fill(data.description);
 }
 ```
 
-**📊 DOCUMENTAÇÃO OBRIGATÓRIA NO PLANO TÉCNICO:**
+**📊 MANDATORY DOCUMENTATION IN THE TECHNICAL PLAN:**
 
 ```markdown
-## HTMLs Analisados (TODOS)
+## Analyzed HTMLs (ALL)
 
-| Etapa | HTML Referenciado | Elementos Identificados | Status |
+| Step | Referenced HTML | Identified Elements | Status |
 |-------|-------------------|------------------------|--------|
-| Etapa 2 | acessaTela.html | Título "Gerenciar Negócio" | ✅ Analisado |
-| Etapa 3 | crudPrincipalNegocio.html | Campo Descrição (#description), 9 s-lookups | ✅ Analisado |
-| Etapa 5 | filtroNegocio.html | Campo Descrição (#filter-description), botão Filtrar | ✅ Analisado |
-| Etapa 6 | kanban.html | Cards, títulos, status | ✅ Analisado |
+| Step 2 | accessScreen.html | Title "Manage Business" | ✅ Analyzed |
+| Step 3 | mainBusinessCrud.html | Description field (#description), 9 s-lookups | ✅ Analyzed |
+| Step 5 | businessFilter.html | Description field (#filter-description), Filter button | ✅ Analyzed |
+| Step 6 | kanban.html | Cards, titles, status | ✅ Analyzed |
 
-**⚠️ ATENÇÃO:** Campo "Descrição" existe em 2 HTMLs com IDs DIFERENTES:
-- crudPrincipalNegocio.html: `#description` (linha 150)
-- filtroNegocio.html: `#filter-description` (linha 89)
+**⚠️ ATTENTION:** The "Description" field exists in 2 HTML files with DIFFERENT IDs:
+- mainBusinessCrud.html: `#description` (line 150)
+- businessFilter.html: `#filter-description` (line 89)
 
-**Decisão:** Criar constantes separadas no constructor para cada contexto.
+**Decision:** Create separate constants in the constructor for each context.
 ```
 
-**💡 Checklist Anti-Erro:**
+**💡 Anti-Error Checklist:**
 
-- [ ] Listei TODAS as etapas das "Informações Gerais do Teste"?
-- [ ] Identifiquei TODOS os HTMLs referenciados (não apenas o primeiro)?
-- [ ] Executei `grep_search` em CADA HTML independentemente?
-- [ ] Validei que elementos com MESMO NOME podem ter IDs/seletores DIFERENTES em HTMLs diferentes?
-- [ ] Criei constantes/locators ESPECÍFICOS para cada contexto (cadastro, filtro, etc)?
-- [ ] Documentei no plano técnico TODOS os HTMLs analisados?
+- [ ] Did I list ALL the steps in the "General Test Information"?
+- [ ] Did I identify ALL the referenced HTMLs (not just the first one)?
+- [ ] Did I run `grep_search` on EACH HTML independently?
+- [ ] Have I validated that elements with the SAME NAME can have DIFFERENT IDs/selectors in different HTMLs?
+- [ ] Did I create SPECIFIC constants/locators for each context (registration, filter, etc.)?
+- [ ] Did I document ALL the analyzed HTML in the technical plan?
 
-**⛔ SE QUALQUER RESPOSTA FOR "NÃO":** Voltar e analisar TODOS os HTMLs antes de implementar
+**⛔ IF ANY ANSWER IS "NO":** Go back and analyze ALL HTML before implementing
 
 ---
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-  // ❌ ERRADO - Ignorar informações gerais e usar template genérico
-  test('001 - Teste genérico', async ({ page }) => {
-  // Código genérico que NÃO segue as informações específicas fornecidas
+  // ❌ WRONG - Ignore general information and use generic template
+  test('001 - Generic test', async ({ page }) => {
+  // Generic code that does NOT follow the specific information provided
   });
 ```
 
-**✅ PADRÃO CORRETO:**
+**✅ CORRECT PATTERN:**
 
 ```javascript
-  // ✅ CORRETO - Seguir informações gerais fornecidas passo a passo
-  test('001 - Teste específico conforme informações fornecidas',
+  // ✅ CORRECT - Follow general information provided step by step
+  test('001 - Specific test according to information provided',
   {
-    tag: '@TAG_ESPECIFICA',
+    tag: '@SPECIFIC_TAG',
     annotation: { type: 'Issue', description: 'URL_JIRA' }
   },
   async ({ page }) => {
-    // Arrange: Exatamente conforme passo 1 das informações gerais
+    // Arrange: Exactly as in step 1 of the general information
     // ...
 
-    // Act: Exatamente conforme passo 2 das informações gerais
+    // Act: Exactly as in step 2 of the general information
     // ...
 
-    // Assert: Exatamente conforme passo 3 das informações gerais
+    // Assert: Exactly as in step 3 of the general information
     // ...
   }
 );
 ```
 
-**💡 Checklist de Conformidade:**
+**💡 Compliance Checklist:**
 
-- [ ] Li TODAS as "Informações Gerais do Teste" fornecidas?
-- [ ] Identifiquei TODOS os passos específicos?
-- [ ] Implementei CADA passo conforme descrito?
-- [ ] Questionei o usuário SE houve dúvida em algum passo?
-- [ ] NÃO assumi ou pulei nenhuma etapa?
-
----
-
-## 📋 **Template Completo de Arquivo de Teste**
-
-> **🎯 Template com Placeholders Genéricos e Injeção Condicional de Fixtures**
-
-### **Regras de Injeção de Fixtures (OBRIGATÓRIO):**
-
-- **Somente Page (UI):** `async ({ page }) => { ... }`
-- **Injetar apenas o necessário:** neste módulo, manter `async ({ page }) => { ... }`
-
-**⚠️ NUNCA injete fixture não utilizada** (causa warning e poluição de código)
+- [ ] Have I read ALL the "General Test Information" provided?
+- [ ] Did I identify ALL the specific steps?
+- [ ] Did I implement EACH step as described?
+- [ ] I asked the user IF there was any doubt in any step?
+- [ ] Did I NOT take over or skip any step?
 
 ---
 
-### **Template Base Completo:**
+## 📋 **Complete Test File Template**
 
-> **📝 INSTRUÇÕES DE USO DO TEMPLATE:**
+> **🎯 Template with Generic Placeholders and Conditional Fixture Injection**
+
+### **Fixture Injection Rules (MANDATORY):**
+
+- **Page only (UI):** `async ({ page }) => { ... }`
+- **Inject only what is necessary:** in this module, keep `async ({ page }) => { ... }`
+
+**⚠️ NEVER inject unused fixture** (causes warning and code pollution)
+
+---
+
+### **Complete Base Template:**
+
+> **📝 INSTRUCTIONS FOR USING THE TEMPLATE:**
 >
-> - Substitua TODOS os placeholders por valores reais
-> - **Remova fixtures não utilizadas**
-> - **Comentários de instrução** (como este bloco) NÃO devem ser copiados para o arquivo real
+> - Replace ALL placeholders with real values
+> - **Remove unused fixtures**
+> - **Instruction comments** (like this block) should NOT be copied to the actual file
 
 ```javascript
 import { expect } from '@playwright/test';
 import {
-  {JSON_CONSTANTE_01},
-  {JSON_CONSTANTE_02},
-} from '../../data/{caminho}/{funcionalidade}Json.js';
+  {JSON_CONSTANT_01},
+  {JSON_CONSTANT_02},
+} from '../../data/{path}/{feature}Json.js';
 import { test } from '../helpers';
-import { {USUARIO_TESTE} } from '../helpers/ambiente.js';
+import { {TEST_USER} } from '../helpers/ambiente.js';
 import { logger } from '../../utils/logger.js';
 
-test.describe('{nome do Describe}', { tag: ['@{MODULO}', '@{FUNCIONALIDADE}'] }, () => {
+test.describe('{describe name}', { tag: ['@{MODULE}', '@{FEATURE}'] }, () => {
 
   test.beforeEach(async ({ page }) => {
     logger.test(test.info().title);
 
-    await page.funcionalidadePage.login({USUARIO_TESTE});
-    await page.{funcionalidade}Page.acessarTela();
+    await page.featurePage.login({TEST_USER});
+    await page.{feature}Page.accessScreen();
   });
 
   test(
-    '01 - {Descrição da ação 01} (UI)',
+    '01 - {Description of action 01} (UI)',
     {
-      tag: '@{TAG_ACAO_01}',
+      tag: '@{ACTION_TAG_01}',
       annotation: {
         type: 'Issue',
-        description: '{URL_JIRA}',
+        description: '{JIRA_URL}',
       },
     },
     async ({ page }) => {
-      // Arrange: Preparar dados e contexto necessários para ação 01
-      await page.{funcionalidade}Page.prepararContexto({JSON_CONSTANTE_01});
+      // Arrange: Prepare data and context needed for action 01
+      await page.{feature}Page.prepareContext({JSON_CONSTANT_01});
 
-      // Act: Executar ação principal de negócio 01
-      await page.{funcionalidade}Page.executarAcao01({JSON_CONSTANTE_01});
+      // Act: Execute main business action 01
+      await page.{feature}Page.executeAction01({JSON_CONSTANT_01});
 
-      // Assert: Validar resultado esperado da ação 01
-      await page.{funcionalidade}Page.validarResultadoAcao01({JSON_CONSTANTE_01});
-      await expect(page.{funcionalidade}Page.locatorMensagemSucessoAlert).toBeVisible();
+      // Assert: Validate expected result of action 01
+      await page.{feature}Page.validateAction01Result({JSON_CONSTANT_01});
+      await expect(page.{feature}Page.successMessageAlertLocator).toBeVisible();
     }
   );
 
   test(
-    '02 - {Descrição da ação 02} (UI)',
+    '02 - {Description of action 02} (UI)',
     {
-      tag: '@{TAG_ACAO_02}',
+      tag: '@{ACTION_TAG_02}',
       annotation: {
         type: 'Issue',
-        description: '{URL_JIRA}',
+        description: '{JIRA_URL}',
       },
     },
     async ({ page }) => {
-      // Arrange: Navegar para edição e preparar dados para ação 02
-      await page.{funcionalidade}Page.navegarParaEdicaoPorFiltro({JSON_CONSTANTE_02});
+      // Arrange: Navigate to edit and prepare data for action 02
+      await page.{feature}Page.navigateToEditByFilter({JSON_CONSTANT_02});
 
-      // Act: Executar ação principal de negócio 02 via UI
-      await page.{funcionalidade}Page.executarAcao02({JSON_CONSTANTE_02});
+      // Act: Execute main business action 02 via UI
+      await page.{feature}Page.executeAction02({JSON_CONSTANT_02});
 
-      // Assert: Validar resultado da ação na UI
-      await page.{funcionalidade}Page.validarResultadoAcao02();
-      await expect(page.{funcionalidade}Page.locatorCampoEsperado).toHaveText({JSON_CONSTANTE_02}.campoEsperado);
+      // Assert: Validate result of the action in the UI
+      await page.{feature}Page.validateAction02Result();
+      await expect(page.{feature}Page.expectedFieldLocator).toHaveText({JSON_CONSTANT_02}.expectedField);
     }
   );
 
   test(
-    '03 - {Descrição da ação 03} - VALIDAÇÃO DE ERRO (UI)',
+    '03 - {Description of action 03} - ERROR VALIDATION (UI)',
     {
-      tag: '@{TAG_ACAO_03}',
+      tag: '@{ACTION_TAG_03}',
       annotation: {
         type: 'Issue',
-        description: '{URL_JIRA}',
+        description: '{JIRA_URL}',
       },
     },
     async ({ page }) => {
-      // Arrange: Navegar para formulário sem preencher campos obrigatórios
+      // Arrange: Navigate to the form without filling required fields
 
-      // Act: Submeter formulário vazio ou com dados inválidos
-      await page.{funcionalidade}Page.submeterFormularioVazio();
+      // Act: Submit an empty form or invalid data
+      await page.{feature}Page.submitEmptyForm();
 
-      // Assert: Validar mensagens de erro nos campos obrigatórios
-      await page.{funcionalidade}Page.validarMensagensErro(['campo1', 'campo2']);
-      await expect(page.{funcionalidade}Page.locatorMensagemErroAlert).toBeVisible();
+      // Assert: Validate error messages in required fields
+      await page.{feature}Page.validateErrorMessages(['field1', 'field2']);
+      await expect(page.{feature}Page.errorMessageAlertLocator).toBeVisible();
     }
   );
 });
@@ -761,711 +761,711 @@ test.describe('{nome do Describe}', { tag: ['@{MODULO}', '@{FUNCIONALIDADE}'] },
 
 ---
 
-### **Checklist de Uso do Template:**
+### **Template Usage Checklist:**
 
-- [ ] Substituí TODOS os placeholders por valores reais?
-- [ ] **Removi `database` e `tenant` se não usar DB?**
-- [ ] Importei JSONs COM extensão `.js`?
-- [ ] Usei injeção de fixtures apenas com `page`?
-- [ ] Comentários AAA são específicos (não genéricos)?
-- [ ] Tags do describe são ARRAY, tags do test são STRING?
-- [ ] Cada test() tem annotation com link do Jira?
-- [ ] NUNCA construí objetos inline (sempre importei JSON de data/)?
-- [ ] Executei `get_errors` após criar imports?
+- [ ] Did I replace ALL placeholders with real values?
+- [ ] **Removed `database` and `tenant` if not using DB?**
+- [ ] Did I import JSONs WITH the `.js` extension?
+- [ ] Did I use fixture injection only with `page`?
+- [ ] Are AAA comments specific (not generic)?
+- [ ] Describe tags are ARRAY, test tags are STRING?
+- [ ] Does each test() have an annotation with a Jira link?
+- [ ] I NEVER built inline objects (I always imported JSON from data/)?
+- [ ] Did I run `get_errors` after creating imports?
 
 ---
 
-## 🏷️ **Tags de Teste (OBRIGATÓRIAS)**
+## 🏷️ **Test Tags (MANDATORY)**
 
-### **Regras de Tags:**
+### **Tag Rules:**
 
-1. **test.describe() DEVE ter tag ARRAY** com tags gerais do módulo/funcionalidade
-2. **test() DEVE ter tag STRING ÚNICA** específica daquele teste
-3. **Tags NÃO DEVEM se repetir** entre describe e test
-4. Formato: `@NOME_TAG` em maiúsculas
-5. Annotation OBRIGATÓRIO com URL do Jira em cada test()
+1. **test.describe() MUST have ARRAY tag** with general module/feature tags
+2. **test() MUST have a UNIQUE STRING tag** specific to that test
+3. **Tags MUST NOT be repeated** between describe and test
+4. Format: `@TAG_NAME` in capital letters
+5. MANDATORY Annotation with Jira URL in each test()
 
-### **Estrutura Correta:**
+### **Correct Structure:**
 
 ```javascript
-// ✅ CORRETO - describe com ARRAY, test com STRING ÚNICA
-test.describe('Cadastro de Registros', { tag: ['@MODULO_EXEMPLO', '@FUNCIONALIDADE'] }, () => {
+// ✅ CORRECT - describe with ARRAY, test with SINGLE STRING
+test.describe('Record Registration', { tag: ['@EXAMPLE_MODULE', '@FEATURE'] }, () => {
   test.beforeEach(async ({ page }) => {
     // Setup
   });
 
-  test('001 - Deve cadastrar novo registro',
+  test('001 - must create a new record',
     {
-      tag: '@FUNCIONALIDADE_CREATE',  // ✅ STRING, não array
+      tag: '@FEATURE_CREATE',  // ✅ STRING, not array
       annotation: { type: 'Issue', description: 'https://jira.example.com/browse/PROJ-101' }
     },
     async ({ page }) => {
-      // Teste aqui
+      // Test here
     }
   );
 
-  test('002 - Deve editar registro existente',
+  test('002 - must edit existing record',
     {
-      tag: '@FUNCIONALIDADE_UPDATE',  // ✅ STRING, não array
+      tag: '@FEATURE_UPDATE',  // ✅ STRING, not array
       annotation: { type: 'Issue', description: 'https://jira.example.com/browse/PROJ-102' }
     },
     async ({ page }) => {
-      // Teste aqui
+      // Test here
     }
   );
 });
 ```
 
-### **❌ INCORRETO - Não Fazer:**
+### **❌ INCORRECT - Don't Do:**
 
 ```javascript
-// ❌ ERRADO - describe SEM tags
-test.describe('crud - Funcionalidade', () => {
+// ❌ WRONG - describe WITHOUT tags
+test.describe('crud - feature', () => {
 
-// ❌ ERRADO - test com ARRAY ao invés de STRING
-test('001 - Teste', {
-  tag: ['@TAG1', '@TAG2'],  // ❌ Array no test()
+// ❌ WRONG - test with ARRAY instead of STRING
+test('001 - Test', {
+  tag: ['@TAG1', '@TAG2'],  // ❌ Array in test()
   annotation: { ... }
 }, async () => {});
 
-// ❌ ERRADO - tags repetidas entre describe e test
-test.describe('crud', { tag: ['@MODULO_EXEMPLO'] }, () => {
+// ❌ WRONG - repeated tags between describe and test
+test.describe('crud', { tag: ['@EXAMPLE_MODULE'] }, () => {
   test('001', {
-    tag: '@MODULO_EXEMPLO',  // ❌ Repetida do describe
+    tag: '@EXAMPLE_MODULE',  // ❌ Repeated from describe
     annotation: { ... }
   }, async () => {});
 });
 
-// ❌ ERRADO - test SEM annotation
-test('001 - Teste', {
+// ❌ WRONG - test WITHOUT annotation
+test('001 - Test', {
   tag: '@TAG'
-  // ❌ Faltando annotation
+  // ❌ Missing annotation
 }, async () => {});
 ```
 
-### **Checklist de Tags:**
+### **Tag Checklist:**
 
-- [ ] test.describe() tem tag como **ARRAY** `{ tag: ['@TAG1', '@TAG2'] }`
-- [ ] test() tem tag como **STRING** `{ tag: '@TAG_UNICA' }`
-- [ ] Tags do describe são gerais (módulo/funcionalidade)
-- [ ] Tags do test() são específicas (ação/cenário)
-- [ ] Não há repetição de tags entre describe e test
-- [ ] Annotation com URL Jira presente em TODOS os test()
+- [ ] test.describe() has tag like **ARRAY** `{ tag: ['@TAG1', '@TAG2'] }`
+- [ ] test() has tag like **STRING** `{ tag: '@TAG_UNICA' }`
+- [ ] Describe tags are general (module/feature)
+- [ ] test() tags are specific (action/scenario)
+- [ ] There is no repetition of tags between describe and test
+- [ ] Annotation with Jira URL present in ALL test()
 
 ---
 
-## 🚫 **PROIBIÇÕES**
+## 🚫 **PROHIBITIONS**
 
-### **❌ NUNCA construa JSON inline no arquivo .spec.js**
+### **❌ NEVER construct inline JSON in .spec.js file**
 
-> **⚠️ REGRA CRÍTICA: TODOS os JSONs devem estar em `data/`, NUNCA criar objetos dentro do `.spec.js`**
+> **⚠️ CRITICAL RULE: ALL JSONs must be in `data/`, NEVER create objects inside `.spec.js`**
 
-**🚨 PROBLEMA CRÍTICO:** Construir objetos como `dadosFiltro`, `dadosCadastro` diretamente no teste
+**🚨 CRITICAL PROBLEM:** Construct objects like `filterData` and `registrationData` directly in the test
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-// ❌ ERRADO - Criar objeto inline no teste
-test('Deve filtrar registros', async ({ page }) => {
-  const dadosFiltro = {
-    nome: 'Teste',
-    categoria: 'Categoria A',
-    status: 'Ativo',
+// ❌ WRONG - Create inline object in test
+test('Must filter records', async ({ page }) => {
+  const filterData = {
+    name: 'Test',
+    category: 'Category A',
+    status: 'Active',
   };
 
-  await page.funcionalidadePage.preencherFiltros(dadosFiltro);
+  await page.featurePage.fillFilters(filterData);
 });
 
-// ❌ ERRADO - Criar objeto de cadastro no teste
-test('Deve cadastrar registro', async ({ page }) => {
-  const dadosCadastro = {
-    nome: 'Registro Novo',
-    descricao: 'Descrição',
+// ❌ WRONG - Create registration object in the test
+test('Must create a record', async ({ page }) => {
+  const registrationData = {
+    name: 'New Record',
+    description: 'Description',
   };
 
-  await page.funcionalidadePage.cadastrar(dadosCadastro);
+  await page.featurePage.create(registrationData);
 });
 ```
 
-**✅ SOLUÇÃO CORRETA:**
+**✅ CORRECT SOLUTION:**
 
 ```javascript
-// ✅ CORRETO - JSON importado de data/
-import { JSON_FILTRO_VALIDACAO, JSON_CADASTRAR_REGISTRO } from '../../data/{caminho}/{arquivo}Json';
+// ✅ CORRECT - JSON imported from data/
+import { JSON_FILTER_VALIDATION, JSON_CREATE_RECORD } from '../../data/{path}/{file}Json';
 
-test('01 - Deve filtrar registros',
+test('01 - Must filter records',
   {
-    tag: '@FUNCIONALIDADE_FILTRO',
+    tag: '@FEATURE_FILTER',
     annotation: { type: 'Issue', description: 'https://jira.example.com/PROJ-001' }
   },
   async ({ page }) => {
-    // Arrange: Preparar dados para filtro
-    await page.funcionalidadePage.acessarTela();
+    // Arrange: Prepare filter context
+    await page.featurePage.accessScreen();
 
-    // Act: Aplicar filtros e executar busca
-    await page.funcionalidadePage.preencherFiltros(JSON_FILTRO_VALIDACAO);
-    await page.funcionalidadePage.executarBusca();
+    // Act: Apply filters and perform search
+    await page.featurePage.fillFilters(JSON_FILTER_VALIDATION);
+    await page.featurePage.executeSearch();
 
-    // Assert: Validar resultados filtrados
-    await page.funcionalidadePage.validarResultados(JSON_FILTRO_VALIDACAO);
+    // Assert: Validate filtered results
+    await page.featurePage.validateResults(JSON_FILTER_VALIDATION);
   }
 );
 
-test('02 - Deve cadastrar registro',
+test('02 - Must create a record',
   {
-    tag: '@FUNCIONALIDADE_CREATE',
+    tag: '@FEATURE_CREATE',
     annotation: { type: 'Issue', description: 'https://jira.example.com/PROJ-002' }
   },
   async ({ page }) => {
-    // Arrange: Acessar formulário de cadastro
-    await page.funcionalidadePage.abrirFormulario();
+    // Arrange: Access the registration form
+    await page.featurePage.openForm();
 
-    // Act: Cadastrar registro com JSON pré-definido
-    await page.funcionalidadePage.cadastrar(JSON_CADASTRAR_REGISTRO);
+    // Act: Create the record with predefined JSON
+    await page.featurePage.create(JSON_CREATE_RECORD);
 
-    // Assert: Validar cadastro realizado
-    await page.funcionalidadePage.validarCadastro();
+    // Assert: Validate that the record was created
+    await page.featurePage.validateCreation();
   }
 );
 ```
 
-**💡 Por que isso é obrigatório:**
+**💡 Why this is mandatory:**
 
-- ✅ Mantém dados centralizados em `data/`
-- ✅ Facilita reutilização de JSONs em múltiplos testes
-- ✅ Manutenção simplificada (alterar JSON altera todos os testes)
-- ✅ Código de teste mais limpo e legível
-- ❌ Criar inline = duplicação de dados e dificulta manutenção
+- ✅ Keeps data centralized in `data/`
+- ✅ Facilitates reuse of JSONs in multiple tests
+- ✅ Simplified maintenance (changing JSON changes all tests)
+- ✅ Cleaner and more readable test code
+- ❌ Create inline = data duplication and difficult maintenance
 
 ---
 
-### **❌ NUNCA expanda campos de JSON inline**
+### **❌ NEVER expand JSON fields inline**
 
-> **⚠️ REGRA CRÍTICA: SEMPRE passar JSON completo de `data/`, NUNCA criar objetos inline no `.spec.js`**
+> **⚠️ CRITICAL RULE: ALWAYS pass full JSON from `data/`, NEVER create inline objects in `.spec.js`**
 
-**🚨 PROBLEMA CRÍTICO:** Código poluído com expansão manual de campos
+**🚨 CRITICAL PROBLEM:** Code polluted with manual field expansion
 
-**❌ ANTI-PADRÃO (NÃO FAZER):**
+**❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-// ❌ ERRADO - Expandir campos do JSON inline
-await page.funcionalidadePage.cadastrar({
-  nome: JSON_CADASTRAR_REGISTRO.nome,
-  descricao: JSON_CADASTRAR_REGISTRO.descricao,
-  categoria: JSON_CADASTRAR_REGISTRO.categoria,
-  dataInicio: JSON_CADASTRAR_REGISTRO.dataInicio,
+// ❌ WRONG - Expand JSON fields inline
+await page.featurePage.create({
+  name: JSON_CREATE_RECORD.name,
+  description: JSON_CREATE_RECORD.description,
+  category: JSON_CREATE_RECORD.category,
+  startDate: JSON_CREATE_RECORD.startDate,
 });
 
-// ❌ ERRADO - Desestruturar campos individualmente
-await page.funcionalidadePage.validarNaGrid({
-  nome: JSON_FILTRO_VALIDACAO.nome,
-  categoria: JSON_FILTRO_VALIDACAO.categoria,
-  status: JSON_FILTRO_VALIDACAO.status,
-  dataInicio: JSON_FILTRO_VALIDACAO.dataInicio,
+// ❌ WRONG - Destructure fields individually
+await page.featurePage.validateInGrid({
+  name: JSON_FILTER_VALIDATION.name,
+  category: JSON_FILTER_VALIDATION.category,
+  status: JSON_FILTER_VALIDATION.status,
+  startDate: JSON_FILTER_VALIDATION.startDate,
 });
 ```
 
-**✅ SOLUÇÃO CORRETA:**
+**✅ CORRECT SOLUTION:**
 
 ```javascript
-// ✅ CORRETO - Passar JSON completo diretamente
-await page.funcionalidadePage.cadastrar(JSON_CADASTRAR_REGISTRO);
+// ✅ CORRECT - Pass full JSON directly
+await page.featurePage.create(JSON_CREATE_RECORD);
 
-// ✅ CORRETO - Passar JSON completo
-await page.funcionalidadePage.validarNaGrid(JSON_FILTRO_VALIDACAO);
+// ✅ CORRECT - Pass full JSON
+await page.featurePage.validateInGrid(JSON_FILTER_VALIDATION);
 
-// ✅ CORRETO - Passar JSON completo
-await page.funcionalidadePage.preencherFiltros(JSON_FILTRO_VALIDACAO);
+// ✅ CORRECT - Pass full JSON
+await page.featurePage.fillFilters(JSON_FILTER_VALIDATION);
 ```
 
-**🎯 Regra de Ouro:**
+**🎯Golden Rule:**
 
-| Situação | Como Fazer |
+| Situation | How to do it |
 |----------|-----------|
-| **Método recebe objeto JSON** | ✅ Passar constante JSON completa |
-| **JSON tem todos os campos** | ✅ Passar diretamente sem expandir |
-| **Necessita customização** | ✅ Criar novo JSON ou usar spread: `{ ...JSON_BASE, campo: 'novo valor' }` |
-| **Expansão inline** | ❌ **NUNCA FAZER** - Polui o código |
+| **Method receives JSON object** | ✅ Pass the full JSON constant |
+| **JSON has all fields** | ✅ Pass it directly without expanding |
+| **Needs customization** | ✅ Create new JSON or use spread: `{ ...JSON_BASE, field: 'new value' }` |
+| **Inline expansion** | ❌ **NEVER DO THIS** - Pollutes the code |
 
-**💡 Benefícios:**
+**💡 Benefits:**
 
-- ✅ Código limpo e legível
-- ✅ Menos linhas no arquivo de teste
-- ✅ Manutenção centralizada no JSON
-- ✅ Reutilização fácil em múltiplos testes
-- ✅ Facilita identificar qual JSON está sendo usado
+- ✅ Clean and readable code
+- ✅ Fewer lines in the test file
+- ✅ JSON-centric maintenance
+- ✅ Easy reuse in multiple tests
+- ✅ Makes it easy to identify which JSON is being used
 
-**🔧 Implementação:**
+**🔧 Implementation:**
 
-1. **JSON deve conter TODOS os campos necessários** para o cenário
-2. **Page Object aceita JSON completo** e extrai campos necessários
-3. **Teste passa JSON diretamente** sem expansão
-4. **Se precisar customizar:** Criar novo JSON ou usar spread operator
+1. **JSON must contain ALL necessary fields** for the scenario
+2. **Page Object accepts full JSON** and extracts required fields
+3. **Test passes JSON directly** without expansion
+4. **If you need to customize:** Create new JSON or use spread operator
 
-**Exemplo Completo:**
+**Complete Example:**
 
 ```javascript
-// ✅ data/registrosJson.js
-export const JSON_CADASTRAR_REGISTRO = {
-  nome: 'Registro Exemplo',
-  categoria: 'Categoria A',
-  status: 'Ativo',
-  dataInicio: '2024-01-01',
-  descricao: 'Descrição do registro',
+// ✅ data/recordsJson.js
+export const JSON_CREATE_RECORD = {
+  name: 'Example Record',
+  category: 'Category A',
+  status: 'Active',
+  startDate: '2024-01-01',
+  description: 'Record description',
 };
 
-export const JSON_FILTRO_VALIDACAO = {
-  // Campos de filtro
-  nome: 'Registro Exemplo',
-  categoria: 'Categoria A',
-  status: 'Ativo',
-  // Campos de validação
-  quantidadeItens: 5,
+export const JSON_FILTER_VALIDATION = {
+  // Filter Fields
+  name: 'Example Record',
+  category: 'Category A',
+  status: 'Active',
+  // Validation Fields
+  itemCount: 5,
 };
 
-// ✅ pages/funcionalidadePage.js
-async cadastrar(dados) {
-  await this.locatorNomeInput.fill(dados.nome);
-  await this.formUtils.fillFieldPDropdown('#categoria', dados.categoria);
-  // ... extrai campos que precisa do JSON
+// ✅ pages/featurePage.js
+async create(data) {
+  await this.nameInputLocator.fill(data.name);
+  await this.formUtils.fillFieldPDropdown('#category', data.category);
+  // ... extracts the required fields from JSON
 }
 
-async preencherFiltros(filtros) {
-  if (filtros.nome) await this.locatorFiltroNomeInput.fill(filtros.nome);
-  if (filtros.categoria) {
-    await this.formUtils.fillFieldPDropdown('#filtroCategoria', filtros.categoria);
+async fillFilters(filters) {
+  if (filters.name) await this.filterNameInputLocator.fill(filters.name);
+  if (filters.category) {
+    await this.formUtils.fillFieldPDropdown('#filterCategory', filters.category);
   }
-  // ... extrai campos condicionalmente
+  // ... conditionally extracts fields
 }
 
-// ✅ tests/funcionalidade.spec.js
-test('001 - Cadastrar Registro',
+// ✅ tests/feature.spec.js
+test('001 - Create record',
   {
-    tag: '@FUNCIONALIDADE_CREATE',
+    tag: '@FEATURE_CREATE',
     annotation: { type: 'Issue', description: 'https://jira.example.com/PROJ-001' }
   },
   async ({ page }) => {
-    // Arrange: Garantir tela pronta para cadastro
-    await page.funcionalidadePage.prepararTelaCadastro();
+    // Arrange: Ensure the screen is ready for record creation
+    await page.featurePage.prepareRegistrationScreen();
 
-    // Act: Cadastrar registro passando JSON completo
-    await page.funcionalidadePage.cadastrar(JSON_CADASTRAR_REGISTRO);
+    // Act: Create the record by passing the complete JSON
+    await page.featurePage.create(JSON_CREATE_RECORD);
 
-    // Act: Aplicar filtros passando JSON completo
-    await page.funcionalidadePage.preencherFiltros(JSON_FILTRO_VALIDACAO);
-    await page.funcionalidadePage.aplicarFiltros();
+    // Act: Apply filters by passing the full JSON
+    await page.featurePage.fillFilters(JSON_FILTER_VALIDATION);
+    await page.featurePage.applyFilters();
 
-    // Assert: Validar grid passando JSON completo
-    await page.funcionalidadePage.validarNaGrid(JSON_FILTRO_VALIDACAO);
+    // Assert: Validate the grid using the full JSON
+    await page.featurePage.validateInGrid(JSON_FILTER_VALIDATION);
   }
 );
 ```
 
-**🚨 CHECKLIST DE VALIDAÇÃO:**
+**🚨 VALIDATION CHECKLIST:**
 
-Antes de finalizar um teste, verifique:
+Before finishing a test, check:
 
-- [ ] ❌ Há expansão de campos inline tipo `{ campo1: JSON.campo1, campo2: JSON.campo2 }`?
-- [ ] ❌ Há múltiplas linhas com `JSON_CONSTANTE.campo` dentro de método?
-- [ ] ✅ Todas as chamadas passam JSON completo diretamente?
-- [ ] ✅ JSONs contêm TODOS os campos necessários para o cenário?
-- [ ] ✅ Page Objects extraem campos internamente do JSON recebido?
+- [ ] ❌ Is there inline field expansion like `{ field1: JSON.field1, field2: JSON.field2 }`?
+- [ ] ❌ Are there multiple lines with `JSON_CONSTANT.field` inside the method?
+- [ ] ✅ Do all calls pass full JSON directly?
+- [ ] ✅ Do JSONs contain ALL the fields needed for the scenario?
+- [ ] ✅ Do Page Objects extract fields internally from the received JSON?
 
 ---
 
-## 📊 **Regras de Criação vs. Atualização**
+## 📊 **Creation Rules vs. Update**
 
-| Cenário | Ação | Regras |
+| Scenario | Action | Rules |
 |---------|------|--------|
-| **Arquivo novo** | Criar | Estrutura completa: `describe`, `beforeEach`, `test()` |
-| **Arquivo existente** | Atualizar | APENAS adicionar `test()`, NUNCA remover/alterar existentes |
+| **New file** | Create | Complete structure: `describe`, `beforeEach`, `test()` |
+| **Existing file** | Update | ONLY add `test()`, NEVER remove/change existing |
 
-### **Ao Atualizar Arquivo Existente:**
+### **When Updating Existing File:**
 
-1. **Adicionar `test()` ao final** do bloco `describe`
-2. **NUNCA remover** testes existentes
-3. **NUNCA modificar** `beforeEach` ou `afterAll` existentes
-4. **MANTER** padrão de nomenclatura de testes (numeração sequencial)
+1. **Add `test()` to the end** of the `describe` block
+2. **NEVER remove** existing tests
+3. **NEVER modify** existing `beforeEach` or `afterAll`
+4. **KEEP** test naming standard (sequential numbering)
 
 ---
 
-## 📂 **Importações Obrigatórias**
+## 📂 **Mandatory Imports**
 
 ```javascript
-import { {JSON_CONSTANTE} } from '../data/{caminho}/{arquivo}Json';
+import { {JSON_CONSTANT} } from '../data/{path}/{file}Json';
 import { test } from '../helpers';
-import { {USUARIO_TESTE} } from '../helpers/ambiente';
+import { {TEST_USER} } from '../helpers/ambiente';
 ```
 
-### **Checklist de Imports:**
+### **Imports Checklist:**
 
-- [ ] JSON de dados importado (se necessário)
-- [ ] `test` importado de `helpers` (não `@playwright/test`)
-- [ ] Usuário de teste importado de `helpers/ambiente`
-- [ ] Caminhos relativos corretos (contar `../`)
-- [ ] Executar `get_errors` após criar imports
+- [ ] Imported data JSON (if necessary)
+- [ ] `test` imported from `helpers` (not `@playwright/test`)
+- [ ] Test user imported from `helpers/ambiente`
+- [ ] Correct relative paths (count `../`)
+- [ ] Execute `get_errors` after creating imports
 
 ---
 
-## 🎯 **Estrutura beforeEach Padrão**
+## 🎯 **Standard beforeEach Structure**
 
 ```javascript
 test.beforeEach(async ({ page }) => {
   logger.test(test.info().title);
 
-  // Realizar login e navegar para tela
-  await page.funcionalidadePage.login({USUARIO_TESTE});
-  await page.{funcionalidade}Page.acessarTela();
+  // Log in and navigate to the screen
+  await page.featurePage.login({TEST_USER});
+  await page.{feature}Page.accessScreen();
 });
 ```
 
-### **Elementos Obrigatórios:**
+### **Mandatory Elements:**
 
-1. **Log do teste:** `logger.test(test.info().title)` (usando `utils/logger.js`)
-2. **Login:** `await page.funcionalidadePage.login({USUARIO_TESTE})`
-3. **Navegação:** `await page.{funcionalidade}Page.acessarTela()`
+1. **Test log:** `logger.test(test.info().title)` (using `utils/logger.js`)
+2. **Login:** `await page.featurePage.login({TEST_USER})`
+3. **Navigation:** `await page.{feature}Page.accessScreen()`
 
-**⚠️ NUNCA use `console.log()` diretamente** — viola SonarQube S106. Use `logger` de `utils/logger.js`
-
----
-
-## 🔄 **Estrutura de Limpeza de Cenário**
-
-Utilize métodos da própria Page quando houver necessidade de limpar estado da tela entre cenários.
-
-**Quando usar:**
-- Restauração de estado inicial da interface
-- Limpeza de filtros e campos em tela
-- Fechamento de modais e retorno para listagem
+**⚠️ NEVER use `console.log()` directly** — violates SonarQube S106. Use `logger` from `utils/logger.js`
 
 ---
 
-### **Checklist de Validação Final**
+## 🔄 **Scenario Cleaning Structure**
 
-Antes de finalizar arquivo de teste:
+Use Page's own methods when there is a need to clear the screen state between scenarios.
 
-- [ ] Padrão AAA implementado em TODOS os testes
-- [ ] Comentários AAA específicos (não genéricos: "Preparação", "Execução", "Validação")
-- [ ] NUNCA expandiu campos de JSON inline
-- [ ] Tags obrigatórias em `describe` (array) e `test()` (string única)
-- [ ] Annotations com URL do Jira
-- [ ] Numeração sequencial dos testes (001, 002, 003...)
-- [ ] `beforeEach` com estrutura padrão
-- [ ] Imports corretos e validados com `get_errors`
-- [ ] Se arquivo existente: APENAS adicionou, não removeu/alterou
+**When to use:**
+- Restoration of the initial state of the interface
+- Cleaning filters and fields on screen
+- Closing modes and returning to listing
 
 ---
 
-## 🎨 **Nomenclatura de Testes**
+### **Final Validation Checklist**
 
-### **Formato Obrigatório:**
+Before finalizing test file:
+
+- [ ] AAA standard implemented in ALL tests
+- [ ] Specific AAA comments (non-generic: "Preparation", "Execution", "Validation")
+- [ ] NEVER expanded inline JSON fields
+- [ ] Mandatory tags in `describe` (array) and `test()` (single string)
+- [ ] Annotations with Jira URL
+- [ ] Sequential numbering of tests (001, 002, 003...)
+- [ ] `beforeEach` with standard structure
+- [ ] Correct and validated imports with `get_errors`
+- [ ] If existing file: ONLY added, not removed/changed
+
+---
+
+## 🎨 **Test Nomenclature**
+
+### **Required Format:**
 
 ```
-{numero} - {Verbo no infinitivo} {descrição clara e objetiva}
+{number} - {infinitive verb} {clear and objective description}
 ```
 
-### **Exemplos Corretos:**
+### **Correct Examples:**
 
 ```javascript
-test('001 - Deve cadastrar registro com sucesso', ...)
-test('002 - Deve editar registro existente', ...)
-test('003 - Deve excluir registro quando confirmado', ...)
-test('004 - Deve exibir erro ao tentar salvar com campos vazios', ...)
-test('005 - Deve filtrar registros por data de criação', ...)
+test('001 - must create record successfully', ...)
+test('002 - must edit existing record', ...)
+test('003 - Must delete record when confirmed', ...)
+test('004 - It should display an error when trying to save with empty fields', ...)
+test('005 - Must filter records by creation date', ...)
 ```
 
-### **Exemplos Incorretos:**
+### **Incorrect Examples:**
 
 ```javascript
-// ❌ Sem número
-test('Deve cadastrar registro', ...)
+// ❌ No number
+test('Must register registration', ...)
 
-// ❌ Verbo no passado
-test('001 - Cadastrou registro', ...)
+// ❌ Past tense verb
+test('001 - Registered registration', ...)
 
-// ❌ Descrição vaga
-test('001 - Teste de cadastro', ...)
+// ❌ Vague description
+test('001 - Registration test', ...)
 
-// ❌ Sem ação clara
-test('001 - Portarias', ...)
+// ❌ No clear action
+test('001 - Feature', ...)
 ```
 
 ---
 
-## 🔍 **Validação de Imports**
+## 🔍 **Import Validation**
 
-**REGRA ABSOLUTA:** Calcule corretamente os caminhos relativos.
+**ABSOLUTE RULE:** Calculate relative paths correctly.
 
 ### **Checklist:**
 
-- [ ] Contar níveis de diretórios (`../`)
-- [ ] Validar caminho do arquivo destino existe
-- [ ] Compilar código mentalmente
-- [ ] Executar `get_errors` após criar imports
+- [ ] Count directory levels (`../`)
+- [ ] Validate destination file path exists
+- [ ] Compile code mentally
+- [ ] Execute `get_errors` after creating imports
 
-### **Exemplo de Cálculo:**
+### **Calculation Example:**
 
 ```
-Arquivo atual: tests/gestaoDePortarias/crud/portarias.spec.js
-Import de:     data/gestaoDePortarias/portariasJson.js
+Current file: tests/gatehouseManagement/crud/gatehouses.spec.js
+Import from:  data/gatehouseManagement/gatehousesJson.js
 
-Cálculo:
-tests/gestaoDePortarias/crud/ → ../ (sobe 1) → tests/gestaoDePortarias/
-                               → ../ (sobe 2) → tests/
-                               → ../ (sobe 3) → raiz/
+Calculation:
+tests/gatehouseManagement/crud/ → ../ (go up 1) → tests/gatehouseManagement/
+                                 → ../ (go up 2) → tests/
+                                 → ../ (go up 3) → root/
 
-Resultado: '../../../data/gestaoDePortarias/portariasJson'
+Result: '../../../data/gatehouseManagement/gatehousesJson'
 ```
 
-> **🚨 REGRA:** SEMPRE use `get_errors` após criar/modificar imports.
+> **🚨 RULE:** ALWAYS use `get_errors` after creating/modifying imports.
 
 ---
 
-## 📊 **Mapeamento de Cobertura**
+## 📊 **Coverage Mapping**
 
-### **Atualização do coverageFeatureMap.yml**
+### **coverageFeatureMap.yml update**
 
-**OBRIGATÓRIO:** Atualizar após criar/modificar testes
+**REQUIRED:** Update after creating/modifying tests
 
-**Estrutura:**
+**Structure:**
 
 ```yml
-- page: "{Caminho/Do/Menu}"
+- page: "{Menu/Path}"
   features:
-    nome da funcionalidade 1: true
-    nome da funcionalidade 2: true
+    feature name 1: true
+    feature name 2: true
 ```
 
-### **Regras:**
+### **Rules:**
 
-- ✅ Usar caminho exato do menu (campo **Produto** do cabeçalho)
-- ✅ APENAS ADICIONAR novas features
-- ❌ NUNCA alterar/remover features existentes
-- ❌ NUNCA modificar estrutura do YAML
+- ✅ Use exact menu path (**Product** header field)
+- ✅ JUST ADD new features
+- ❌ NEVER change/remove existing features
+- ❌ NEVER modify YAML structure
 
 ---
 
-## 🎯 **Hierarquia de Fontes de Informação**
+## 🎯 **Hierarchy of Information Sources**
 
-Ao criar testes baseados em especificação:
+When creating specification-based tests:
 
-| Fonte | Uso | Validação Obrigatória |
+| Source | Usage | Mandatory Validation |
 |-------|-----|----------------------|
-| **1. HTML** | Texto exato, tipo real, atributos | `grep_search` para componentes |
-| **2. PNG** | Posicionamento, ordem (1º, 2º, último) | Correlacionar elementos com HTML |
-| **3. Docs** | Fluxo de navegação, contexto | Usar apenas se não conflitar com HTML/PNG |
+| **1. HTML** | Exact text, real type, attributes | `grep_search` for components |
+| **2. PNG** | Positioning, order (1st, 2nd, last) | Correlate elements with HTML |
+| **3. Docs** | Navigation flow, context | Use only if it does not conflict with HTML/PNG |
 
 ---
 
-## 📝 **REGRA: Seguir Passos das Especificações**
+## 📝 **RULE: Follow Specifications Steps**
 
-> **⚠️ REGRA CRÍTICA: Passos determinados na seção "Informações Gerais do Teste" da especificação são OBRIGATÓRIOS e devem ser seguidos NA ORDEM EXATA**
+> **⚠️ CRITICAL RULE: Steps determined in the "General Test Information" section of the specification are MANDATORY and must be followed IN THE EXACT ORDER**
 
-### **✅ Processo Correto**
+### **✅ Correct Process**
 
-**QUANDO RECEBER ESPECIFICAÇÃO:**
+**WHEN TO RECEIVE SPECIFICATION:**
 
-1. **Ler seção "Informações Gerais do Teste"** completamente
-2. **Identificar TODOS os passos listados**
-3. **Implementar cada passo NA ORDEM EXATA**
-4. **NUNCA pular ou reordenar passos**
-5. **SE houver dúvida:** Questionar o usuário explicitamente
+1. **Read the "General Test Information" section** completely
+2. **Identify ALL steps listed**
+3. **Implement each step IN THE EXACT ORDER**
+4. **NEVER skip or reorder steps**
+5. **IF there is doubt:** Question the user explicitly
 
-### **❌ PROIBIDO:**
+### **❌ PROHIBITED:**
 
 ```javascript
-// ❌ ERRADO - Assumir passos não especificados
-test('Cadastrar registro', async ({ page }) => {
-  // Especificação disse: "Preencher campos obrigatórios"
-  // AI assumiu: "Devo preencher TODOS os campos"
-  await page.funcionalidadePage.preencherFormulario(JSON_COMPLETO); // ERRADO
+// ❌ WRONG - Taking unspecified steps
+test('Create record', async ({ page }) => {
+  // Specification said: "Complete required fields"
+  // AI assumed: "I must fill in ALL fields"
+  await page.featurePage.fillForm(COMPLETE_JSON); // WRONG
 });
 
-// ❌ ERRADO - Reordenar passos
-test('Validar filtro', async ({ page }) => {
-  // Especificação - ordem CORRETA:
-  // 1. Preencher filtros
-  // 2. Clicar em buscar
-  // 3. Validar resultado
+// ❌ WRONG - Reorder steps
+test('Validate filter', async ({ page }) => {
+  // Specification - CORRECT order:
+  // 1. Fill filters
+  // 2. Click search
+  // 3. Validate result
 
-  // AI fez (ERRADO):
-  await page.funcionalidadePage.validarResultado(); // Passo 3 PRIMEIRO
-  await page.funcionalidadePage.preencherFiltros(); // Passo 1 DEPOIS
+  // AI did (WRONG):
+  await page.featurePage.validateResult(); // Step 3 FIRST
+  await page.featurePage.fillFilters(); // Step 1 AFTER
 });
 
-// ❌ ERRADO - Pular passos
-test('Excluir registro', async ({ page }) => {
-  // Especificação - passos COMPLETOS:
-  // 1. Buscar registro
-  // 2. Clicar em excluir
-  // 3. Confirmar exclusão
+// ❌ WRONG - Skipping steps
+test('Delete record', async ({ page }) => {
+  // Specification - COMPLETE steps:
+  // 1. Fetch record
+  // 2. Click delete
+  // 3. Confirm deletion
 
-  // AI fez (ERRADO - pulou Passo 1):
-  await page.funcionalidadePage.excluir(); // Passo 2
-  await page.funcionalidadePage.confirmarExclusao(); // Passo 3
+  // AI did this (WRONG - skipped Step 1):
+  await page.featurePage.deleteRecord(); // Step 2
+  await page.featurePage.confirmDeletion(); // Step 3
 });
 
-// ❌ ERRADO - Adicionar separadores de passos desnecessários
-test('Jornada completa', async ({ page }) => {
-  // ==================== PASSO 1: INCLUIR REGISTRO ==================== ❌ ERRADO
-  // Arrange: Acessar tela
-  await page.funcionalidadePage.acessarTela();
+// ❌ WRONG - Add unnecessary step separators
+test('Complete journey', async ({ page }) => {
+  // ==================== STEP 1: ADD RECORD ==================== ❌ WRONG
+  // Arrange: Access screen
+  await page.featurePage.accessScreen();
 
-  // ==================== PASSO 2: VALIDAR REGISTRO ==================== ❌ ERRADO
-  // Assert: Validar criação
-  await page.funcionalidadePage.validarCriacao();
+  // ==================== STEP 2: VALIDATE RECORD ==================== ❌ WRONG
+  // Assert: Validate creation
+  await page.featurePage.validateCreation();
 });
 ```
 
-### **✅ Implementação Correta:**
+### **✅ Correct Implementation:**
 
 ```javascript
-// ✅ CORRETO - Seguir EXATAMENTE os passos da especificação
-test('01 - Validar filtro conforme especificação',
+// ✅ CORRECT - Follow the specification steps EXACTLY
+test('01 - Validate filter according to specification',
   {
-    tag: '@FUNCIONALIDADE_FILTRO',
+    tag: '@FEATURE_FILTER',
     annotation: { type: 'Issue', description: 'https://jira.example.com/PROJ-001' }
   },
   async ({ page }) => {
-    // Especificação descreveu:
-    // 1. Acessar tela
-    // 2. Preencher filtros
-    // 3. Clicar em buscar
-    // 4. Validar resultado na grid
+    // Specification described:
+    // 1. Access screen
+    // 2. Fill filters
+    // 3. Click search
+    // 4. Validate result in the grid
 
-    // Arrange: Acessar tela conforme especificação
-    await page.funcionalidadePage.acessarTela();
+    // Arrange: Access the screen according to the specification
+    await page.featurePage.accessScreen();
 
-    // Act: Preencher filtros e buscar conforme especificação
-    await page.funcionalidadePage.preencherFiltros(JSON_FILTRO);
-    await page.funcionalidadePage.clicarBuscar();
+    // Act: Fill filters and search according to the specification
+    await page.featurePage.fillFilters(FILTER_JSON);
+    await page.featurePage.clickSearch();
 
-    // Assert: Validar resultado conforme especificação
-    await page.funcionalidadePage.validarResultadoNaGrid(JSON_FILTRO);
+    // Assert: Validate the result according to the specification
+    await page.featurePage.validateGridResult(FILTER_JSON);
   }
 );
 
-// ✅ CORRETO - Comentários AAA descritivos sem separadores de passos
-test('01 - Jornada completa de CRUD',
+// ✅ CORRECT - Descriptive AAA comments without step separators
+test('01 - Complete CRUD journey',
   {
-    tag: '@FUNCIONALIDADE_CRUD_JORNADA',
+    tag: '@FEATURE_CRUD_JOURNEY',
     annotation: { type: 'Issue', description: 'https://jira.example.com/PROJ-001' }
   },
   async ({ page }) => {
-    // Arrange: Acessar tela de cadastro
-    await page.funcionalidadePage.acessarTela();
+    // Arrange: Access the registration screen
+    await page.featurePage.accessScreen();
 
-    // Act: Incluir novo registro no sistema
-    await page.funcionalidadePage.incluirRegistro(JSON_DADOS);
+    // Act: Add a new record to the system
+    await page.featurePage.addRecord(JSON_DATA);
 
-    // Assert: Validar que registro foi criado com sucesso
-    await page.funcionalidadePage.validarMensagemSucesso();
+    // Assert: Validate that the record was created successfully
+    await page.featurePage.validateSuccessMessage();
 
-    // Arrange: Recarregar tela para validação
-    await page.funcionalidadePage.acessarTela();
+    // Arrange: Reload the screen for validation
+    await page.featurePage.accessScreen();
 
-    // Act: Aplicar filtros para localizar registro criado
-    await page.funcionalidadePage.filtrarRegistro(JSON_DADOS);
+    // Act: Apply filters to find the created record
+    await page.featurePage.filterRecord(JSON_DATA);
 
-    // Assert: Validar que registro aparece na grid
-    await page.validationUtils.validarGrid(JSON_DADOS.grid);
+    // Assert: Validate which record appears in the grid
+    await page.validationUtils.validateGrid(JSON_DATA.grid);
   }
 );
 ```
 
-### **🔍 SE HOUVER DÚVIDA:**
+### **🔍 IF THERE ARE DOUBTS:**
 
-**✅ SEMPRE questionar o usuário:**
+**✅ ALWAYS question the user:**
 
 ```markdown
-**Dúvida sobre especificação:**
+**Question About the Specification:**
 
-A especificação menciona "Preencher filtros" mas não especifica QUAIS campos.
+The specification mentions "Fill filters" but does not specify WHICH fields.
 
-Você deseja:
-1. Preencher TODOS os campos disponíveis no filtro?
-2. Preencher APENAS campos obrigatórios?
-3. Preencher campos específicos? (quais?)
+Do you want to:
+1. Fill ALL available fields in the filter?
+2. Fill ONLY required fields?
+3. Fill specific fields? (which ones?)
 
-Por favor, esclareça para garantir implementação correta.
+Please clarify to ensure correct implementation.
 ```
 
-**❌ NUNCA assumir ou deduzir:**
+**❌ NEVER assume or deduce:**
 
 ```javascript
-// ❌ ERRADO - Assumir sem questionar
-// "A especificação não disse, mas vou preencher tudo"
-await page.funcionalidadePage.preencherFormulario(JSON_COMPLETO);
+// ❌ WRONG - Assuming without questioning
+// "The specification didn't say it, but I'll fill everything"
+await page.featurePage.fillForm(COMPLETE_JSON);
 ```
 
-### **⚠️ Motivo da Regra**
+### **⚠️ Reason for the Rule**
 
-- Especificações definem **requisitos funcionais**
-- Pular ou reordenar passos **invalida o teste**
-- Assumir passos não especificados **não atende os requisitos**
-- Testes devem refletir **exatamente** o comportamento esperado
+- Specifications define **functional requirements**
+- Skipping or reordering steps **invalidates the test**
+- Taking unspecified steps **does not meet the requirements**
+- Tests must reflect **exactly** expected behavior
 
 ---
 
-## 📚 **REGRA DE IMPORTS E Extensão .js**
+## 📚 **IMPORTS RULE AND .js Extension**
 
-> **⚠️ REGRA CRÍTICA: usar apenas imports públicos e extensão `.js` para data/helpers quando aplicável**
+> **⚠️ CRITICAL RULE: use only public imports and `.js` extension for data/helpers when applicable**
 
-### **❌ ANTI-PADRÃO (NÃO FAZER):**
+### **❌ ANTI-PATTERN (DO NOT DO):**
 
 ```javascript
-// ❌ ERRADO - Sem extensão .js em data
-import { JSON_INCLUIR } from '../../data/modulo/funcionalidadeJson';
+// ❌ WRONG - No .js extension in data
+import { JSON_CREATE } from '../../data/module/featureJson';
 // Error: Cannot find module
 
-// ❌ ERRADO - importação direta de Playwright
+// ❌ WRONG - direct import of test from Playwright
 import { test } from '@playwright/test';
 ```
 
-### **✅ PADRÃO CORRETO DE IMPORTS:**
+### **✅ CORRECT IMPORT STANDARD:**
 
 ```javascript
 import { expect } from '@playwright/test';
 
-// ✅ CORRETO - Com extensão .js em data/helpers
-import { JSON_INCLUIR } from '../../data/modulo/funcionalidadeJson.js';
-import { CONSTANTE_NAVEGACAO } from '../../helpers/navegacao.js';
+// ✅ CORRECT - With .js extension in data/helpers
+import { JSON_CREATE } from '../../data/module/featureJson.js';
+import { NAVIGATION_CONSTANT } from '../../helpers/navegacao.js';
 ```
 
-### **📝 Template de Imports Completo para Testes**
+### **📝 Complete Imports Template for Testing**
 
 ```javascript
-// ✅ Imports de bibliotecas (barrel exports)
+// ✅ Library imports (barrel exports)
 import { expect } from '@playwright/test';
 
-// ✅ Imports de data (COM .js obrigatório)
+// ✅ Data imports (with required .js extension)
 import {
-  JSON_CADASTRAR,
-  JSON_FILTRO,
-  JSON_VALIDACAO,
-} from '../../data/modulo/funcionalidadeJson.js';
+  JSON_CREATE,
+  JSON_FILTER,
+  JSON_VALIDATION,
+} from '../../data/module/featureJson.js';
 
-// ... resto do teste
+// ... rest of the test
 ```
 
-**Motivo:**
+**Reason:**
 
-- Barrel exports garantem compatibilidade com estrutura interna do pacote
-- Extensão `.js` é obrigatória para módulos ES6
-- Facilita manutenção e evita erros de resolução de imports
+- Barrel exports guarantee compatibility with the internal structure of the package
+- `.js` extension is mandatory for ES6 modules
+- Facilitates maintenance and avoids import resolution errors
 
 ---
 
-## ✅ **Resumo das Regras Críticas**
+## ✅ **Critical Rules Summary**
 
-1. **Padrão AAA OBRIGATÓRIO** em todos os testes com comentários específicos (não genéricos)
-2. **NUNCA use `console.log()` diretamente** — viola SonarQube S106. Use comentários AAA descritivos ou `logger` de `utils/logger.js`
-3. **NUNCA expanda campos de JSON inline** - passar JSON completo diretamente
-4. **Tags obrigatórias** em `describe` (array) e `test()` (string única)
-5. **Annotations** com URL do Jira em cada test()
-6. **Imports corretos** com caminhos relativos validados
-7. **beforeEach padrão** (token, login, navegação)
-8. **Nomenclatura clara** (número + verbo infinitivo + descrição)
-9. **Ao atualizar:** APENAS adicionar, nunca remover
-10. **Validar com get_errors** sempre após modificações
-11. **JSONs completos** contendo TODOS os campos necessários do cenário
+1. **MANDATORY AAA standard** in all tests with specific (non-generic) comments
+2. **NEVER use `console.log()` directly** — violates SonarQube S106. Use descriptive AAA comments or `logger` from `utils/logger.js`
+3. **NEVER expand JSON fields inline** - pass full JSON directly
+4. **Required Tags** in `describe` (array) and `test()` (single string)
+5. **Annotations** with Jira URL in each test()
+6. **Correct Imports** with validated relative paths
+7. **beforeEach pattern** (token, login, navigation)
+8. **Clear nomenclature** (number + infinitive verb + description)
+9. **When updating:** ONLY add, never remove
+10. **Validate with get_errors** always after modifications
+11. **Complete JSONs** containing ALL necessary scenario fields
