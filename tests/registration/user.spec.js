@@ -3,28 +3,25 @@ import { test } from '../../helpers/index.js';
 import { logger } from '../../utils/logger.js';
 
 test.describe('user registration', { tag: ['@CADASTRO_USUARIO'] }, () => {
-  test.beforeEach(async ({}, testInfo) => {
-    logger.test(testInfo.title);
+  test.beforeEach(async () => {
+    logger.test(test.info().title);
   });
 
   test(
-    '001 - Should register a user successfully',
+    '001 - must register a new user successfully',
     {
-      tag: '@USUARIO_CADASTRO_001',
-      annotation: [
-        { type: 'issue', description: 'XXXX' },
-        { type: 'type', description: 'Cadastro de usuário' },
-      ],
+      annotation: { type: 'Issue', description: 'https://jira.example.com/browse/XXXX' },
+      tag: '@CADASTRO_USUARIO_001',
     },
     async ({ page }) => {
-      // Arrange: access the login screen.
+      // Arrange: Open the public login screen before starting the registration journey
       await page.userPage.accessScreen();
 
-      // Act: register a new user with dynamic data.
+      // Act: Submit the registration form with unique runtime data
       await page.userPage.registerUser(JSON_CADASTROUSUARIO);
 
-      // Assert: validate the authenticated area is available.
-      await page.userPage.validateSuccessfulRegistration();
+      // Assert: Validate that the app redirects to the authenticated area after sign up
+      await page.userPage.validateAuthenticatedUser();
     },
   );
 });

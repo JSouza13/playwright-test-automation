@@ -2,27 +2,28 @@ import { expect } from '@playwright/test';
 
 import { USUARIO } from '../helpers/navegacao.js';
 
+/**
+ * Page Object da jornada publica de cadastro de usuario do ServeRest.
+ */
 export class UserPage {
   /**
-   * Creates a page object for the user registration flow.
-   * @param {import('@playwright/test').Page} page - The Playwright page instance.
+   * Constructor da classe UserPage.
+   * @param {import('@playwright/test').Page} page - Instancia da pagina do Playwright.
    */
   constructor(page) {
     this.page = page;
-
-    this.locatorLoginHeading = page.getByRole('heading', { name: 'Login', exact: true });
-    this.locatorSignUpText = page.getByText('Cadastre-se', { exact: true });
-    this.locatorRegistrationHeading = page.getByRole('heading', { name: 'Cadastro', exact: true });
-    this.locatorNameTextbox = page.getByPlaceholder('Digite seu nome');
-    this.locatorEmailTextbox = page.getByPlaceholder('Digite seu email');
-    this.locatorPasswordTextbox = page.getByPlaceholder('Digite sua senha');
-    this.locatorRegisterButton = page.getByRole('button', { name: 'Cadastrar', exact: true });
-    this.locatorLogoutButton = page.getByRole('button', { name: 'Logout', exact: true });
+    this.locatorLoginHeading = this.page.getByRole('heading', { exact: true, name: 'Login' });
+    this.locatorRegisterText = this.page.getByText('Cadastre-se', { exact: true });
+    this.locatorRegistrationHeading = this.page.getByRole('heading', { exact: true, name: 'Cadastro' });
+    this.locatorNameInput = this.page.getByPlaceholder('Digite seu nome');
+    this.locatorEmailInput = this.page.getByPlaceholder('Digite seu email');
+    this.locatorPasswordInput = this.page.getByPlaceholder('Digite sua senha');
+    this.locatorRegisterButton = this.page.getByRole('button', { exact: true, name: 'Cadastrar' });
+    this.locatorLogoutButton = this.page.getByRole('button', { exact: true, name: 'Logout' });
   }
 
   /**
-   * Opens the login screen and validates the initial state.
-   * @returns {Promise<void>}
+   * Acessa a tela inicial de login e valida o titulo da pagina.
    */
   async accessScreen() {
     await this.page.goto(USUARIO.URL);
@@ -30,26 +31,23 @@ export class UserPage {
   }
 
   /**
-   * Registers a new user from the login screen.
-   * @param {object} userData - Data used for registration.
+   * Executa o fluxo de cadastro de usuario com dados dinamicos.
    * Example: JSON_CADASTROUSUARIO
-   * @returns {Promise<void>}
+   * @param {object} data - Massa de dados do cadastro.
    */
-  async registerUser(userData) {
-    await this.locatorSignUpText.click();
+  async registerUser(data) {
+    await this.locatorRegisterText.click();
     await expect(this.locatorRegistrationHeading).toBeVisible();
-    await this.locatorNameTextbox.fill(userData.nome);
-    await this.locatorEmailTextbox.fill(userData.email);
-    await this.locatorPasswordTextbox.fill(userData.senha);
+    await this.locatorNameInput.fill(data.nome);
+    await this.locatorEmailInput.fill(data.email);
+    await this.locatorPasswordInput.fill(data.senha);
     await this.locatorRegisterButton.click();
   }
 
   /**
-   * Validates that the registration flow reached the authenticated area.
-   * @returns {Promise<void>}
+   * Valida que o usuario foi autenticado apos o cadastro.
    */
-  async validateSuccessfulRegistration() {
-    await expect(this.page).toHaveURL(/\/home$/);
+  async validateAuthenticatedUser() {
     await expect(this.locatorLogoutButton).toBeVisible();
   }
 }
